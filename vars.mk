@@ -12,24 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include vars.mk
+PKG_APK_RELEASES ?= r0
+PKG_DEB_RELEASES ?= debian10 debian11 ubuntu1804 ubuntu2004 ubuntu2204 raspbian10 raspbian11
+PKG_RPM_RELEASES ?= centos7 centos8 fedora33 fedora34 fedora35 fedora36
 
-.PHONY: apk deb rpm static
-apk deb rpm static:
-	$(MAKE) $(foreach pkg,$(pkgs),$@-$(pkg))
+export BASEDIR = $(CURDIR)
+export PKG_VENDOR ?= Docker
+export PKG_PACKAGER ?= Docker <support@docker.com>
 
-.PHONY: apk-%
-apk-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_APK_RELEASES),pkg-cross-apk-$(release))
+export BUILDX_REPO ?= https://github.com/docker/buildx.git
+export COMPOSE_REPO ?= https://github.com/docker/compose.git
 
-.PHONY: deb-%
-deb-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_DEB_RELEASES),pkg-cross-deb-$(release))
+export BUILDX_VERSION ?= v0.9.1
+export COMPOSE_VERSION ?= v2.10.2
 
-.PHONY: rpm-%
-rpm-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_RPM_RELEASES),pkg-cross-rpm-$(release))
-
-.PHONY: static-%
-static-%:
-	$(MAKE) -C pkg/$* pkg-cross-static
+pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))

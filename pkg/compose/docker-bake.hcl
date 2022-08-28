@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-# Sets the buildx repo. Will be used to clone the repo at APP_VERSION ref
+# Sets the buildx repo. Will be used to clone the repo at COMPOSE_VERSION ref
 # to include the README.md and LICENSE for the static packages and also
 # create version string.
-variable "APP_REPO" {
+variable "COMPOSE_REPO" {
   default = "https://github.com/docker/compose.git"
 }
 
 # Sets the buildx version to download the binary from GitHub Releases.
 # If version starts with # it will build from source.
-variable "APP_VERSION" {
+variable "COMPOSE_VERSION" {
   default = "v2.10.2"
 }
 
@@ -68,8 +68,8 @@ group "default" {
 
 target "_common" {
   args = {
-    APP_REPO = APP_REPO
-    APP_VERSION = APP_VERSION
+    COMPOSE_REPO = COMPOSE_REPO
+    COMPOSE_VERSION = COMPOSE_VERSION
     PKG_NAME = PKG_NAME
     PKG_TYPE = PKG_TYPE
     PKG_RELEASE = PKG_RELEASE
@@ -97,12 +97,12 @@ target "_platforms" {
 # PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg
 # docker buildx bake --set *.platform=windows/amd64 --set *.output=./bin pkg
 group "pkg" {
-  targets = [substr(APP_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
+  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
 }
 
 # docker buildx bake pkg-cross
 group "pkg-cross" {
-  targets = [substr(APP_VERSION, 0, 1) == "#" ? "_pkg-build-cross" : "_pkg-download-cross"]
+  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build-cross" : "_pkg-download-cross"]
 }
 
 target "_pkg-download" {
@@ -121,7 +121,7 @@ target "_pkg-build" {
   inherits = ["_pkg-download"]
   args = {
     MODE = "build"
-    APP_VERSION = trimprefix(APP_VERSION, "#")
+    COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
   }
   contexts = {
     build = "target:build"
@@ -133,7 +133,7 @@ target "_pkg-build-cross" {
   inherits = ["_pkg-download-cross"]
   args = {
     MODE = "build"
-    APP_VERSION = trimprefix(APP_VERSION, "#")
+    COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
   }
   contexts = {
     build = "target:build-cross"
@@ -142,7 +142,7 @@ target "_pkg-build-cross" {
 }
 
 target "build" {
-  context = "${APP_REPO}${APP_VERSION}"
+  context = "${COMPOSE_REPO}${COMPOSE_VERSION}"
   args = {
     MODE = "build"
     BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
