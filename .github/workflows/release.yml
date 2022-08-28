@@ -13,7 +13,8 @@ on:
         type: boolean
 
 env:
-  REPO_SLUG: dockereng/packaging
+  # FIXME: temporary for testing, use dockereng/packaging
+  REPO_SLUG: crazymax/docker-packaging
 
 jobs:
   build:
