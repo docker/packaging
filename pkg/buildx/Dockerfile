@@ -70,6 +70,7 @@ ARG TARGETPLATFORM
 RUN --mount=source=nfpm.yml,target=nfpm.yml \
     --mount=from=src,source=/src,target=/src \
     --mount=from=nfpm,source=/usr/bin/nfpm,target=/usr/bin/nfpm <<EOT
+  set -e
   if [ "$MODE" != "download" ]; then
     APP_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
   fi
