@@ -74,7 +74,7 @@ jobs:
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
-          targets: pkg-cross
+          targets: release
           set: |
             *.output=type=image,push=${{ inputs.release }}
       -
