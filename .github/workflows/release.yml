@@ -57,7 +57,6 @@ jobs:
           labels: |
             com.github.docker.packaging.run_id=${{ github.run_id }}
             com.github.docker.packaging.run_number=${{ github.run_number }}
-          sep-tags: ", "
           bake-target: meta-helper
       -
         name: Login to Docker Hub
@@ -86,6 +85,9 @@ jobs:
           tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           body: |
-            Tags pushed: [${{ steps.meta.outputs.tags }}](https://hub.docker.com/r/${{ env.REPO_SLUG }})
+            Image available at [https://hub.docker.com/r/${{ env.REPO_SLUG }}](https://hub.docker.com/r/${{ env.REPO_SLUG }})
+            ```json
+            ${{ steps.meta.outputs.json }}
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
