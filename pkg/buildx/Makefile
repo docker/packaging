@@ -12,23 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include ../../vars.mk
+
 BASEDIR ?= $(CURDIR)
 DESTDIR ?= $(BASEDIR)/bin/local
 BAKE_TARGET ?= pkg
 
 word-hypen = $(word $2,$(subst -, ,$1))
 
-.PHONY: pkg-%
-pkg-%:
+.PHONY: pkg
+pkg: pkg-apk pkg-deb pkg-rpm pkg-static
+
+.PHONY: pkg-apk
+pkg-apk:
+	$(MAKE) $(foreach release,$(PKG_APK_RELEASES),build-cross-apk-$(release))
+
+.PHONY: pkg-apk
+pkg-deb:
+	$(MAKE) $(foreach release,$(PKG_DEB_RELEASES),build-cross-deb-$(release))
+
+.PHONY: pkg-rpm
+pkg-rpm:
+	$(MAKE) $(foreach release,$(PKG_RPM_RELEASES),build-cross-rpm-$(release))
+
+.PHONY: static
+pkg-static:
+	$(MAKE) build-cross-static
+
+.PHONY: build-%
+build-%:
 	$(eval pkg_type=$(call word-hypen,$*,1))
 	$(eval pkg_release=$(call word-hypen,$*,2))
 	PKG_TYPE=$(pkg_type) PKG_RELEASE=$(pkg_release) DESTDIR=$(DESTDIR) docker buildx bake $(BAKE_TARGET)
 
-.PHONY: cross-%
-pkg-cross-%:
+.PHONY: build-cross-%
+build-cross-%:
 	$(eval pkg_type=$(call word-hypen,$*,1))
 	$(eval pkg_release=$(call word-hypen,$*,2))
-	$(eval target=pkg-$(pkg_type)-$(pkg_release))
+	$(eval target=build-$(pkg_type)-$(pkg_release))
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
 	$(MAKE) $(target:%-=%) DESTDIR=$($@_TMP_OUT) BAKE_TARGET=pkg-cross
 	$(eval DESTDIR = $(BASEDIR)/bin/$(pkg_type))

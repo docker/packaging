@@ -1,0 +1,86 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package folder under ./pkg (e.g. buildx)'
+        required: true
+      dry-run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+
+env:
+  REPO_SLUG: dockereng/packaging
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Build pkgs
+        run: |
+          make -j 4 -C pkg/${{ inputs.package }} pkg
+          tree -nh ./pkg/${{ inputs.package }}/bin
+      -
+        name: Prepare
+        run: |
+          version=$(make ${{ inputs.package }}-version)
+          echo "GIT_TAG=${{ inputs.package }}/$version" >> $GITHUB_ENV
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.REPO_SLUG }}
+          tags: |
+            type=ref,event=pr
+            type=raw,value=${{ env.GIT_TAG }}
+            type=raw,value=${{ env.GIT_TAG }}-${{ github.run_number }}
+            type=raw,value=${{ env.GIT_TAG }}-{{sha}}
+          labels: |
+            com.github.run_id=${{ github.run_id }}
+            com.github.run_number=${{ github.run_number }}
+          sep-tags: ", "
+          bake-target: meta-helper
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        if: inputs.dry-run != 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build image
+        uses: docker/bake-action@v2
+        with:
+          workdir: ./pkg/${{ inputs.package }}
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: pkg-cross
+          set: |
+            *.output=type=image,push=${{ inputs.dry-run != 'true' }}
+      -
+        name: Create release
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        if: inputs.dry-run != 'true'
+        with:
+          name: ${{ env.GIT_TAG }}-${{ github.run_number }}
+          tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          body: |
+            Tags pushed: [${{ steps.meta.outputs.tags }}](https://hub.docker.com/r/${{ env.REPO_SLUG }})
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

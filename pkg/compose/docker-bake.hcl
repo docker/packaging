@@ -62,6 +62,11 @@ function "bindir" {
   result = DESTDIR != "" ? DESTDIR : "./bin/${defaultdir}"
 }
 
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "meta-helper" {
+  tags = ["dockereng/packaging:compose-local"]
+}
+
 group "default" {
   targets = ["pkg"]
 }
@@ -94,15 +99,27 @@ target "_platforms" {
   ]
 }
 
-# PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg
-# docker buildx bake --set *.platform=windows/amd64 --set *.output=./bin pkg
+# $ PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg
+# $ docker buildx bake --set *.platform=windows/amd64 --set *.output=./bin pkg
 group "pkg" {
   targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
 }
 
-# docker buildx bake pkg-cross
+# Same as pkg but for all supported platforms
 group "pkg-cross" {
   targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build-cross" : "_pkg-download-cross"]
+}
+
+# Create release image by using ./bin folder as named context. Therefore
+# pkg-cross target must be run before using this target:
+# $ PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg-cross
+# $ docker buildx bake release --set *.output=type=image,push=true --set *.tags=docker/packaging:compose-2.10.2-r0
+target "release" {
+  inherits = ["meta-helper", "_platforms"]
+  target = "release"
+  contexts = {
+    bin-folder = "./bin"
+  }
 }
 
 target "_pkg-download" {
@@ -124,7 +141,7 @@ target "_pkg-build" {
     COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
   }
   contexts = {
-    build = "target:build"
+    build = "target:_build"
   }
   output = [bindir("local")]
 }
@@ -136,12 +153,12 @@ target "_pkg-build-cross" {
     COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
   }
   contexts = {
-    build = "target:build-cross"
+    build = "target:_build-cross"
   }
   output = [bindir("cross")]
 }
 
-target "build" {
+target "_build" {
   context = "${COMPOSE_REPO}${COMPOSE_VERSION}"
   args = {
     MODE = "build"
@@ -151,6 +168,6 @@ target "build" {
   target = "binary"
 }
 
-target "build-cross" {
+target "_build-cross" {
   inherits = ["build", "_platforms"]
 }

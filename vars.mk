@@ -26,4 +26,8 @@ export COMPOSE_REPO ?= https://github.com/docker/compose.git
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
 
-pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
+buildx-version:
+	@echo $(BUILDX_VERSION)
+
+compose-version:
+	@echo $(COMPOSE_VERSION)
