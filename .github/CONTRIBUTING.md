@@ -1,4 +1,4 @@
-# Contribute to the packaging project
+# Contribute to the Docker Packaging project
 
 This page contains information about reporting issues as well as some tips and
 guidelines useful to experienced open source contributors.
