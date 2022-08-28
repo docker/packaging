@@ -24,16 +24,16 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM base AS src
 WORKDIR /src
-ARG APP_REPO
-RUN git init . && git remote add origin "${APP_REPO}"
-ARG APP_VERSION
-RUN git fetch origin "${APP_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+ARG COMPOSE_REPO
+RUN git init . && git remote add origin "${COMPOSE_REPO}"
+ARG COMPOSE_VERSION
+RUN git fetch origin "${COMPOSE_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
 FROM scratch AS build
 FROM base AS binary
 WORKDIR /out
 ARG MODE
-ARG APP_VERSION
+ARG COMPOSE_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
@@ -47,7 +47,7 @@ RUN --mount=from=build,target=/build <<EOL
     if [ -n "$TARGETVARIANT" ]; then
       RELEASE_FILENAME="$RELEASE_FILENAME$TARGETVARIANT"
     fi
-    (set -x ; wget -q "https://github.com/docker/compose/releases/download/${APP_VERSION}/${RELEASE_FILENAME}${BIN_EXT}" -qO "compose")
+    (set -x ; wget -q "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/${RELEASE_FILENAME}${BIN_EXT}" -qO "compose")
   else
     cp /build/docker-compose${BIN_EXT} compose
   fi
@@ -61,7 +61,7 @@ WORKDIR /work
 COPY --from=xx / /
 COPY --from=binary /out/compose /usr/bin/compose
 ARG MODE
-ARG APP_VERSION
+ARG COMPOSE_VERSION
 ARG PKG_NAME
 ARG PKG_TYPE
 ARG PKG_RELEASE
@@ -74,7 +74,7 @@ RUN --mount=source=nfpm.yml,target=nfpm.yml \
     --mount=from=nfpm,source=/usr/bin/nfpm,target=/usr/bin/nfpm <<EOT
   set -e
   if [ "$MODE" != "download" ]; then
-    APP_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
+    COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
   fi
   PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info os)/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
@@ -94,13 +94,13 @@ RUN --mount=source=nfpm.yml,target=nfpm.yml \
         set -x
         cp /usr/bin/compose "$workdir/${PKG_NAME}/docker-compose.exe"
         cd "$workdir"
-        zip -r "$PKG_OUTPUT/${PKG_NAME}_${APP_VERSION#v}.zip" ${PKG_NAME}
+        zip -r "$PKG_OUTPUT/${PKG_NAME}_${COMPOSE_VERSION#v}.zip" ${PKG_NAME}
       )
     else
       (
         set -x
         cp /usr/bin/compose "$workdir/${PKG_NAME}/docker-compose"
-        tar -czf "$PKG_OUTPUT/${PKG_NAME}_${APP_VERSION#v}.tgz" -C "$workdir" ${PKG_NAME}
+        tar -czf "$PKG_OUTPUT/${PKG_NAME}_${COMPOSE_VERSION#v}.tgz" -C "$workdir" ${PKG_NAME}
       )
     fi
   elif [ "$(xx-info os)" = "linux" ]; then
@@ -114,7 +114,7 @@ RUN --mount=source=nfpm.yml,target=nfpm.yml \
     esac
     (
       set -x
-      ARCH="${arch}" VERSION="${APP_VERSION}" RELEASE="$PKG_RELEASE" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager $PKG_TYPE --target "$PKG_OUTPUT"
+      ARCH="${arch}" VERSION="${COMPOSE_VERSION}" RELEASE="$PKG_RELEASE" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager $PKG_TYPE --target "$PKG_OUTPUT"
     )
   else
     rm -rf "${PKG_OUTPUT}"
