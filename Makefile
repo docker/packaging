@@ -24,19 +24,19 @@ pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
 
 .PHONY: apk deb rpm static
 apk deb rpm static:
-	$(foreach pkg,$(pkgs),$(MAKE) $@-$(pkg))
+	$(MAKE) $(foreach pkg,$(pkgs),$@-$(pkg))
 
 .PHONY: apk-%
 apk-%:
-	$(foreach release,$(PKG_APK_RELEASES),$(MAKE) -C pkg/$* pkg-cross-apk-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_APK_RELEASES),pkg-cross-apk-$(release))
 
 .PHONY: deb-%
 deb-%:
-	$(foreach release,$(PKG_DEB_RELEASES),$(MAKE) -C pkg/$* pkg-cross-deb-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_DEB_RELEASES),pkg-cross-deb-$(release))
 
 .PHONY: rpm-%
 rpm-%:
-	$(foreach release,$(PKG_RPM_RELEASES),$(MAKE) -C pkg/$* pkg-cross-rpm-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_RPM_RELEASES),pkg-cross-rpm-$(release))
 
 .PHONY: static-%
 static-%:
