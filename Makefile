@@ -14,6 +14,8 @@
 
 include vars.mk
 
+pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
+
 .PHONY: apk deb rpm static
 apk deb rpm static:
 	$(MAKE) $(foreach pkg,$(pkgs),$@-$(pkg))

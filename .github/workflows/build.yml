@@ -21,16 +21,9 @@ jobs:
 
   build:
     runs-on: ubuntu-20.04
-    needs:
-      - validate
     strategy:
       fail-fast: false
       matrix:
-        type:
-          - apk
-          - deb
-          - rpm
-          - static
         pkg:
           - buildx
           - compose
@@ -47,30 +40,5 @@ jobs:
       -
         name: Build
         run: |
-          make ${{ matrix.type }}-${{ matrix.pkg }}
-      -
-        name: Upload pkgs
-        uses: actions/upload-artifact@v3
-        with:
-          name: pkgs
-          path: ./bin/*
-          if-no-files-found: error
-
-  release:
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Download pkgs
-        uses: actions/download-artifact@v3
-        with:
-          name: pkgs
-          path: ./bin
-      -
-        name: List pkgs
-        run: |
-          tree -nh ./bin
+          make -j 4 -C pkg/${{ matrix.pkg }} pkg
+          tree -nh ./pkg/${{ matrix.pkg }}/bin

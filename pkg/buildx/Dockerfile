@@ -121,3 +121,28 @@ EOT
 
 FROM scratch AS pkg
 COPY --from=build-pkg /build /
+
+FROM scratch AS bin-folder
+FROM base AS releaser
+WORKDIR /out
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+RUN --mount=from=bin-folder,source=.,target=/release <<EOT
+  set -e
+  basedir="${TARGETOS}/${TARGETARCH}"
+  if [ -n "$TARGETVARIANT" ]; then
+    basedir="${basedir}/${TARGETVARIANT}"
+  fi
+  for f in /release/*; do
+    [ ! -d "${f}/${basedir}" ] && continue
+    (
+      set -x
+      mkdir -p "/out/${basedir}"
+      cp "${f}/${basedir}"/* "/out/${basedir}/"
+    )
+  done
+EOT
+
+FROM scratch AS release
+COPY --from=releaser /out /
