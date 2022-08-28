@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       package:
-        description: 'Package folder under ./pkg (e.g. buildx)'
+        description: 'Package (e.g. buildx)'
         required: true
-      dry-run:
-        description: 'Dry run'
-        required: true
+        type: string
+      release:
+        description: 'Push image and create release'
+        required: false
         type: boolean
 
 env:
@@ -28,15 +29,19 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Prepare
+        run: |
+          version=$(make ${{ inputs.package }}-version)
+          git_tag="${{ inputs.package }}/$version"
+          echo "Package: ${{ inputs.package }}"
+          echo "Release: ${{ inputs.release }}"
+          echo "Git tag prefix: $git_tag"
+          echo "GIT_TAG=$git_tag" >> $GITHUB_ENV
+      -
         name: Build pkgs
         run: |
           make -j 4 -C pkg/${{ inputs.package }} pkg
           tree -nh ./pkg/${{ inputs.package }}/bin
-      -
-        name: Prepare
-        run: |
-          version=$(make ${{ inputs.package }}-version)
-          echo "GIT_TAG=${{ inputs.package }}/$version" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -50,14 +55,13 @@ jobs:
             type=raw,value=${{ env.GIT_TAG }}-${{ github.run_number }}
             type=raw,value=${{ env.GIT_TAG }}-{{sha}}
           labels: |
-            com.github.run_id=${{ github.run_id }}
-            com.github.run_number=${{ github.run_number }}
-          sep-tags: ", "
+            com.github.docker.packaging.run_id=${{ github.run_id }}
+            com.github.docker.packaging.run_number=${{ github.run_number }}
           bake-target: meta-helper
       -
         name: Login to Docker Hub
         uses: docker/login-action@v2
-        if: inputs.dry-run != 'true'
+        if: ${{ inputs.release }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -71,16 +75,19 @@ jobs:
             ${{ steps.meta.outputs.bake-file }}
           targets: pkg-cross
           set: |
-            *.output=type=image,push=${{ inputs.dry-run != 'true' }}
+            *.output=type=image,push=${{ inputs.release }}
       -
         name: Create release
         uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
-        if: inputs.dry-run != 'true'
+        if: ${{ inputs.release }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           body: |
-            Tags pushed: [${{ steps.meta.outputs.tags }}](https://hub.docker.com/r/${{ env.REPO_SLUG }})
+            Image available at [https://hub.docker.com/r/${{ env.REPO_SLUG }}](https://hub.docker.com/r/${{ env.REPO_SLUG }})
+            ```json
+            ${{ steps.meta.outputs.json }}
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
