@@ -14,11 +14,14 @@
 
 include ../../vars.mk
 
-BASEDIR ?= $(CURDIR)
 DESTDIR ?= $(BASEDIR)/bin/local
 BAKE_TARGET ?= pkg
 
 word-hypen = $(word $2,$(subst -, ,$1))
+
+$(info $$BASEDIR = $(BASEDIR))
+$(info $$BUILDX_REPO = $(BUILDX_REPO))
+$(info $$BUILDX_VERSION = $(BUILDX_VERSION))
 
 .PHONY: pkg
 pkg: pkg-apk pkg-deb pkg-rpm pkg-static

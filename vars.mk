@@ -16,7 +16,7 @@ PKG_APK_RELEASES ?= r0
 PKG_DEB_RELEASES ?= debian10 debian11 ubuntu1804 ubuntu2004 ubuntu2204 raspbian10 raspbian11
 PKG_RPM_RELEASES ?= centos7 centos8 fedora33 fedora34 fedora35 fedora36
 
-export BASEDIR = $(CURDIR)
+export BASEDIR ?= $(CURDIR)
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
 

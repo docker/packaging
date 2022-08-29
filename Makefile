@@ -22,16 +22,16 @@ apk deb rpm static:
 
 .PHONY: apk-%
 apk-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_APK_RELEASES),pkg-cross-apk-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_APK_RELEASES),build-cross-apk-$(release))
 
 .PHONY: deb-%
 deb-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_DEB_RELEASES),pkg-cross-deb-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_DEB_RELEASES),build-cross-deb-$(release))
 
 .PHONY: rpm-%
 rpm-%:
-	$(MAKE) -C pkg/$* $(foreach release,$(PKG_RPM_RELEASES),pkg-cross-rpm-$(release))
+	$(MAKE) -C pkg/$* $(foreach release,$(PKG_RPM_RELEASES),build-cross-rpm-$(release))
 
 .PHONY: static-%
 static-%:
-	$(MAKE) -C pkg/$* pkg-cross-static
+	$(MAKE) -C pkg/$* build-cross-static
