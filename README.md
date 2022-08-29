@@ -14,7 +14,7 @@ deb and rpm releases to produce and repos with current versions of projects.
 `Makefile` contains targets to build specific or all packages and will output
 to `./bin` folder:
 
-```console
+```shell
 # build debian packages for buildx project
 $ make deb-buildx
 # build deb and rpm packages for all projects
@@ -22,13 +22,15 @@ $ make deb rpm
 ```
 
 Each [project](pkg) has also its own `Makefile`, `Dockerfile` and bake
-definition to build and push packages:
+definition to build and push packages in two steps:
 
-```console
-# build all packages for buildx v0.9.1
+```shell
+# build all packages for buildx v0.9.1 and output to ./bin folder
 $ cd pkg/buildx/ 
-$ BUILD_VERSION=v0.9.1 make pkg
-# Push image to dockereng/packaging:buildx-v0.9.1
+$ BUILDX_VERSION=v0.9.1 make pkg
+# build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
+# "release" target will use the "bin" folder as named context to create the
+# image with artifacts previously built with make.
 $ docker buildx bake --push --set *.tags=dockereng/packaging:buildx-v0.9.1 release
 ```
 
@@ -36,6 +38,7 @@ Packages are published to Docker Hub as a Docker image. You can use a tool like 
 to extract packages:
 
 ```shell
+# extract packages for all platforms and output to ./bin/undock folder
 $ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./bin/undock
 ```
 
