@@ -8,6 +8,9 @@ override_dh_builddeb:
 override_dh_auto_build:
 	cd docker-credential-helpers && CGO_ENABLED=1 make build-secretservice build-pass DESTDIR=bin
 
+override_dh_strip:
+	# Go has lots of problems with stripping, so just don't
+
 override_dh_auto_install:
 	install -D docker-credential-helpers/bin/docker-credential-secretservice debian/docker-credential-secretservice/usr/bin/docker-credential-secretservice
 	install -D docker-credential-helpers/bin/docker-credential-pass debian/docker-credential-pass/usr/bin/docker-credential-pass

@@ -1,0 +1,52 @@
+Source: docker-ce-cli
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/cli
+Vcs-Git: git://github.com/docker/cli.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               bash-completion,
+               ca-certificates,
+               cmake,
+               dh-apparmor,
+               debhelper (>= 10~) | dh-systemd,
+               gcc,
+               git,
+               libbtrfs-dev | btrfs-tools,
+               libc-dev,
+               libdevmapper-dev,
+               libltdl-dev,
+               libseccomp-dev,
+               libseccomp2,
+               libsystemd-dev,
+               libtool,
+               make,
+               pkg-config
+
+Package: docker-ce-cli
+Architecture: linux-any
+Depends: ${shlibs:Depends}
+# TODO change once we support scan-plugin on other architectures
+Recommends: docker-buildx-plugin,
+            docker-compose-plugin,
+            docker-scan-plugin [amd64]
+Conflicts: docker (<< 1.5~),
+           docker-engine,
+           docker-engine-cs,
+           docker.io,
+           lxc-docker,
+           lxc-docker-virtual-package
+Replaces: docker-ce (<< 5:0)
+Breaks: docker-ce (<< 5:0)
+Description: Docker CLI: the open-source application container engine
+ Docker is a product for you to build, ship and run any application as a
+ lightweight container
+ .
+ Docker containers are both hardware-agnostic and platform-agnostic. This means
+ they can run anywhere, from your laptop to the largest cloud compute instance and
+ everything in between - and they don't require you to use a particular
+ language, framework or packaging system. That makes them great building blocks
+ for deploying and scaling web apps, databases, and backend services without
+ depending on a particular stack or provider.
