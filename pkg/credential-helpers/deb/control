@@ -1,0 +1,30 @@
+Source: docker-credential-helpers
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/docker-credential-helpers
+Vcs-Git: git://github.com/docker/docker-credential-helpers.git
+Standards-Version: 3.9.6
+Build-Depends: debhelper,
+               dh-make,
+               gcc,
+               git,
+               libc-dev,
+               libsecret-1-dev,
+               make,
+               pkg-config
+
+Package: docker-credential-secretservice
+Architecture: linux-any
+Depends: libsecret-1-0,
+         ${misc:Depends}
+Description: docker-credential-secretservice is a credential helper backend
+ which uses libsecret to keep Docker credentials safe.
+
+Package: docker-credential-pass
+Architecture: linux-any
+Depends: pass,
+         ${misc:Depends}
+Description: docker-credential-secretservice is a credential helper backend
+ which uses the pass utility to keep Docker credentials safe.
