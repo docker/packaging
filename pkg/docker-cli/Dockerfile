@@ -125,7 +125,7 @@ docker-ce-cli (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersio
 EOF
   xx-go --wrap
   set -x
-  chmod -x debian/compat debian/control debian/docs
+  chmod -x debian/compat debian/control debian/docs debian/*.bash-completion debian/*.manpages
   dpkg-buildpackage -us -uc -a$(xx-info debian-arch) -Pcross,nocheck
   pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
@@ -259,9 +259,10 @@ RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
   xx-go --wrap
-  TARGET=/out ./scripts/build/binary
-  [ -L "/out/docker" ] && rm -f /out/docker && mv /out/docker-* /out/docker
-  xx-verify --static /out/docker
+  mkdir -p /out/docker-cli
+  TARGET=/tmp/docker-cli ./scripts/build/binary
+  mv $(readlink -e /tmp/docker-cli/docker) /out/docker-cli/docker
+  xx-verify --static /out/docker-cli/docker
 EOT
 
 FROM build-base-static AS builder-static
@@ -270,38 +271,24 @@ RUN --mount=type=cache,sharing=locked,id=build-static-aptlib,target=/var/lib/apt
     --mount=type=cache,sharing=locked,id=build-static-aptcache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends bash file zip tar
 WORKDIR /build
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
 ARG DOCKER_CLI_VERSION
+ARG TARGETPLATFORM
 RUN --mount=type=bind,from=src,source=/src,target=/src \
     --mount=type=bind,from=build-static,source=/out,target=/build <<EOT
   set -e
-  pkgoutput="/out/$(xx-info os)/static/$(xx-info arch)"
+  pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
     pkgoutput="${pkgoutput}/$(xx-info variant)"
   fi
   mkdir -p "${pkgoutput}"
-  ls -al
-  for f in *; do
-    pkgname=${f%.*}
+  for pkgname in *; do
     workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
     mkdir -p "$workdir/${pkgname}"
-    (
-      set -x
-      cp ${f} /src/LICENSE /src/README.md "$workdir/${pkgname}/"
-    )
+    (set -x ; cp ${pkgname}/* /src/LICENSE /src/README.md "$workdir/${pkgname}/")
     if [ "$(xx-info os)" = "windows" ]; then
-      (
-        set -x
-        cd "$workdir"
-        zip -r "${pkgoutput}/${pkgname}_${DOCKER_CLI_VERSION#v}.zip" ${pkgname}
-      )
+      (set -x ; cd "$workdir" ; zip -r "${pkgoutput}/${pkgname}_${DOCKER_CLI_VERSION#v}.zip" ${pkgname})
     else
-      (
-        set -x
-        tar -czf "${pkgoutput}/${pkgname}_${DOCKER_CLI_VERSION#v}.tgz" -C "$workdir" ${pkgname}
-      )
+      (set -x ; tar -czf "${pkgoutput}/${pkgname}_${DOCKER_CLI_VERSION#v}.tgz" -C "$workdir" ${pkgname})
     fi
   done
 EOT
