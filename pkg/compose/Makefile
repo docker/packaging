@@ -13,49 +13,48 @@
 # limitations under the License.
 
 include ../../vars.mk
+include ../../packages.mk
 
-DESTDIR ?= $(BASEDIR)/bin/local
-BAKE_TARGET ?= pkg
-
-word-hypen = $(word $2,$(subst -, ,$1))
+DESTDIR ?= $(BASEDIR)/bin
+BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../packages.hcl
 
 $(info $$BASEDIR = $(BASEDIR))
 $(info $$COMPOSE_REPO = $(COMPOSE_REPO))
 $(info $$COMPOSE_VERSION = $(COMPOSE_VERSION))
 
+.PHONY: all
+all: pkg-cross
+
 .PHONY: pkg
 pkg: pkg-apk pkg-deb pkg-rpm pkg-static
 
-.PHONY: pkg-apk
-pkg-apk:
-	$(MAKE) $(foreach release,$(PKG_APK_RELEASES),build-cross-apk-$(release))
+.PHONY: pkg-%
+pkg-%: pkg-%-releases pkg-releases
+	$(MAKE) $(foreach release,$(PKG_RELEASES),build-$(release))
 
-.PHONY: pkg-apk
-pkg-deb:
-	$(MAKE) $(foreach release,$(PKG_DEB_RELEASES),build-cross-deb-$(release))
-
-.PHONY: pkg-rpm
-pkg-rpm:
-	$(MAKE) $(foreach release,$(PKG_RPM_RELEASES),build-cross-rpm-$(release))
-
-.PHONY: static
+.PHONY: pkg-static
 pkg-static:
+	$(MAKE) build-static
+
+.PHONY: pkg-cross
+pkg-cross: pkg-cross-apk pkg-cross-deb pkg-cross-rpm pkg-cross-static
+
+.PHONY: pkg-%
+pkg-cross-%: pkg-%-releases pkg-releases
+	$(MAKE) $(foreach release,$(PKG_RELEASES),build-cross-$(release))
+
+.PHONY: pkg-cross-static
+pkg-cross-static:
 	$(MAKE) build-cross-static
 
 .PHONY: build-%
-build-%:
-	$(eval pkg_type=$(call word-hypen,$*,1))
-	$(eval pkg_release=$(call word-hypen,$*,2))
-	PKG_TYPE=$(pkg_type) PKG_RELEASE=$(pkg_release) DESTDIR=$(DESTDIR) docker buildx bake $(BAKE_TARGET)
+build-%: pkg-info-% pkg-info
+	PKG_RELEASE=$* DESTDIR=$(DESTDIR) docker buildx bake $(BAKE_DEFINITIONS) pkg
 
 .PHONY: build-cross-%
-build-cross-%:
-	$(eval pkg_type=$(call word-hypen,$*,1))
-	$(eval pkg_release=$(call word-hypen,$*,2))
-	$(eval target=build-$(pkg_type)-$(pkg_release))
+build-cross-%: pkg-info-% pkg-info
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
-	$(MAKE) $(target:%-=%) DESTDIR=$($@_TMP_OUT) BAKE_TARGET=pkg-cross
-	$(eval DESTDIR = $(BASEDIR)/bin/$(pkg_type))
+	PKG_RELEASE=$* DESTDIR=$($@_TMP_OUT) docker buildx bake $(BAKE_DEFINITIONS) pkg-cross
 	mkdir -p $(DESTDIR)
 	find $($@_TMP_OUT) -mindepth 2 -maxdepth 2 -type d -exec cp -rf {} $(DESTDIR)/ ';'
 	find $(DESTDIR) -type d -empty -delete

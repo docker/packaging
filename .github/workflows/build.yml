@@ -44,5 +44,8 @@ jobs:
       -
         name: Build
         run: |
-          make -j 4 -C pkg/${{ matrix.pkg }} pkg
+          make -C pkg/${{ matrix.pkg }} all
+      -
+        name: List artifacts
+        run: |
           tree -nh ./pkg/${{ matrix.pkg }}/bin
