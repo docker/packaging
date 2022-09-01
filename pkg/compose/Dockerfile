@@ -19,6 +19,13 @@ ARG NFPM_VERSION="2.15.1"
 ARG XX_VERSION="1.1.2"
 ARG MODE="download"
 
+# pkg matrix
+ARG PKG_RELEASE="debian11"
+ARG PKG_TYPE="deb"
+ARG PKG_DISTRO="debian"
+ARG PKG_SUITE="bullseye"
+ARG PKG_BASE_IMAGE="debian:bullseye"
+
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
 RUN apk add --no-cache bash curl file git zip tar
 
@@ -63,10 +70,13 @@ COPY --from=binary /out/compose /usr/bin/compose
 ARG MODE
 ARG COMPOSE_VERSION
 ARG PKG_NAME
-ARG PKG_TYPE
 ARG PKG_RELEASE
-ARG PKG_VENDOR
+ARG PKG_TYPE
+ARG PKG_DISTRO
+ARG PKG_SUITE
 ARG PKG_PACKAGER
+ARG PKG_VENDOR
+ARG PKG_REVISION
 ARG PKG_OUTPUT=/build
 ARG TARGETPLATFORM
 RUN --mount=source=nfpm.yml,target=nfpm.yml \
@@ -76,7 +86,13 @@ RUN --mount=source=nfpm.yml,target=nfpm.yml \
   if [ "$MODE" != "download" ]; then
     COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
   fi
-  PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info os)/$(xx-info arch)"
+  PKG_OUTPUT="${PKG_OUTPUT}/${PKG_DISTRO}"
+  if [ "${PKG_DISTRO}" = "static" ]; then
+    PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info os)"
+  else
+    PKG_OUTPUT="${PKG_OUTPUT}/${PKG_SUITE}"
+  fi
+  PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
     PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info variant)"
   fi
@@ -114,7 +130,7 @@ RUN --mount=source=nfpm.yml,target=nfpm.yml \
     esac
     (
       set -x
-      ARCH="${arch}" VERSION="${COMPOSE_VERSION}" RELEASE="$PKG_RELEASE" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager $PKG_TYPE --target "$PKG_OUTPUT"
+      ARCH="${arch}" VERSION="${COMPOSE_VERSION}" RELEASE="$PKG_REVISION" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager $PKG_TYPE --target "$PKG_OUTPUT"
     )
   else
     rm -rf "${PKG_OUTPUT}"
@@ -132,17 +148,35 @@ ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=from=bin-folder,source=.,target=/release <<EOT
   set -e
-  basedir="${TARGETOS}/${TARGETARCH}"
-  if [ -n "$TARGETVARIANT" ]; then
-    basedir="${basedir}/${TARGETVARIANT}"
-  fi
   for f in /release/*; do
-    [ ! -d "${f}/${basedir}" ] && continue
-    (
-      set -x
-      mkdir -p "/out/${basedir}"
-      cp "${f}/${basedir}"/* "/out/${basedir}/"
-    )
+    pkgtype=$(basename $f)
+    if [ "$pkgtype" = "static" ]; then
+      basedir="${TARGETOS}/${TARGETARCH}"
+      if [ -n "$TARGETVARIANT" ]; then
+        basedir="${basedir}/${TARGETVARIANT}"
+      fi
+      [ ! -d "${f}/${basedir}" ] && continue
+      (
+        set -x
+        mkdir -p "/out/static/${basedir}"
+        cp "${f}/${basedir}"/* "/out/static/${basedir}/"
+      )
+    else
+      [ "${TARGETOS}" != "linux" ] && continue
+      for ff in ${f}/*; do
+        pkgrelease=$(basename $ff)
+        basedir="${TARGETARCH}"
+        if [ -n "$TARGETVARIANT" ]; then
+          basedir="${basedir}/${TARGETVARIANT}"
+        fi
+        [ ! -d "${ff}/${basedir}" ] && continue
+        (
+          set -x
+          mkdir -p "/out/${pkgtype}/${pkgrelease}/${basedir}"
+          cp "${ff}/${basedir}"/* "/out/${pkgtype}/${pkgrelease}/${basedir}/"
+        )
+      done
+    fi
   done
 EOT
 

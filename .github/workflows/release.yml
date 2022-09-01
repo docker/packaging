@@ -41,7 +41,7 @@ jobs:
       -
         name: Build pkgs
         run: |
-          make -j 4 -C pkg/${{ inputs.package }} pkg
+          make -C pkg/${{ inputs.package }} all
           tree -nh ./pkg/${{ inputs.package }}/bin
       -
         name: Docker meta

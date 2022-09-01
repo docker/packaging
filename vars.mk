@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PKG_APK_RELEASES ?= r0
-PKG_DEB_RELEASES ?= debian10 debian11 ubuntu1804 ubuntu2004 ubuntu2204 raspbian10 raspbian11
-PKG_RPM_RELEASES ?= centos7 centos8 fedora33 fedora34 fedora35 fedora36
-
 export BASEDIR ?= $(CURDIR)
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
@@ -26,8 +22,10 @@ export COMPOSE_REPO ?= https://github.com/docker/compose.git
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
 
+.PHONY: buildx-version
 buildx-version:
 	@echo $(BUILDX_VERSION)
 
+.PHONY: compose-version
 compose-version:
 	@echo $(COMPOSE_VERSION)

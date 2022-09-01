@@ -19,7 +19,7 @@ variable "COMPOSE_REPO" {
   default = "https://github.com/docker/compose.git"
 }
 
-# Sets the buildx version to download the binary from GitHub Releases.
+# Sets the compose version to download the binary from GitHub Releases.
 # If version starts with # it will build from source.
 variable "COMPOSE_VERSION" {
   default = "v2.10.2"
@@ -30,17 +30,15 @@ variable "PKG_NAME" {
   default = "docker-compose-plugin"
 }
 
-# Sets the list of package types to build: apk, deb, rpm or static
-variable "PKG_TYPE" {
+# Sets release flavor. See packages.hcl and packages.mk for more details.
+variable "PKG_RELEASE" {
   default = "static"
 }
-
-# Sets release name for apk, deb and rpm package types (e.g., r0)
-# apk: r0 => docker-compose-plugin_2.10.2-r0_aarch64.apk
-# deb: debian11 => docker-compose-plugin_2.10.2-debian11_arm64.deb
-# rpm: fedora36 => docker-compose-plugin-2.10.2-fedora36.aarch64.rpm
-variable "PKG_RELEASE" {
-  default = "unknown"
+target "_pkg-static" {
+  args = {
+    PKG_RELEASE = ""
+    PKG_TYPE = "static"
+  }
 }
 
 # Sets the vendor/maintainer name (only for linux packages)
@@ -51,6 +49,12 @@ variable "PKG_VENDOR" {
 # Sets the name of the company that produced the package (only for linux packages)
 variable "PKG_PACKAGER" {
   default = "Docker <support@docker.com>"
+}
+
+# Include an extra `.0` in the version, in case we ever would have to re-build
+# an already published release with a packaging-only change.
+variable "PKG_REVISION" {
+  default = "0"
 }
 
 # Defines the output folder
@@ -72,14 +76,14 @@ group "default" {
 }
 
 target "_common" {
+  inherits = ["_pkg-${PKG_RELEASE}"]
   args = {
     COMPOSE_REPO = COMPOSE_REPO
     COMPOSE_VERSION = COMPOSE_VERSION
     PKG_NAME = PKG_NAME
-    PKG_TYPE = PKG_TYPE
-    PKG_RELEASE = PKG_RELEASE
     PKG_VENDOR = PKG_VENDOR
     PKG_PACKAGER = PKG_PACKAGER
+    PKG_REVISION = PKG_REVISION
   }
 }
 
@@ -99,8 +103,8 @@ target "_platforms" {
   ]
 }
 
-# $ PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg
-# $ docker buildx bake --set *.platform=windows/amd64 --set *.output=./bin pkg
+# $ PKG_RELEASE=debian11 docker buildx bake pkg
+# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
 group "pkg" {
   targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
 }
@@ -112,8 +116,8 @@ group "pkg-cross" {
 
 # Create release image by using ./bin folder as named context. Therefore
 # pkg-cross target must be run before using this target:
-# $ PKG_TYPE=deb PKG_DEB_RELEASE=debian11 docker buildx bake pkg-cross
-# $ docker buildx bake release --set *.output=type=image,push=true --set *.tags=docker/packaging:compose-2.10.2-r0
+# $ PKG_RELEASE=debian11 docker buildx bake pkg-cross
+# $ docker buildx bake release --push --set *.tags=docker/packaging:compose-v2.10.2
 target "release" {
   inherits = ["meta-helper", "_platforms"]
   target = "release"
