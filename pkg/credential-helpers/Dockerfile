@@ -251,9 +251,10 @@ RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
   xx-go --wrap
-  make build-pass build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out
-  xx-verify /out/docker-credential-pass
-  xx-verify /out/docker-credential-secretservice
+  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
+  make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-secretservice
+  xx-verify /out/docker-credential-pass/docker-credential-pass
+  xx-verify /out/docker-credential-secretservice/docker-credential-secretservice
 EOT
 
 FROM build-base-static AS build-static-darwin
@@ -268,9 +269,10 @@ RUN --mount=type=bind,from=src,source=/src,target=.,rw \
   set -e
   xx-go --wrap
   go install std
-  make build-osxkeychain build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out
-  xx-verify /out/docker-credential-osxkeychain
-  xx-verify /out/docker-credential-pass
+  make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-osxkeychain
+  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
+  xx-verify /out/docker-credential-osxkeychain/docker-credential-osxkeychain
+  xx-verify /out/docker-credential-pass/docker-credential-pass
 EOT
 
 FROM build-base-static AS build-static-windows
@@ -283,8 +285,8 @@ RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
   xx-go --wrap
-  make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out
-  mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
+  make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-wincred
+  mv /out/docker-credential-wincred/docker-credential-wincred /out/docker-credential-wincred/docker-credential-wincred.exe
   xx-verify /out/docker-credential-wincred.exe
 EOT
 
@@ -296,37 +298,24 @@ RUN --mount=type=cache,sharing=locked,id=build-static-aptlib,target=/var/lib/apt
     --mount=type=cache,sharing=locked,id=build-static-aptcache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends bash file zip tar
 WORKDIR /build
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
 ARG CREDENTIAL_HELPERS_VERSION
+ARG TARGETPLATFORM
 RUN --mount=type=bind,from=src,source=/src,target=/src \
     --mount=type=bind,from=build-static,source=/out,target=/build <<EOT
   set -e
-  pkgoutput="/out/$(xx-info os)/static/$(xx-info arch)"
+  pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
     pkgoutput="${pkgoutput}/$(xx-info variant)"
   fi
   mkdir -p "${pkgoutput}"
-  for f in *; do
-    pkgname=${f%.*}
+  for pkgname in *; do
     workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
     mkdir -p "$workdir/${pkgname}"
-    (
-      set -x
-      cp ${f} /src/LICENSE /src/README.md "$workdir/${pkgname}/"
-    )
+    (set -x ; cp ${pkgname}/* /src/LICENSE /src/README.md "$workdir/${pkgname}/")
     if [ "$(xx-info os)" = "windows" ]; then
-      (
-        set -x
-        cd "$workdir"
-        zip -r "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.zip" ${pkgname}
-      )
+      (set -x ; cd "$workdir" ; zip -r "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.zip" ${pkgname})
     else
-      (
-        set -x
-        tar -czf "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.tgz" -C "$workdir" ${pkgname}
-      )
+      (set -x ; tar -czf "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.tgz" -C "$workdir" ${pkgname})
     fi
   done
 EOT
