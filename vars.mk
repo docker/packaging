@@ -13,14 +13,20 @@
 # limitations under the License.
 
 export BASEDIR ?= $(CURDIR)
+export GO_IMAGE ?= golang
+export GO_VERSION ?= 1.18.5
+export GO_IMAGE_VARIANT ?= buster
+
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
 
 export BUILDX_REPO ?= https://github.com/docker/buildx.git
 export COMPOSE_REPO ?= https://github.com/docker/compose.git
+export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
 
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
+export CREDENTIAL_HELPERS_VERSION ?= v0.7.0-beta.1
 
 .PHONY: buildx-version
 buildx-version:
@@ -29,3 +35,7 @@ buildx-version:
 .PHONY: compose-version
 compose-version:
 	@echo $(COMPOSE_VERSION)
+
+.PHONY: credential-helpers-version
+credential-helpers-version:
+	@echo $(CREDENTIAL_HELPERS_VERSION)
