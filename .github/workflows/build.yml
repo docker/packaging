@@ -49,3 +49,15 @@ jobs:
         name: List artifacts
         run: |
           tree -nh ./pkg/${{ matrix.pkg }}/bin
+      -
+        name: Dummy release
+        uses: docker/bake-action@v2
+        with:
+          workdir: ./pkg/${{ matrix.pkg }}
+          targets: release
+          set: |
+            *.output=/tmp/release
+      -
+        name: List release artifacts
+        run: |
+          tree -nh /tmp/release

@@ -115,11 +115,12 @@ group "pkg-cross" {
 }
 
 # Create release image by using ./bin folder as named context. Therefore
-# pkg-cross target must be run before using this target:
+# pkg or pkg-cross target must be run before using this target:
 # $ PKG_RELEASE=debian11 docker buildx bake pkg-cross
 # $ docker buildx bake release --push --set *.tags=docker/packaging:build-v0.9.1
 target "release" {
   inherits = ["meta-helper", "_platforms"]
+  dockerfile = "../../release.Dockerfile"
   target = "release"
   contexts = {
     bin-folder = "./bin"
