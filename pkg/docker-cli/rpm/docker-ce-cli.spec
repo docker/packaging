@@ -51,7 +51,7 @@ Conflicts: docker-ee
 Conflicts: docker-ee-cli
 
 %description
-Docker is is a product for you to build, ship and run any application as a
+Docker is a product for you to build, ship and run any application as a
 lightweight container.
 
 Docker containers are both hardware-agnostic and platform-agnostic. This means

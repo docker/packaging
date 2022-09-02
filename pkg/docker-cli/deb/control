@@ -8,20 +8,10 @@ Vcs-Git: git://github.com/docker/cli.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
                bash-completion,
-               ca-certificates,
-               cmake,
-               dh-apparmor,
                debhelper (>= 10~) | dh-systemd,
                gcc,
                git,
-               libbtrfs-dev | btrfs-tools,
                libc-dev,
-               libdevmapper-dev,
-               libltdl-dev,
-               libseccomp-dev,
-               libseccomp2,
-               libsystemd-dev,
-               libtool,
                make,
                pkg-config
 
