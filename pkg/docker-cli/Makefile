@@ -22,6 +22,9 @@ $(info $$BASEDIR = $(BASEDIR))
 $(info $$DOCKER_CLI_REPO = $(DOCKER_CLI_REPO))
 $(info $$DOCKER_CLI_VERSION = $(DOCKER_CLI_VERSION))
 
+export PKG_DEB_REVISION = 3
+export PKG_RPM_RELEASE = 3
+
 .PHONY: all
 all: pkg
 
