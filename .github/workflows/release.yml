@@ -32,7 +32,7 @@ jobs:
       -
         name: Prepare
         run: |
-          version=$(make ${{ inputs.package }}-version)
+          version=$(make --no-print-directory -C pkg/${{ inputs.package }} version)
           git_tag="${{ inputs.package }}/$version"
           echo "Package: ${{ inputs.package }}"
           echo "Release: ${{ inputs.release }}"
@@ -41,7 +41,7 @@ jobs:
       -
         name: Build pkgs
         run: |
-          make -C pkg/${{ inputs.package }} all
+          make -C pkg/${{ inputs.package }}
           tree -nh ./pkg/${{ inputs.package }}/bin
       -
         name: Docker meta

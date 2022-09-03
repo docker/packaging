@@ -13,20 +13,34 @@
 # limitations under the License.
 
 include ../../vars.mk
-include ../../packages.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../packages.hcl
 PKG_LIST ?= deb rpm static
+DEFAULT_RULE ?= pkg
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
+
+.PHONY: all
+all: $(DEFAULT_RULE)
+	# noop
+
+.PHONY: all-%
+all-%: $(DEFAULT_RULE)-%
+	# noop
 
 .PHONY: info
 info:
 	$(info $$BASEDIR = $(BASEDIR))
 	$(info $$DOCKER_CLI_REPO = $(DOCKER_CLI_REPO))
 	$(info $$DOCKER_CLI_VERSION = $(DOCKER_CLI_VERSION))
+
+.PHONY: version
+version:
+	@echo $(DOCKER_CLI_VERSION)
+
+include ../../packages.mk
 
 .PHONY: pkg
 pkg:

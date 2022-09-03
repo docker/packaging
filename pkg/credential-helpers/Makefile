@@ -13,17 +13,31 @@
 # limitations under the License.
 
 include ../../vars.mk
-include ../../packages.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../packages.hcl
 PKG_LIST ?= deb rpm static
+DEFAULT_RULE ?= pkg
+
+.PHONY: all
+all: $(DEFAULT_RULE)
+	# noop
+
+.PHONY: all-%
+all-%: $(DEFAULT_RULE)-%
+	# noop
 
 .PHONY: info
 info:
 	$(info $$BASEDIR = $(BASEDIR))
 	$(info $$CREDENTIAL_HELPERS_REPO = $(CREDENTIAL_HELPERS_REPO))
 	$(info $$CREDENTIAL_HELPERS_VERSION = $(CREDENTIAL_HELPERS_VERSION))
+
+.PHONY: version
+version:
+	@echo $(CREDENTIAL_HELPERS_VERSION)
+
+include ../../packages.mk
 
 .PHONY: pkg
 pkg:

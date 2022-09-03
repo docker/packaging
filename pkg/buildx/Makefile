@@ -13,17 +13,31 @@
 # limitations under the License.
 
 include ../../vars.mk
-include ../../packages.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../packages.hcl
 PKG_LIST ?= apk deb rpm static
+DEFAULT_RULE ?= pkg-cross
+
+.PHONY: all
+all: $(DEFAULT_RULE)
+	# noop
+
+.PHONY: all-%
+all-%: $(DEFAULT_RULE)-%
+	# noop
 
 .PHONY: info
 info:
 	$(info $$BASEDIR = $(BASEDIR))
 	$(info $$BUILDX_REPO = $(BUILDX_REPO))
 	$(info $$BUILDX_VERSION = $(BUILDX_VERSION))
+
+.PHONY: version
+version:
+	@echo $(BUILDX_VERSION)
+
+include ../../packages.mk
 
 .PHONY: pkg
 pkg:

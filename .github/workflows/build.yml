@@ -50,7 +50,7 @@ jobs:
       -
         name: Build
         run: |
-          make -j$(nproc) -C pkg/${{ matrix.name }} pkg-${{ matrix.pkg }}
+          make -j$(nproc) -C pkg/${{ matrix.name }} all-${{ matrix.pkg }}
       -
         name: List artifacts
         run: |
