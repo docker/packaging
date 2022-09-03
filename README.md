@@ -27,7 +27,7 @@ definition to build and push packages in two steps:
 ```shell
 # build all packages for buildx v0.9.1 and output to ./bin folder
 $ cd pkg/buildx/ 
-$ BUILDX_VERSION=v0.9.1 make all
+$ BUILDX_VERSION=v0.9.1 make
 # build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
 # "release" target will use the "bin" folder as named context to create the
 # image with artifacts previously built with make.
