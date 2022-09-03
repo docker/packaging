@@ -125,7 +125,7 @@ EOF
   xx-go --wrap
   set -x
   chmod -x debian/compat debian/control debian/docs
-  dpkg-buildpackage -us -uc -a$(xx-info debian-arch) -Pcross,nocheck
+  dpkg-buildpackage -us -uc
   pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
   if [ -n "$(xx-info variant)" ]; then
     pkgoutput="${pkgoutput}/$(xx-info variant)"
