@@ -17,19 +17,20 @@ include ../../packages.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../packages.hcl
-
-$(info $$BASEDIR = $(BASEDIR))
-$(info $$DOCKER_CLI_REPO = $(DOCKER_CLI_REPO))
-$(info $$DOCKER_CLI_VERSION = $(DOCKER_CLI_VERSION))
+PKG_LIST ?= deb rpm static
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
 
-.PHONY: all
-all: pkg
+.PHONY: info
+info:
+	$(info $$BASEDIR = $(BASEDIR))
+	$(info $$DOCKER_CLI_REPO = $(DOCKER_CLI_REPO))
+	$(info $$DOCKER_CLI_VERSION = $(DOCKER_CLI_VERSION))
 
 .PHONY: pkg
-pkg: pkg-deb pkg-rpm pkg-static
+pkg:
+	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-$(pkg))
 
 .PHONY: pkg-%
 pkg-%: pkg-%-releases pkg-releases
@@ -40,7 +41,8 @@ pkg-static:
 	$(MAKE) build-static
 
 .PHONY: pkg-cross
-pkg-cross: pkg-cross-deb pkg-cross-rpm pkg-cross-static
+pkg-cross:
+	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-cross-$(pkg))
 
 .PHONY: pkg-%
 pkg-cross-%: pkg-%-releases pkg-releases
@@ -51,7 +53,7 @@ pkg-cross-static:
 	$(MAKE) build-cross-static
 
 .PHONY: build-%
-build-%: pkg-info-% pkg-info
+build-%: info pkg-info-% pkg-info
 	PKG_RELEASE=$* DESTDIR=$(DESTDIR) docker buildx bake $(BAKE_DEFINITIONS) pkg
 
 .PHONY: build-cross-%

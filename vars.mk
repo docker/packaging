@@ -30,7 +30,6 @@ export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
 export CREDENTIAL_HELPERS_VERSION ?= v0.7.0-beta.1
 
-
 .PHONY: docker-cli-version
 docker-cli-version:
 	@echo $(DOCKER_CLI_VERSION)
