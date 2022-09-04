@@ -71,10 +71,8 @@ RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
 # deb
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND="noninteractive"
-RUN --mount=type=cache,sharing=locked,id=build-base-deb-aptlib,target=/var/lib/apt \
-    --mount=type=cache,sharing=locked,id=build-base-deb-aptcache,target=/var/cache/apt \
-    apt-get update && apt-get install -y bash curl devscripts equivs git
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -93,9 +91,7 @@ EOT
 FROM build-base-deb AS build-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
-RUN --mount=type=cache,sharing=locked,id=build-deb-aptlib,target=/var/lib/apt \
-    --mount=type=cache,sharing=locked,id=build-deb-aptcache,target=/var/cache/apt \
-    mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes -y" -i /root/package/debian/control
+RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 COPY --from=src /src ./docker-credential-helpers
 ARG CREDENTIAL_HELPERS_VERSION
@@ -146,8 +142,7 @@ ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
-RUN --mount=type=cache,sharing=locked,id=build-base-rpm-dnfcache,target=/var/cache/dnf \
-    --mount=type=cache,sharing=locked,id=build-base-rpm-yumcache,target=/var/cache/yum <<EOT
+RUN <<EOT
   case "$PKG_RELEASE" in
     centos7|oraclelinux7)
       [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
@@ -173,8 +168,7 @@ EOT
 FROM build-base-rpm AS build-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=cache,sharing=locked,id=build-rpm-dnfcache,target=/var/cache/dnf \
-    --mount=type=cache,sharing=locked,id=build-rpm-yumcache,target=/var/cache/yum <<EOT
+RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
     centos7|oraclelinux7)
@@ -231,9 +225,7 @@ FROM builder-rpm-${TARGETOS} AS builder-rpm
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN --mount=type=cache,sharing=locked,id=build-base-static-aptlib,target=/var/lib/apt \
-    --mount=type=cache,sharing=locked,id=build-base-static-aptcache,target=/var/cache/apt \
-    apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -294,9 +286,7 @@ FROM build-static-${TARGETOS} AS build-static
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN --mount=type=cache,sharing=locked,id=build-static-aptlib,target=/var/lib/apt \
-    --mount=type=cache,sharing=locked,id=build-static-aptcache,target=/var/cache/apt \
-    apt-get update && apt-get install -y --no-install-recommends bash file zip tar
+RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
 WORKDIR /build
 ARG CREDENTIAL_HELPERS_VERSION
 ARG TARGETPLATFORM
