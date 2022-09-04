@@ -1,0 +1,21 @@
+Source: containerd.io
+Section: devel
+Priority: optional
+Maintainer: Containerd team <help@containerd.io>
+Build-Depends: libbtrfs-dev | btrfs-tools ,
+               debhelper (>= 10~) | dh-systemd,
+               pkg-config,
+               libseccomp-dev
+Standards-Version: 4.1.4
+Homepage: https://containerd.io
+Vcs-Browser: https://github.com/containerd/containerd
+XS-Go-Import-Path: github.com/containerd/containerd
+
+Package: containerd.io
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Provides: containerd, runc
+Conflicts: containerd, runc
+Replaces: containerd, runc
+Description: An open and reliable container runtime
