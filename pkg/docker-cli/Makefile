@@ -30,12 +30,6 @@ all: $(DEFAULT_RULE)
 all-%: $(DEFAULT_RULE)-%
 	# noop
 
-.PHONY: info
-info:
-	$(info $$BASEDIR = $(BASEDIR))
-	$(info $$DOCKER_CLI_REPO = $(DOCKER_CLI_REPO))
-	$(info $$DOCKER_CLI_VERSION = $(DOCKER_CLI_VERSION))
-
 .PHONY: version
 version:
 	@echo $(DOCKER_CLI_VERSION)
@@ -47,7 +41,7 @@ pkg:
 	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-$(pkg))
 
 .PHONY: pkg-%
-pkg-%: pkg-%-releases pkg-releases
+pkg-%: pkg-%-releases
 	$(MAKE) $(foreach release,$(PKG_RELEASES),build-$(release))
 
 .PHONY: pkg-static
@@ -59,7 +53,7 @@ pkg-cross:
 	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-cross-$(pkg))
 
 .PHONY: pkg-%
-pkg-cross-%: pkg-%-releases pkg-releases
+pkg-cross-%: pkg-%-releases
 	$(MAKE) $(foreach release,$(PKG_RELEASES),build-cross-$(release))
 
 .PHONY: pkg-cross-static
@@ -67,13 +61,13 @@ pkg-cross-static:
 	$(MAKE) build-cross-static
 
 .PHONY: build-%
-build-%: info pkg-info-% pkg-info
-	PKG_RELEASE=$* DESTDIR=$(DESTDIR) docker buildx bake $(BAKE_DEFINITIONS) pkg
+build-%: pkg-info-%
+	$(call run_bake,$*,$(DESTDIR),$(BAKE_DEFINITIONS),pkg)
 
 .PHONY: build-cross-%
-build-cross-%: pkg-info-% pkg-info
+build-cross-%: pkg-info-%
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
-	PKG_RELEASE=$* DESTDIR=$($@_TMP_OUT) docker buildx bake $(BAKE_DEFINITIONS) pkg-cross
+	$(call run_bake,$*,$($@_TMP_OUT),$(BAKE_DEFINITIONS),pkg-cross)
 	mkdir -p $(DESTDIR)
 	find $($@_TMP_OUT) -mindepth 2 -maxdepth 2 -type d -exec cp -rf {} $(DESTDIR)/ ';'
 	find $(DESTDIR) -type d -empty -delete
