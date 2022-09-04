@@ -83,6 +83,7 @@ group "default" {
 target "_common" {
   inherits = ["_pkg-${PKG_RELEASE}"]
   args = {
+    BUILDKIT_MULTI_PLATFORM = 1
     COMPOSE_REPO = COMPOSE_REPO
     COMPOSE_VERSION = COMPOSE_VERSION
     PKG_NAME = PKG_NAME
@@ -127,7 +128,7 @@ group "pkg-cross" {
 # $ docker buildx bake release --push --set *.tags=docker/packaging:compose-v2.10.2
 target "release" {
   inherits = ["meta-helper", "_platforms"]
-  dockerfile = "../../release.Dockerfile"
+  dockerfile = "../../common/release.Dockerfile"
   target = "release"
   contexts = {
     bin-folder = "./bin"

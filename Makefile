@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include vars.mk
+include common/vars.mk
 
 pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
 

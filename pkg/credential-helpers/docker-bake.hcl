@@ -102,6 +102,7 @@ group "default" {
 target "_common" {
   inherits = ["_pkg-${PKG_RELEASE}"]
   args = {
+    BUILDKIT_MULTI_PLATFORM = 1
     CREDENTIAL_HELPERS_REPO = CREDENTIAL_HELPERS_REPO
     CREDENTIAL_HELPERS_VERSION = CREDENTIAL_HELPERS_VERSION
     GO_IMAGE = GO_IMAGE
@@ -155,7 +156,7 @@ target "meta-helper" {
 # $ docker buildx bake release --push --set *.tags=docker/packaging:credential-helpers-v0.7.0-beta.1
 target "release" {
   inherits = ["meta-helper", "_platforms"]
-  dockerfile = "../../release.Dockerfile"
+  dockerfile = "../../common/release.Dockerfile"
   target = "release"
   contexts = {
     bin-folder = "./bin"

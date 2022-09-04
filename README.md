@@ -7,9 +7,9 @@ and are published as a Docker image on Docker Hub.
 
 ## Usage
 
-`vars.mk` contains variables that will be used by the main `Makefile` and
-also across projects in [pkg](pkg) folder. It contains the list of apk,
-deb and rpm releases to produce and repos with current versions of projects.
+`common` folder contains helpers that will be used by the main `Makefile` and
+also across projects in [pkg](pkg) folder like the list of supported apk, deb
+and rpm releases to produce and repos with current versions of projects.
 
 `Makefile` contains targets to build specific or all packages and will output
 to `./bin` folder:
