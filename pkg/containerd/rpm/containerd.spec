@@ -42,15 +42,15 @@ Obsoletes: runc
 Conflicts: containerd
 Conflicts: runc
 
-Version: %{getenv:RPM_VERSION}
-Release: %{getenv:RPM_RELEASE_VERSION}%{?dist}
+Version: %{_version}
+Release: %{_release}%{?dist}
 Summary: An industry-standard container runtime
 License: ASL 2.0
 URL: https://containerd.io
-Source0: containerd
+Source0: containerd.tgz
 Source1: containerd.service
 Source2: containerd.toml
-Source3: runc
+Source3: runc.tgz
 # container-selinux isn't a thing in suse flavors
 %if %{undefined suse_version}
 # amazonlinux2 doesn't have container-selinux either
@@ -114,7 +114,7 @@ BUILDTAGS=""
 BUILDTAGS="${BUILDTAGS} no_btrfs"
 %endif
 
-GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{getenv:VERSION} REVISION=%{getenv:REF} PACKAGE=%{getenv:PACKAGE} BUILDTAGS="${BUILDTAGS}"
+GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="${BUILDTAGS}"
 
 # Remove containerd-stress, as we're not shipping it as part of the packages
 rm -f bin/containerd-stress

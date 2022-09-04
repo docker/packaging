@@ -17,7 +17,7 @@
 %:
 	dh $@ --with systemd
 
-# GO_SRC_PATH and PACKAGE are defined in the dockerfile
+# GO_SRC_PATH and PKG_NAME are defined in the dockerfile
 # VERSION and REF are defined in scripts/build-deb
 # TODO remove custom PREFIX variable once containerd release/1.4 and release/1.5
 #      are obsolete. See https://github.com/containerd/containerd/commit/b5f530a157
@@ -25,9 +25,9 @@ binaries: ## Create containerd binaries
 	@set -x; GO111MODULE=auto make -C $(GO_SRC_PATH) --no-print-directory \
 		DESTDIR="$$(pwd)" \
 		PREFIX="" \
-		VERSION=$${VERSION} \
-		REVISION=$${REF} \
-		PACKAGE=$${PACKAGE} \
+		VERSION=$${CONTAINERD_VERSION} \
+		REVISION=$${CONTAINERD_REVISION} \
+		PACKAGE=$${PKG_NAME} \
 		binaries install
 
 	# Remove containerd-stress, as we're not shipping it as part of the packages
@@ -60,5 +60,5 @@ override_dh_systemd_start:
 override_dh_auto_install: binaries bin/runc man
 	mkdir -p debian/containerd.io/usr/bin
 	install -D -m 0755 bin/* debian/containerd.io/usr/bin
-	install -D -m 0644 /root/common/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
-	install -D -m 0644 /root/common/containerd.toml    debian/containerd.io/etc/containerd/config.toml
+	install -D -m 0644 /internal/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
+	install -D -m 0644 /internal/containerd.toml debian/containerd.io/etc/containerd/config.toml
