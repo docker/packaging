@@ -55,13 +55,11 @@ BuildRequires: systemd-devel
 BuildRequires: tar
 BuildRequires: which
 
-# conflicting packages
 Conflicts: docker
 Conflicts: docker-io
 Conflicts: docker-engine-cs
 Conflicts: docker-ee
 
-# Obsolete packages
 Obsoletes: docker-ce-selinux
 Obsoletes: docker-engine-selinux
 Obsoletes: docker-engine
@@ -81,35 +79,28 @@ depending on a particular stack or provider.
 %setup -q -c -n src -a 0
 
 %build
-
-export DOCKER_GITCOMMIT=%{_gitcommit_engine}
 mkdir -p /go/src/github.com/docker
-ln -s ${RPM_BUILD_DIR}/src/engine /go/src/github.com/docker/docker
-
-pushd ${RPM_BUILD_DIR}/src/engine
-for component in tini "proxy dynamic";do
-    TMP_GOPATH="/go" hack/dockerfile/install/install.sh $component
-done
-VERSION=%{_origversion} PRODUCT=docker hack/make.sh dynbinary
+rm -f /go/src/github.com/docker/docker
+ln -snf ${RPM_BUILD_DIR}/src/engine /go/src/github.com/docker/docker
+pushd /go/src/github.com/docker/docker
+TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
+TMP_GOPATH="/go" hack/dockerfile/install/install.sh proxy dynamic
+VERSION=%{_origversion} DOCKER_GITCOMMIT=%{_commit} PRODUCT=docker hack/make.sh dynbinary
 popd
 
 %check
 ver="$(engine/bundles/dynbinary-daemon/dockerd --version)"; \
-    test "$ver" = "Docker version %{_origversion}, build %{_gitcommit_engine}" && echo "PASS: daemon version OK" || (echo "FAIL: daemon version ($ver) did not match" && exit 1)
+    test "$ver" = "Docker version %{_origversion}, build %{_commit}" && echo "PASS: daemon version OK" || (echo "FAIL: daemon version ($ver) did not match" && exit 1)
 
 %install
-# install daemon binary
+# install binaries
 install -D -p -m 0755 $(readlink -f engine/bundles/dynbinary-daemon/dockerd) ${RPM_BUILD_ROOT}%{_bindir}/dockerd
-
-# install proxy
 install -D -p -m 0755 /usr/local/bin/docker-proxy ${RPM_BUILD_ROOT}%{_bindir}/docker-proxy
-
-# install tini
-install -D -p -m 755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_bindir}/docker-init
+install -D -p -m 0755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_bindir}/docker-init
 
 # install systemd scripts
-install -D -m 0644 ${RPM_SOURCE_DIR}/docker.service ${RPM_BUILD_ROOT}%{_unitdir}/docker.service
-install -D -m 0644 ${RPM_SOURCE_DIR}/docker.socket ${RPM_BUILD_ROOT}%{_unitdir}/docker.socket
+install -D -m 0644 engine/contrib/init/systemd/docker.service ${RPM_BUILD_ROOT}%{_unitdir}/docker.service
+install -D -m 0644 engine/contrib/init/systemd/docker.socket ${RPM_BUILD_ROOT}%{_unitdir}/docker.socket
 
 %files
 %{_bindir}/dockerd

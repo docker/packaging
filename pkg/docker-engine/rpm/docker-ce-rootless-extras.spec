@@ -35,11 +35,9 @@ Either VPNKit or slirp4netns (>= 0.4.0) needs to be installed separately.
 %setup -q -c -n src -a 0
 
 %build
-
-export DOCKER_GITCOMMIT=%{_gitcommit_engine}
 mkdir -p /go/src/github.com/docker
-ln -s ${RPM_BUILD_DIR}/src/engine /go/src/github.com/docker/docker
-TMP_GOPATH="/go" ${RPM_BUILD_DIR}/src/engine/hack/dockerfile/install/install.sh rootlesskit dynamic
+ln -snf ${RPM_BUILD_DIR}/src/engine /go/src/github.com/docker/docker
+TMP_GOPATH="/go" GITCOMMIT=%{_commit} ${RPM_BUILD_DIR}/src/engine/hack/dockerfile/install/install.sh rootlesskit dynamic
 
 %check
 /usr/local/bin/rootlesskit -v

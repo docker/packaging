@@ -20,11 +20,13 @@ export GO_IMAGE_VARIANT ?= buster
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
 
+export DOCKER_ENGINE_REPO ?= https://github.com/docker/docker.git
 export DOCKER_CLI_REPO ?= https://github.com/docker/cli.git
 export BUILDX_REPO ?= https://github.com/docker/buildx.git
 export COMPOSE_REPO ?= https://github.com/docker/compose.git
 export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
 
+export DOCKER_ENGINE_VERSION ?= v20.10.17
 export DOCKER_CLI_VERSION ?= v20.10.17
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
