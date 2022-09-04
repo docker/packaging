@@ -29,3 +29,8 @@ export DOCKER_CLI_VERSION ?= v20.10.17
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
 export CREDENTIAL_HELPERS_VERSION ?= v0.7.0-beta.1
+
+define run_bake
+	@PKG_RELEASE=$(1) DESTDIR=$(2) docker buildx bake $(3) $(4) --print
+	PKG_RELEASE=$(1) DESTDIR=$(2) docker buildx bake $(3) $(4)
+endef

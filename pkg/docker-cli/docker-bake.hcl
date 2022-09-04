@@ -90,6 +90,11 @@ function "bindir" {
   result = DESTDIR != "" ? DESTDIR : "./bin/${defaultdir}"
 }
 
+# Defines cache scope for GitHub Actions cache exporter
+variable "BUILD_CACHE_SCOPE" {
+  default = ""
+}
+
 group "default" {
   targets = ["pkg"]
 }
@@ -108,6 +113,8 @@ target "_common" {
     PKG_DEB_REVISION = PKG_DEB_REVISION
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
   }
+  cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
+  cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
 }
 
 target "_platforms" {

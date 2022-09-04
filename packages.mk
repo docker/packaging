@@ -18,10 +18,6 @@ PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
 PKG_DEB_RELEASES ?= debian10 debian11 ubuntu1804 ubuntu2004 ubuntu2204 raspbian10 raspbian11
 PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora35 fedora36 fedora37 oraclelinux7 oraclelinux8 oraclelinux9
 
-.PHONY: pkg-releases
-pkg-releases:
-	$(info $$PKG_RELEASES = $(PKG_RELEASES))
-
 .PHONY: pkg-apk-releases
 pkg-apk-releases:
 	$(eval PKG_RELEASES = $(PKG_APK_RELEASES))
@@ -33,14 +29,6 @@ pkg-deb-releases:
 .PHONY: pkg-rpm-releases
 pkg-rpm-releases:
 	$(eval PKG_RELEASES = $(PKG_RPM_RELEASES))
-
-.PHONY: pkg-info
-pkg-info:
-	$(info $$PKG_TYPE = $(PKG_TYPE))
-	$(info $$PKG_DISTRO = $(PKG_DISTRO))
-	$(info $$PKG_SUITE = $(PKG_SUITE))
-	$(info $$PKG_BASE_IMAGE = $(PKG_BASE_IMAGE))
-	$(info $$PKG_SUPPORTED_ARCHS = $(PKG_SUPPORTED_ARCHS))
 
 .PHONY: pkg-info-alpine314
 pkg-info-alpine314:

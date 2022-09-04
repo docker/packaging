@@ -30,6 +30,10 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        # necessary to use gha cache export
+        name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
+      -
         name: Prepare
         run: |
           version=$(make --no-print-directory -C pkg/${{ inputs.package }} version)
@@ -42,6 +46,11 @@ jobs:
         name: Build pkgs
         run: |
           make -C pkg/${{ inputs.package }}
+        env:
+          BUILD_CACHE_SCOPE: release-${{ inputs.package }}
+      -
+        name: List artifacts
+        run: |
           tree -nh ./pkg/${{ inputs.package }}/bin
       -
         name: Docker meta

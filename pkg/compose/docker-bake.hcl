@@ -66,6 +66,11 @@ function "bindir" {
   result = DESTDIR != "" ? DESTDIR : "./bin/${defaultdir}"
 }
 
+# Defines cache scope for GitHub Actions cache exporter
+variable "BUILD_CACHE_SCOPE" {
+  default = ""
+}
+
 # Special target: https://github.com/docker/metadata-action#bake-definition
 target "meta-helper" {
   tags = ["dockereng/packaging:compose-local"]
@@ -85,6 +90,8 @@ target "_common" {
     PKG_PACKAGER = PKG_PACKAGER
     PKG_REVISION = PKG_REVISION
   }
+  cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
+  cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
 }
 
 target "_platforms" {

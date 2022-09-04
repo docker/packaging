@@ -24,7 +24,6 @@ ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
-ARG PKG_BASE_IMAGE="debian:bullseye"
 
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
 RUN apk add --no-cache bash curl file git zip tar
