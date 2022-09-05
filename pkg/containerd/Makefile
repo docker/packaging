@@ -19,6 +19,8 @@ BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 PKG_LIST ?= deb rpm static
 DEFAULT_RULE ?= pkg
 
+export RUNC_REPO ?= https://github.com/opencontainers/runc.git
+export RUNC_VERSION ?=
 export PKG_DEB_REVISION = 1
 
 .PHONY: all

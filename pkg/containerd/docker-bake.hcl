@@ -81,6 +81,15 @@ variable "PKG_RPM_RELEASE" {
   default = "1"
 }
 
+# In case we want to set runc version to a specific version instead of using
+# the one used by containerd
+variable "RUNC_REPO" {
+  default = "https://github.com/opencontainers/runc.git"
+}
+variable "RUNC_VERSION" {
+  default = ""
+}
+
 # Defines the output folder
 variable "DESTDIR" {
   default = ""
@@ -113,6 +122,8 @@ target "_common" {
     PKG_PACKAGER = PKG_PACKAGER
     PKG_DEB_REVISION = PKG_DEB_REVISION
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
+    RUNC_REPO = RUNC_REPO
+    RUNC_VERSION = RUNC_VERSION
   }
   cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]

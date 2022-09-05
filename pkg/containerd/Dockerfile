@@ -77,9 +77,12 @@ RUN --mount=from=src,source=/src,target=/containerd \
 FROM base AS runc-src
 WORKDIR /src
 ARG RUNC_REPO
+ARG RUNC_VERSION
 RUN git init . && git remote add origin "${RUNC_REPO}"
-RUN --mount=from=src,source=/src,target=/containerd \
-    git fetch origin "$(cat /containerd/script/setup/runc-version)" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+RUN --mount=from=src,source=/src,target=/containerd <<EOT
+  [ -z "$RUNC_VERSION" ] && RUNC_VERSION=$(cat /containerd/script/setup/runc-version)
+  git fetch origin "$RUNC_VERSION" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+EOT
 
 FROM base AS runc-src-tgz
 RUN --mount=from=runc-src,source=/src,target=/runc \
