@@ -1,0 +1,79 @@
+Source: docker-ce
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/docker
+Vcs-Git: git://github.com/docker/docker.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               bash-completion,
+               ca-certificates,
+               cmake,
+               dh-apparmor,
+               debhelper (>= 10~) | dh-systemd,
+               gcc,
+               git,
+               libbtrfs-dev | btrfs-tools,
+               libc-dev,
+               libdevmapper-dev,
+               libltdl-dev,
+               libseccomp-dev,
+               libseccomp2,
+               libsystemd-dev,
+               libtool,
+               make,
+               pkg-config
+
+Package: docker-ce
+Architecture: linux-any
+Depends: containerd.io (>= 1.4.1),
+         docker-ce-cli,
+         iptables,
+         libseccomp2 (>= 2.3.0),
+         ${shlibs:Depends}
+Recommends: apparmor,
+            ca-certificates,
+            docker-ce-rootless-extras,
+            git,
+            libltdl7,
+            pigz,
+            procps,
+            xz-utils
+Suggests: aufs-tools [amd64], cgroupfs-mount | cgroup-lite
+Conflicts: docker (<< 1.5~),
+           docker-engine,
+           docker-engine-cs,
+           docker.io,
+           lxc-docker,
+           lxc-docker-virtual-package
+Replaces: docker-engine
+Description: Docker: the open-source application container engine
+ Docker is a product for you to build, ship and run any application as a
+ lightweight container
+ .
+ Docker containers are both hardware-agnostic and platform-agnostic. This means
+ they can run anywhere, from your laptop to the largest cloud compute instance and
+ everything in between - and they don't require you to use a particular
+ language, framework or packaging system. That makes them great building blocks
+ for deploying and scaling web apps, databases, and backend services without
+ depending on a particular stack or provider.
+
+Package: docker-ce-rootless-extras
+Architecture: linux-any
+Depends: dbus-user-session,
+         ${shlibs:Depends}
+Enhances: docker-ce
+Conflicts: rootlesskit
+Replaces: rootlesskit
+Breaks: rootlesskit
+# slirp4netns (>= 0.4.0) is available in Debian since 11 and Ubuntu since 19.10
+Recommends: slirp4netns (>= 0.4.0)
+# Unlike RPM, DEB packages do not contain "Recommends: fuse-overlayfs (>= 0.7.0)" here,
+# because Debian (since 10) and Ubuntu support the kernel-mode rootless overlayfs.
+Description: Rootless support for Docker.
+  Use dockerd-rootless.sh to run the daemon.
+  Use dockerd-rootless-setuptool.sh to setup systemd for dockerd-rootless.sh .
+  This package contains RootlessKit, but does not contain VPNKit.
+  Either VPNKit or slirp4netns (>= 0.4.0) needs to be installed separately.
+Homepage: https://docs.docker.com/engine/security/rootless/
