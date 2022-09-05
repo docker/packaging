@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-# Sets the buildx repo. Will be used to clone the repo at COMPOSE_VERSION ref
+# Sets the compose repo. Will be used to clone the repo at COMPOSE_VERSION ref
 # to include the README.md and LICENSE for the static packages and also
 # create version string.
 variable "COMPOSE_REPO" {
