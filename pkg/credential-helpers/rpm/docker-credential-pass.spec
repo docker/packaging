@@ -15,7 +15,6 @@ Packager: Docker <support@docker.com>
 Requires: pass
 
 BuildRequires: gcc
-BuildRequires: git
 BuildRequires: make
 BuildRequires: pkgconfig
 

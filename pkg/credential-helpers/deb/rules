@@ -6,19 +6,19 @@ override_dh_builddeb:
 	dh_builddeb -- -Zxz
 
 override_dh_auto_build:
-	cd docker-credential-helpers && CGO_ENABLED=1 make build-secretservice build-pass DESTDIR=bin
+	@set -x ; CGO_ENABLED=1 make -C ./docker-credential-helpers build-secretservice build-pass DESTDIR=$$(pwd)/bin
 
 override_dh_strip:
 	# Go has lots of problems with stripping, so just don't
 
 override_dh_auto_install:
-	install -D docker-credential-helpers/bin/docker-credential-secretservice debian/docker-credential-secretservice/usr/bin/docker-credential-secretservice
-	install -D docker-credential-helpers/bin/docker-credential-pass debian/docker-credential-pass/usr/bin/docker-credential-pass
+	install -D bin/docker-credential-secretservice debian/docker-credential-secretservice/usr/bin/docker-credential-secretservice
+	install -D bin/docker-credential-pass debian/docker-credential-pass/usr/bin/docker-credential-pass
 
 override_dh_auto_test:
-	ver="$$(docker-credential-helpers/bin/docker-credential-secretservice version)"; \
+	ver="$$(bin/docker-credential-secretservice version)"; \
 		test "$$ver" = "docker-credential-secretservice (github.com/docker/docker-credential-helpers) $(CREDENTIAL_HELPERS_VERSION)" && echo "PASS: docker-credential-secretservice version OK" || (echo "FAIL: docker-credential-secretservice version ($$ver) did not match" && exit 1)
-	ver="$$(docker-credential-helpers/bin/docker-credential-pass version)"; \
+	ver="$$(bin/docker-credential-pass version)"; \
 		test "$$ver" = "docker-credential-pass (github.com/docker/docker-credential-helpers) $(CREDENTIAL_HELPERS_VERSION)" && echo "PASS: docker-credential-pass version OK" || (echo "FAIL: docker-credential-pass version ($$ver) did not match" && exit 1)
 
 %:
