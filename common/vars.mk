@@ -50,6 +50,7 @@ export DOCKER_CLI_REPO ?= https://github.com/docker/cli.git
 export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
 export BUILDX_REPO ?= https://github.com/docker/buildx.git
 export COMPOSE_REPO ?= https://github.com/docker/compose.git
+export SCAN_REPO ?= https://github.com/docker/scan-cli-plugin.git
 export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
 
 export DOCKER_ENGINE_VERSION ?= v20.10.17
@@ -57,4 +58,5 @@ export DOCKER_CLI_VERSION ?= v20.10.17
 export CONTAINERD_VERSION ?= v1.6.8
 export BUILDX_VERSION ?= v0.9.1
 export COMPOSE_VERSION ?= v2.10.2
+export SCAN_VERSION ?= v0.17.0
 export CREDENTIAL_HELPERS_VERSION ?= v0.7.0-beta.1
