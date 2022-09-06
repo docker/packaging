@@ -102,9 +102,8 @@ ARG PKG_RELEASE
 FROM build-base-deb AS build-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
-RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
+RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./containerd
 ARG CONTAINERD_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
@@ -114,33 +113,14 @@ ARG PKG_PACKAGER
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
-RUN --mount=source=internal,target=/internal,rw \
+RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,source=common,target=/common,rw \
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  mkdir -p /out
-  if [ "$(xx-info arch)" != "$(TARGETPLATFORM= xx-info arch)" ]; then
-    echo "$(xx-info arch) architecture is not supported"
-    exit 0
-  fi
-  mkdir -p $GOPATH/src/github.com/containerd
-  ln -snf /root/package/containerd $GOPATH/src/github.com/containerd/containerd
-  sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' $GOPATH/src/github.com/containerd/containerd/containerd.service > /internal/containerd.service
-  export GO_SRC_PATH=$GOPATH/src/github.com/containerd/containerd
-  export CONTAINERD_REVISION=$(git --git-dir ./containerd/.git rev-parse HEAD)
-  xx-go --wrap
-  set -x
-  chmod -x debian/compat debian/control debian/copyright debian/manpages
-  dpkg-buildpackage -us -uc
-  pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  cp /root/${PKG_NAME}* ${pkgoutput}/
-EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
 FROM build-deb AS builder-deb-linux
@@ -155,100 +135,31 @@ ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
-RUN <<EOT
-  case "$PKG_RELEASE" in
-    centos7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint
-      ;;
-    centos8)
-      [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
-      [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      ;;
-    centos9)
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      dnf config-manager --set-enabled crb
-      ;;
-    oraclelinux7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint
-      yum-config-manager --enable ol7_addons --enable ol7_optional_latest
-      ;;
-    oraclelinux8)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      dnf config-manager --enable ol8_addons
-      ;;
-    oraclelinux9)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      dnf config-manager --enable ol9_addons
-      ;;
-    fedora*)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
 FROM build-base-rpm AS build-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  echo "%_topdir    /root/rpmbuild" > /root/.rpmmacros
-  case "$PKG_RELEASE" in
-    centos7|oraclelinux7)
-      yum-builddep -y /root/rpmbuild/SPECS/*.spec
-      ;;
-    *)
-      dnf builddep -y /root/rpmbuild/SPECS/*.spec
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
 WORKDIR /root/rpmbuild
-COPY --from=src-tgz /out/containerd.tgz ./SOURCES/
-COPY --from=runc-src-tgz /out/runc.tgz ./SOURCES/
 ARG CONTAINERD_VERSION
+ARG PKG_NAME
 ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
-RUN --mount=source=internal,target=/internal,rw \
-    --mount=type=bind,from=src,source=/src,target=/usr/local/src/containerd,rw \
+RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,source=common/containerd.toml,target=/root/rpmbuild/SOURCES/containerd.toml \
+    --mount=type=bind,from=src-tgz,source=/out/containerd.tgz,target=/root/rpmbuild/SOURCES/containerd.tgz \
+    --mount=type=bind,from=runc-src-tgz,source=/out/runc.tgz,target=/root/rpmbuild/SOURCES/runc.tgz \
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  mkdir -p /out
-  if [ "$(xx-info arch)" != "$(TARGETPLATFORM= xx-info arch)" ]; then
-    echo "$(xx-info arch) architecture is not supported"
-    exit 0
-  fi
-  mkdir -p $GOPATH/src/github.com/containerd
-  ln -snf /usr/local/src/containerd $GOPATH/src/github.com/containerd/containerd
-  sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' /usr/local/src/containerd/containerd.service > /internal/containerd.service
-  cp /internal/* ./SOURCES/
-  rpmVersion=${CONTAINERD_VERSION#v}
-  rpmVersion=$(echo $rpmVersion | sed "s/-/~/")
-  xx-go --wrap
-  set -x
-  rpmbuild -ba \
-    --define "_version ${rpmVersion}" \
-    --define "_origversion ${CONTAINERD_VERSION#v}" \
-    --define "_release $PKG_RPM_RELEASE" \
-    --define "_commit $(git --git-dir /usr/local/src/containerd/.git rev-parse HEAD)" \
-    /root/rpmbuild/SPECS/*.spec
-  pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  cp ./RPMS/*/*.* ./SRPMS/* ${pkgoutput}/
-EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
 FROM build-rpm AS builder-rpm-linux
@@ -308,31 +219,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash file zip t
 WORKDIR /build
 ARG CONTAINERD_VERSION
 ARG TARGETPLATFORM
-RUN --mount=type=bind,from=src,source=/src,target=/src \
+RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=src,source=/src,target=/src \
     --mount=type=bind,from=runc-src,source=/src,target=/runc-src \
-    --mount=type=bind,from=build-static,source=/out,target=/build <<EOT
-  set -e
-  pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  for pkgname in *; do
-    workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-    mkdir -p "$workdir/${pkgname}"
-    (
-      set -x
-      cp ${pkgname}/* /src/LICENSE /src/README.md "$workdir/${pkgname}/"
-      cp /runc-src/LICENSE "$workdir/${pkgname}/runc.LICENSE"
-      cp /runc-src/README.md "$workdir/${pkgname}/runc.README.md"
-    )
-    if [ "$(xx-info os)" = "windows" ]; then
-      (set -x ; cd "$workdir" ; zip -r "${pkgoutput}/${pkgname}_${CONTAINERD_VERSION#v}.zip" ${pkgname})
-    else
-      (set -x ; tar -czf "${pkgoutput}/${pkgname}_${CONTAINERD_VERSION#v}.tgz" -C "$workdir" ${pkgname})
-    fi
-  done
-EOT
+    --mount=type=bind,from=build-static,source=/out,target=/build \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/src RUNC_SRCDIR=/runc-src pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 
