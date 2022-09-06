@@ -76,65 +76,17 @@ ARG PKG_SUITE
 ARG PKG_PACKAGER
 ARG PKG_VENDOR
 ARG PKG_REVISION
-ARG PKG_OUTPUT=/build
 ARG TARGETPLATFORM
-RUN --mount=source=nfpm.yml,target=nfpm.yml \
-    --mount=from=src,source=/src,target=/src \
-    --mount=from=nfpm,source=/usr/bin/nfpm,target=/usr/bin/nfpm <<EOT
+RUN --mount=type=bind,source=internal/pkg-build.sh,target=/usr/local/bin/pkg-build \
+    --mount=type=bind,source=internal/nfpm.yml,target=nfpm.yml \
+    --mount=type=bind,from=src,source=/src,target=/src \
+    --mount=type=bind,from=nfpm,source=/usr/bin/nfpm,target=/usr/bin/nfpm <<EOT
   set -e
   if [ "$MODE" != "download" ]; then
-    COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
+    export COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
   fi
-  PKG_OUTPUT="${PKG_OUTPUT}/${PKG_DISTRO}"
-  if [ "${PKG_DISTRO}" = "static" ]; then
-    PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info os)"
-  else
-    PKG_OUTPUT="${PKG_OUTPUT}/${PKG_SUITE}"
-  fi
-  PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    PKG_OUTPUT="${PKG_OUTPUT}/$(xx-info variant)"
-  fi
-  mkdir -p "${PKG_OUTPUT}"
-  if [ $PKG_TYPE = "static" ]; then
-    workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-    mkdir -p "$workdir/${PKG_NAME}"
-    echo "using static packager"
-    (
-      set -x
-      cp /src/LICENSE /src/README.md "$workdir/${PKG_NAME}/"
-    )
-    if [ "$(xx-info os)" = "windows" ]; then
-      (
-        set -x
-        cp /usr/bin/compose "$workdir/${PKG_NAME}/docker-compose.exe"
-        cd "$workdir"
-        zip -r "$PKG_OUTPUT/${PKG_NAME}_${COMPOSE_VERSION#v}.zip" ${PKG_NAME}
-      )
-    else
-      (
-        set -x
-        cp /usr/bin/compose "$workdir/${PKG_NAME}/docker-compose"
-        tar -czf "$PKG_OUTPUT/${PKG_NAME}_${COMPOSE_VERSION#v}.tgz" -C "$workdir" ${PKG_NAME}
-      )
-    fi
-  elif [ "$(xx-info os)" = "linux" ]; then
-    case $PKG_TYPE in
-      apk)
-        arch=$(xx-info alpine-arch);;
-      deb)
-        arch=$(xx-info debian-arch);;
-      rpm)
-        arch=$(xx-info rhel-arch);;
-    esac
-    (
-      set -x
-      ARCH="${arch}" VERSION="${COMPOSE_VERSION}" RELEASE="$PKG_REVISION" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager $PKG_TYPE --target "$PKG_OUTPUT"
-    )
-  else
-    rm -rf "${PKG_OUTPUT}"
-  fi
+  OUTDIR=/out pkg-build
 EOT
 
 FROM scratch AS pkg
-COPY --from=build-pkg /build /
+COPY --from=build-pkg /out /

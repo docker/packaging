@@ -30,11 +30,13 @@ ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
 ARG PKG_BASE_IMAGE="debian:bullseye"
 
-# deb specific
-ARG PKG_DEB_EPOCH="5"
+# deb specific, see vars.mk for more details
+ARG PKG_DEB_BUILDFLAGS="-b -uc"
 ARG PKG_DEB_REVISION="0"
+ARG PKG_DEB_EPOCH="5"
 
-# rpm specific
+# rpm specific, see vars.mk for more details
+ARG PKG_RPM_BUILDFLAGS="-bb"
 ARG PKG_RPM_RELEASE="1"
 
 # cross compilation helper
@@ -79,65 +81,31 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS apparmor seccomp selinux
 ENV RUNC_BUILDTAGS apparmor seccomp selinux
 ARG PKG_RELEASE
-RUN <<EOT
-  case "$PKG_RELEASE" in
-    ubuntu1804)
-      # FIXME: https://github.com/docker/docker-ce-packaging/issues/758
-      apt-get install --allow-downgrades -y libudev1=237-3ubuntu10.53 libsystemd0=237-3ubuntu10.53
-      ;;
-    ubuntu2004|ubuntu2204)
-      if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
-        rm -f /usr/bin/man
-        dpkg-divert --quiet --remove --rename /usr/bin/man
-      fi
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
 FROM build-base-deb AS build-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND
 ARG PKG_RELEASE
-RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
+RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
 COPY --from=src /src ./engine
 ARG DOCKER_ENGINE_VERSION
+ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
+ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
-RUN --mount=source=common,target=/common \
+RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=source=common,target=/common \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  mkdir -p /out
-  if [ "$(xx-info arch)" != "$(TARGETPLATFORM= xx-info arch)" ]; then
-    echo "$(xx-info arch) architecture is not supported"
-    exit 0
-  fi
-  export DOCKER_ENGINE_REVISION=$(git --git-dir ./engine/.git rev-parse --short HEAD)
-  debVersion=${DOCKER_ENGINE_VERSION#v}
-  debVersion=$(echo $debVersion | sed "s/-/~/")
-  cat > "debian/changelog" <<-EOF
-docker-ce (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersion}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low
-  * Version: $DOCKER_ENGINE_VERSION
- -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
-EOF
-  xx-go --wrap
-  set -x
-  chmod -x debian/compat debian/control debian/docs
-  dpkg-buildpackage -us -uc
-  pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  cp /root/docker* ${pkgoutput}/
-EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=./engine pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
 FROM build-deb AS builder-deb-linux
@@ -154,107 +122,32 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS seccomp selinux
 ENV RUNC_BUILDTAGS seccomp selinux
 ARG PKG_RELEASE
-RUN <<EOT
-  case "$PKG_RELEASE" in
-    centos7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint
-      ;;
-    centos8)
-      [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
-      [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y rpm-build git rpmlint dnf-plugins-core
-      ;;
-    centos9)
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y rpm-build git rpmlint dnf-plugins-core
-      dnf config-manager --set-enabled crb
-      ;;
-    oraclelinux7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint
-      yum-config-manager --enable ol7_addons --enable ol7_optional_latest
-      ;;
-    oraclelinux8)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      dnf config-manager --enable ol8_addons --enable ol8_codeready_builder
-      ;;
-    oraclelinux9)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      dnf config-manager --enable ol9_addons --enable ol9_codeready_builder
-      ;;
-    fedora*)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
 FROM build-base-rpm AS build-rpm
 COPY rpm /root/rpmbuild/SPECS
+ARG PKG_RELEASE
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  case "$PKG_RELEASE" in
-    centos7)
-      yum-builddep -y /root/rpmbuild/SPECS/*.spec
-      ;;
-    oraclelinux7)
-      yum-builddep --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
-      ;;
-    centos*|oraclelinux*)
-      dnf builddep --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
-      ;;
-    *)
-      dnf builddep -y /root/rpmbuild/SPECS/*.spec
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
 WORKDIR /root/rpmbuild
 COPY --from=src-tgz /out/engine.tgz ./SOURCES/
 ARG DOCKER_ENGINE_VERSION
-ARG PKG_RELEASE
+ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
+ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
-RUN --mount=source=common,target=/common \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
+RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,source=common/systemd/docker.service,target=/root/rpmbuild/SOURCES/docker.service \
+    --mount=type=bind,source=common/systemd/docker.socket,target=/root/rpmbuild/SOURCES/docker.socket \
+    --mount=type=bind,from=src-tgz,source=/out/engine.tgz,target=/root/rpmbuild/SOURCES/engine.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/engine \
+    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  mkdir -p /out
-  if [ "$(xx-info arch)" != "$(TARGETPLATFORM= xx-info arch)" ]; then
-    echo "$(xx-info arch) architecture is not supported"
-    exit 0
-  fi
-  cp /common/systemd/* ./SOURCES/
-  rpmVersion=${DOCKER_ENGINE_VERSION#v}
-  rpmVersion=$(echo $rpmVersion | sed "s/-/~/")
-  xx-go --wrap
-  set -x
-  rpmDefine=(
-    --define "_version ${rpmVersion}"
-    --define "_origversion ${DOCKER_ENGINE_VERSION#v}"
-    --define "_release $PKG_RPM_RELEASE"
-    --define "_commit $(git --git-dir /usr/local/src/engine/.git rev-parse --short HEAD)"
-  )
-  case "$PKG_RELEASE" in
-    centos8|centos9|oraclelinux*)
-      rpmDefine+=(--define "_without_btrfs 1")
-      export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
-      ;;
-  esac
-  rpmbuild -ba "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
-  pkgoutput="/out/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  cp ./RPMS/*/*.* ./SRPMS/* ${pkgoutput}/
-EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=/usr/local/src/engine pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
 FROM build-rpm AS builder-rpm-linux
@@ -313,25 +206,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash file zip t
 WORKDIR /build
 ARG DOCKER_ENGINE_VERSION
 ARG TARGETPLATFORM
-RUN --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build <<EOT
-  set -e
-  pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
-  if [ -n "$(xx-info variant)" ]; then
-    pkgoutput="${pkgoutput}/$(xx-info variant)"
-  fi
-  mkdir -p "${pkgoutput}"
-  for pkgname in *; do
-    workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-    mkdir -p "$workdir/${pkgname}"
-    (set -x ; cp ${pkgname}/* /src/LICENSE /src/README.md "$workdir/${pkgname}/")
-    if [ "$(xx-info os)" = "windows" ]; then
-      (set -x ; cd "$workdir" ; zip -r "${pkgoutput}/${pkgname}_${DOCKER_ENGINE_VERSION#v}.zip" ${pkgname})
-    else
-      (set -x ; tar -czf "${pkgoutput}/${pkgname}_${DOCKER_ENGINE_VERSION#v}.tgz" -C "$workdir" ${pkgname})
-    fi
-  done
-EOT
+RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=src,source=/src,target=/src \
+    --mount=type=bind,from=build-static,source=/out,target=/build \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 

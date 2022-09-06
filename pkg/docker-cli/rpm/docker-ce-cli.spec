@@ -41,7 +41,6 @@ Recommends: docker-scan-plugin(x86-64)
 %endif
 
 BuildRequires: gcc
-BuildRequires: git
 BuildRequires: make
 
 Conflicts: docker

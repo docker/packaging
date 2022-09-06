@@ -40,7 +40,6 @@ BuildRequires: ca-certificates
 BuildRequires: cmake
 BuildRequires: device-mapper-devel
 BuildRequires: gcc
-BuildRequires: git
 BuildRequires: glibc-static
 BuildRequires: libarchive
 BuildRequires: libseccomp-devel

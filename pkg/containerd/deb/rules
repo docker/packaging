@@ -60,5 +60,5 @@ override_dh_systemd_start:
 override_dh_auto_install: binaries bin/runc man
 	mkdir -p debian/containerd.io/usr/bin
 	install -D -m 0755 bin/* debian/containerd.io/usr/bin
-	install -D -m 0644 /internal/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
-	install -D -m 0644 /internal/containerd.toml debian/containerd.io/etc/containerd/config.toml
+	install -D -m 0644 /common/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
+	install -D -m 0644 /common/containerd.toml debian/containerd.io/etc/containerd/config.toml

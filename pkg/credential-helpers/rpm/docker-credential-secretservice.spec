@@ -15,7 +15,6 @@ Packager: Docker <support@docker.com>
 Requires: libsecret
 
 BuildRequires: gcc
-BuildRequires: git
 BuildRequires: libsecret-devel
 BuildRequires: make
 BuildRequires: pkgconfig
