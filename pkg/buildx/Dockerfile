@@ -25,7 +25,14 @@ ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
 
+# cross compilation helper
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+
+# nFPM is Not FPM - a simple deb, rpm and apk packager
+FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
+
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+COPY --from=xx / /
 RUN apk add --no-cache bash curl file git zip tar
 
 FROM base AS src
@@ -56,13 +63,11 @@ RUN --mount=from=build,target=/build <<EOL
     cp /build/buildx${BIN_EXT} buildx
   fi
   chmod +x buildx
+  xx-verify --static buildx
 EOL
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
-FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
 FROM base AS build-pkg
 WORKDIR /work
-COPY --from=xx / /
 COPY --from=binary /out/buildx /usr/bin/buildx
 ARG MODE
 ARG BUILDX_VERSION

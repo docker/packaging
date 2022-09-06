@@ -28,6 +28,9 @@ ARG PKG_SUITE="bullseye"
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
+# nFPM is Not FPM - a simple deb, rpm and apk packager
+FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
+
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
 COPY --from=xx / /
 RUN apk add --no-cache bash curl file git zip tar
@@ -63,7 +66,6 @@ RUN --mount=from=build,target=/build <<EOL
   xx-verify --static scan
 EOL
 
-FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
 FROM base AS build-pkg
 WORKDIR /work
 COPY --from=binary /out/scan /usr/bin/scan
