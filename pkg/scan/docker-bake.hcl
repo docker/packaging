@@ -12,37 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-# Sets the scan plugin repo. Will be used to clone the repo at SCAN_VERSION
-# ref to include the README.md and LICENSE for the static packages and also
+# Sets the scan plugin repo. Will be used to clone the repo at SCAN_VERSION ref
+# to include the README.md and LICENSE for the static packages and also
 # create version string.
 variable "SCAN_REPO" {
   default = "https://github.com/docker/scan-cli-plugin.git"
 }
 
-# Sets the scan plugin version to build from source.
+# Sets the scan plugin version to download the binary from GitHub Releases.
+# If version starts with # it will build from source.
 variable "SCAN_VERSION" {
-  default = "v0.17.0"
-}
-
-# Sets Go image, version and variant to use for building
-variable "GO_IMAGE" {
-  default = ""
-}
-variable "GO_VERSION" {
-  default = ""
-}
-variable "GO_IMAGE_VARIANT" {
-  default = ""
+  default = "v0.19.0"
 }
 
 # Sets the pkg name.
 variable "PKG_NAME" {
   default = "docker-scan-plugin"
-}
-
-# Sets the list of package types to build: apk, deb, rpm or static
-variable "PKG_TYPE" {
-  default = "static"
 }
 
 # Sets release flavor. See packages.hcl and packages.mk for more details.
@@ -66,23 +51,10 @@ variable "PKG_PACKAGER" {
   default = "Docker <support@docker.com>"
 }
 
-# deb specific, see vars.mk for more details
-variable "PKG_DEB_BUILDFLAGS" {
-  default = "-b -uc"
-}
-variable "PKG_DEB_REVISION" {
+# Include an extra `.0` in the version, in case we ever would have to re-build
+# an already published release with a packaging-only change.
+variable "PKG_REVISION" {
   default = "0"
-}
-variable "PKG_DEB_EPOCH" {
-  default = "5"
-}
-
-# rpm specific, see vars.mk for more details
-variable "PKG_RPM_BUILDFLAGS" {
-  default = "-bb"
-}
-variable "PKG_RPM_RELEASE" {
-  default = "1"
 }
 
 # Defines the output folder
@@ -99,6 +71,11 @@ variable "BUILD_CACHE_SCOPE" {
   default = ""
 }
 
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "meta-helper" {
+  tags = ["dockereng/packaging:scan-local"]
+}
+
 group "default" {
   targets = ["pkg"]
 }
@@ -109,17 +86,10 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     SCAN_REPO = SCAN_REPO
     SCAN_VERSION = SCAN_VERSION
-    GO_IMAGE = GO_IMAGE
-    GO_VERSION = GO_VERSION
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
     PKG_NAME = PKG_NAME
     PKG_VENDOR = PKG_VENDOR
     PKG_PACKAGER = PKG_PACKAGER
-    PKG_DEB_BUILDFLAGS = PKG_DEB_BUILDFLAGS
-    PKG_DEB_REVISION = PKG_DEB_REVISION
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH
-    PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
-    PKG_RPM_RELEASE = PKG_RPM_RELEASE
+    PKG_REVISION = PKG_REVISION
   }
   cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
@@ -137,26 +107,19 @@ target "_platforms" {
 
 # $ PKG_RELEASE=debian11 docker buildx bake pkg
 # $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
-target "pkg" {
-  inherits = ["_common"]
-  target = "pkg"
-  output = [bindir(PKG_RELEASE)]
+group "pkg" {
+  targets = [substr(SCAN_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
 }
 
 # Same as pkg but for all supported platforms
-target "pkg-cross" {
-  inherits = ["pkg", "_platforms"]
-}
-
-# Special target: https://github.com/docker/metadata-action#bake-definition
-target "meta-helper" {
-  tags = ["dockereng/packaging:scan-local"]
+group "pkg-cross" {
+  targets = [substr(SCAN_VERSION, 0, 1) == "#" ? "_pkg-build-cross" : "_pkg-download-cross"]
 }
 
 # Create release image by using ./bin folder as named context. Therefore
 # pkg or pkg-cross target must be run before using this target:
-# $ make pkg
-# $ docker buildx bake release --push --set *.tags=docker/packaging:scan-v0.17.0
+# $ PKG_RELEASE=debian11 docker buildx bake pkg-cross
+# $ docker buildx bake release --push --set *.tags=docker/packaging:build-v0.9.1
 target "release" {
   inherits = ["meta-helper", "_platforms"]
   dockerfile = "../../common/release.Dockerfile"
@@ -164,4 +127,54 @@ target "release" {
   contexts = {
     bin-folder = "./bin"
   }
+}
+
+target "_pkg-download" {
+  inherits = ["_common"]
+  target = "pkg"
+  platforms = ["local"]
+  output = [bindir("local")]
+}
+
+target "_pkg-download-cross" {
+  inherits = ["_pkg-download", "_platforms"]
+  output = [bindir("cross")]
+}
+
+target "_pkg-build" {
+  inherits = ["_pkg-download"]
+  args = {
+    MODE = "build"
+    SCAN_VERSION = trimprefix(SCAN_VERSION, "#")
+  }
+  contexts = {
+    build = "target:_build"
+  }
+  output = [bindir("local")]
+}
+
+target "_pkg-build-cross" {
+  inherits = ["_pkg-download-cross"]
+  args = {
+    MODE = "build"
+    SCAN_VERSION = trimprefix(SCAN_VERSION, "#")
+  }
+  contexts = {
+    build = "target:_build-cross"
+  }
+  output = [bindir("cross")]
+}
+
+target "_build" {
+  context = "${SCAN_REPO}${SCAN_VERSION}"
+  args = {
+    MODE = "build"
+    BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
+    BUILDKIT_MULTI_PLATFORM = 1
+  }
+  target = "cross"
+}
+
+target "_build-cross" {
+  inherits = ["build", "_platforms"]
 }
