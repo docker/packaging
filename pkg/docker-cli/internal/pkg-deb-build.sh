@@ -71,7 +71,7 @@ fi
 set -x
 
 chmod -x debian/compat debian/control debian/docs debian/*.bash-completion debian/*.manpages
-DOCKER_CLI_REVISION=$commit dpkg-buildpackage -us -uc
+DOCKER_CLI_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then

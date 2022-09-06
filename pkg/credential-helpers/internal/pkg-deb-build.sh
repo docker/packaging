@@ -66,7 +66,7 @@ EOF
 set -x
 
 chmod -x debian/compat debian/control debian/docs
-dpkg-buildpackage -us -uc
+dpkg-buildpackage $PKG_DEB_BUILDFLAGS
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then

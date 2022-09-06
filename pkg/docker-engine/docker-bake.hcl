@@ -66,17 +66,21 @@ variable "PKG_PACKAGER" {
   default = "Docker <support@docker.com>"
 }
 
-# Include an extra `.0` in the version, in case we ever would have to re-build
-# an already published release with a packaging-only change.
+# deb specific, see vars.mk for more details
+variable "PKG_DEB_BUILDFLAGS" {
+  default = "-b -uc"
+}
 variable "PKG_DEB_REVISION" {
   default = "0"
 }
+variable "PKG_DEB_EPOCH" {
+  default = "5"
+}
 
-# rpm "Release:" field ($rpmRelease) is used to set the "_release" macro, which
-# is an incremental number for builds of the same release (Version: / #rpmVersion)
-# - Version: 0   : Package was built, but no matching upstream release (e.g., can be used for "nightly" builds)
-# - Version: 1   : Package was built for an upstream (pre)release version
-# - Version: > 1 : Only to be used for packaging-only changes (new package built for a version for which a package was already built/released)
+# rpm specific, see vars.mk for more details
+variable "PKG_RPM_BUILDFLAGS" {
+  default = "-bb"
+}
 variable "PKG_RPM_RELEASE" {
   default = "1"
 }
@@ -111,7 +115,10 @@ target "_common" {
     PKG_NAME = PKG_NAME
     PKG_VENDOR = PKG_VENDOR
     PKG_PACKAGER = PKG_PACKAGER
+    PKG_DEB_BUILDFLAGS = PKG_DEB_BUILDFLAGS
     PKG_DEB_REVISION = PKG_DEB_REVISION
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH
+    PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
   }
   cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]

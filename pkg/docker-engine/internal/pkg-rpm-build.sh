@@ -81,6 +81,9 @@ case "$PKG_RELEASE" in
     ;;
 esac
 
-rpmbuild -ba "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
+rpmbuild $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
-cp ./RPMS/*/*.* ./SRPMS/* "${pkgoutput}"/
+cp ./RPMS/*/*.* "${pkgoutput}"/
+if [ "$(ls -A ./SRPMS)" ]; then
+  cp ./SRPMS/* "${pkgoutput}"/
+fi

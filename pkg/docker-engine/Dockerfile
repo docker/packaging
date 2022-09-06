@@ -30,11 +30,13 @@ ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
 ARG PKG_BASE_IMAGE="debian:bullseye"
 
-# deb specific
-ARG PKG_DEB_EPOCH="5"
+# deb specific, see vars.mk for more details
+ARG PKG_DEB_BUILDFLAGS="-b -uc"
 ARG PKG_DEB_REVISION="0"
+ARG PKG_DEB_EPOCH="5"
 
-# rpm specific
+# rpm specific, see vars.mk for more details
+ARG PKG_RPM_BUILDFLAGS="-bb"
 ARG PKG_RPM_RELEASE="1"
 
 # cross compilation helper
@@ -94,6 +96,7 @@ ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
+ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
@@ -133,6 +136,7 @@ ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
+ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \

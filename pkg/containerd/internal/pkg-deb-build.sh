@@ -63,7 +63,7 @@ set -x
 sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /common/containerd.service
 
 chmod -x debian/compat debian/control debian/copyright debian/manpages
-GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage -us -uc
+GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
