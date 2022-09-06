@@ -16,8 +16,8 @@ include ../../common/vars.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-PKG_LIST ?= deb rpm static
-DEFAULT_RULE ?= pkg
+PKG_LIST ?= apk deb rpm static
+DEFAULT_RULE ?= pkg-cross
 
 .PHONY: all
 all: $(DEFAULT_RULE)
