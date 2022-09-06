@@ -25,7 +25,14 @@ ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
 
+# cross compilation helper
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+
+# nFPM is Not FPM - a simple deb, rpm and apk packager
+FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
+
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+COPY --from=xx / /
 RUN apk add --no-cache bash curl file git zip tar
 
 FROM base AS src
@@ -46,10 +53,11 @@ ARG TARGETVARIANT
 RUN --mount=from=build,target=/build <<EOL
   set -e
   BIN_EXT=$([ "$TARGETOS" = "windows" ] && echo ".exe" || true)
-  TARGETARCH=$([ "$TARGETARCH" = "amd64" ] && echo "x86_64" || echo "$TARGETARCH")
-  TARGETARCH=$([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "$TARGETARCH")
+  binArch=${TARGETARCH}
+  binArch=$([ "$binArch" = "amd64" ] && echo "x86_64" || echo "$binArch")
+  binArch=$([ "$binArch" = "arm64" ] && echo "aarch64" || echo "$binArch")
   if [ "$MODE" = "download" ]; then
-    RELEASE_FILENAME="docker-compose-$TARGETOS-$TARGETARCH"
+    RELEASE_FILENAME="docker-compose-$TARGETOS-$binArch"
     if [ -n "$TARGETVARIANT" ]; then
       RELEASE_FILENAME="$RELEASE_FILENAME$TARGETVARIANT"
     fi
@@ -58,13 +66,11 @@ RUN --mount=from=build,target=/build <<EOL
     cp /build/docker-compose${BIN_EXT} compose
   fi
   chmod +x compose
+  xx-verify --static compose
 EOL
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
-FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
 FROM base AS build-pkg
 WORKDIR /work
-COPY --from=xx / /
 COPY --from=binary /out/compose /usr/bin/compose
 ARG MODE
 ARG COMPOSE_VERSION
