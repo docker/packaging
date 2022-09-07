@@ -16,7 +16,7 @@ maintainer: Docker <support@docker.com>
 description: Docker Buildx plugin extends build capabilities with BuildKit.
 vendor: ${VENDOR}
 homepage: https://github.com/docker/buildx
-license: Apache-2.0
+license: ASL 2.0
 disable_globbing: true
 
 contents:

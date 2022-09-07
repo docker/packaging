@@ -20,7 +20,7 @@ description: |
   Docker Compose V1 ('docker-compose').
 vendor: ${VENDOR}
 homepage: https://github.com/docker/compose
-license: Apache-2.0
+license: ASL 2.0
 disable_globbing: true
 
 contents:
