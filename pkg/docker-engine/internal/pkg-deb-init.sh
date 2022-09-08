@@ -37,10 +37,6 @@ fi
 set -x
 
 case "$PKG_RELEASE" in
-  ubuntu1804)
-    # FIXME: https://github.com/docker/docker-ce-packaging/issues/758
-    apt-get install --allow-downgrades -y libudev1=237-3ubuntu10.53 libsystemd0=237-3ubuntu10.53
-    ;;
   ubuntu2004|ubuntu2204)
     if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
       rm -f /usr/bin/man
