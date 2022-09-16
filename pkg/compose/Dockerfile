@@ -15,7 +15,7 @@
 # limitations under the License.
 
 ARG ALPINE_VERSION="3.16"
-ARG NFPM_VERSION="2.15.1"
+ARG NFPM_VERSION="v2.15.1"
 ARG XX_VERSION="1.1.2"
 ARG MODE="download"
 
@@ -28,8 +28,12 @@ ARG PKG_SUITE="bullseye"
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# nFPM is Not FPM - a simple deb, rpm and apk packager
-FROM --platform=$BUILDPLATFORM goreleaser/nfpm:v${NFPM_VERSION} AS nfpm
+# nFPM
+FROM --platform=$BUILDPLATFORM golang:1.18-alpine AS nfpm
+RUN apk add --no-cache git
+ARG GO111MODULE="on"
+ARG NFPM_VERSION
+RUN go install github.com/goreleaser/nfpm/v2/cmd/nfpm@${NFPM_VERSION}
 
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
 COPY --from=xx / /
@@ -86,7 +90,7 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-build.sh,target=/usr/local/bin/pkg-build \
     --mount=type=bind,source=internal/nfpm.yml,target=nfpm.yml \
     --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=nfpm,source=/usr/bin/nfpm,target=/usr/bin/nfpm <<EOT
+    --mount=type=bind,from=nfpm,source=/go/bin/nfpm,target=/usr/bin/nfpm <<EOT
   set -e
   if [ "$MODE" != "download" ]; then
     export COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
