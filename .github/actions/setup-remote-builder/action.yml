@@ -1,0 +1,55 @@
+name: 'Setup remote builder'
+description: 'Composite action to set up BuildKit remote builder'
+
+inputs:
+  name:
+    description: 'Node name'
+    required: true
+  builder_name:
+    description: 'Builder name to append to'
+    required: true
+  endpoint:
+    description: 'Host'
+    required: true
+  cacert:
+    description: 'CA Cert'
+    required: true
+  ca:
+    description: 'Cert'
+    required: true
+  key:
+    description: 'Key'
+    required: true
+  platforms:
+    description: 'Preferred platforms'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    -
+      name: Set up certs
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const homedir = require('os').homedir();
+          fs.mkdirSync(`${homedir}/.certs/${{ inputs.name }}`, { recursive: true });
+          fs.writeFileSync(`${homedir}/.certs/${{ inputs.name }}/ca.pem`, process.env.BUILDKIT_CACERT);
+          fs.writeFileSync(`${homedir}/.certs/${{ inputs.name }}/cert.pem`, process.env.BUILDKIT_CERT);
+          fs.writeFileSync(`${homedir}/.certs/${{ inputs.name }}/key.pem`, process.env.BUILDKIT_KEY);
+      env:
+        BUILDKIT_CACERT: ${{ inputs.cacert }}
+        BUILDKIT_CERT: ${{ inputs.ca }}
+        BUILDKIT_KEY: ${{ inputs.key }}
+    -
+      name: Set up remote builder
+      shell: bash
+      run: |
+        docker buildx create --bootstrap --append \
+          --name ${{ inputs.builder_name }} \
+          --node ${{ inputs.name }} \
+          --driver remote \
+          --driver-opt cacert=$HOME/.certs/${{ inputs.name }}/ca.pem,cert=$HOME/.certs/${{ inputs.name }}/cert.pem,key=$HOME/.certs/${{ inputs.name }}/key.pem \
+          --platform "${{ inputs.platforms }}" \
+          ${{ inputs.endpoint }}

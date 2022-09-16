@@ -10,6 +10,9 @@ on:
       - 'main'
   pull_request:
 
+env:
+  BUILDER_NAME: remote-builder
+
 jobs:
   validate:
     runs-on: ubuntu-20.04
@@ -49,7 +52,42 @@ jobs:
         uses: docker/setup-qemu-action@v2
       -
         name: Set up Docker Buildx
+        id: builder
         uses: docker/setup-buildx-action@v2
+      -
+        # necessary to be able to append remote builders
+        name: Set up container builder as remote
+        run: |
+          docker buildx create --use \
+            --name ${{ env.BUILDER_NAME }} \
+            --driver remote \
+            docker-container://buildx_buildkit_${{ steps.builder.outputs.name }}0
+      -
+        name: Set up AWS Graviton2 remote builder
+        uses: ./.github/actions/setup-remote-builder
+        with:
+          name: aws_graviton2
+          builder_name: ${{ env.BUILDER_NAME }}
+          endpoint: tcp://${{ secrets.AWS_ARM64_HOST }}:1234
+          cacert: ${{ secrets.AWS_ARM64_CACERT }}
+          ca: ${{ secrets.AWS_ARM64_CERT }}
+          key: ${{ secrets.AWS_ARM64_KEY }}
+          platforms: darwin/arm64,linux/arm64,linux/arm/v5,linux/arm/v6,linux/arm/v7,windows/arm64
+      -
+        name: Set up LinuxONE s390x remote builder
+        uses: ./.github/actions/setup-remote-builder
+        with:
+          name: linuxone_s390x
+          builder_name: ${{ env.BUILDER_NAME }}
+          endpoint: tcp://${{ secrets.LINUXONE_S390X_HOST }}:1234
+          cacert: ${{ secrets.LINUXONE_S390X_CACERT }}
+          ca: ${{ secrets.LINUXONE_S390X_CERT }}
+          key: ${{ secrets.LINUXONE_S390X_KEY }}
+          platforms: linux/s390x
+      -
+        name: List builders
+        run: |
+          docker buildx ls
       -
         # necessary to use gha cache export
         name: Expose GitHub Runtime
@@ -64,6 +102,12 @@ jobs:
         name: List artifacts
         run: |
           tree -nh ./pkg/${{ matrix.name }}/bin
+      -
+        name: Cleanup
+        if: always()
+        run: |
+          docker buildx rm ${{ env.BUILDER_NAME }}
+          rm -rf ~/.certs
 # FIXME: Uncomment when repo made public
 #      -
 #        name: Upload artifacts
