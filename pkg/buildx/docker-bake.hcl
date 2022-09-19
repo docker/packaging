@@ -118,13 +118,13 @@ group "pkg" {
 }
 
 # Same as pkg but for all supported platforms
-group "pkg-cross" {
-  targets = [substr(BUILDX_VERSION, 0, 1) == "#" ? "_pkg-build-cross" : "_pkg-download-cross"]
+group "pkg-multi" {
+  targets = [substr(BUILDX_VERSION, 0, 1) == "#" ? "_pkg-build-multi" : "_pkg-download-multi"]
 }
 
 # Create release image by using ./bin folder as named context. Therefore
-# pkg or pkg-cross target must be run before using this target:
-# $ PKG_RELEASE=debian11 docker buildx bake pkg-cross
+# pkg or pkg-multi target must be run before using this target:
+# $ PKG_RELEASE=debian11 docker buildx bake pkg-multi
 # $ docker buildx bake release --push --set *.tags=docker/packaging:build-v0.9.1
 target "release" {
   inherits = ["meta-helper", "_platforms"]
@@ -142,9 +142,9 @@ target "_pkg-download" {
   output = [bindir("local")]
 }
 
-target "_pkg-download-cross" {
+target "_pkg-download-multi" {
   inherits = ["_pkg-download", "_platforms"]
-  output = [bindir("cross")]
+  output = [bindir("multi")]
 }
 
 target "_pkg-build" {
@@ -159,16 +159,16 @@ target "_pkg-build" {
   output = [bindir("local")]
 }
 
-target "_pkg-build-cross" {
-  inherits = ["_pkg-download-cross"]
+target "_pkg-build-multi" {
+  inherits = ["_pkg-download-multi"]
   args = {
     MODE = "build"
     BUILDX_VERSION = trimprefix(BUILDX_VERSION, "#")
   }
   contexts = {
-    build = "target:_build-cross"
+    build = "target:_build-multi"
   }
-  output = [bindir("cross")]
+  output = [bindir("multi")]
 }
 
 target "_build" {
@@ -181,6 +181,6 @@ target "_build" {
   target = "binaries"
 }
 
-target "_build-cross" {
+target "_build-multi" {
   inherits = ["build", "_platforms"]
 }

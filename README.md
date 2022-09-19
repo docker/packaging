@@ -28,7 +28,23 @@ $ make deb rpm
 ```
 
 Each [project](pkg) has also its own `Makefile`, `Dockerfile` and bake
-definition to build and push packages in two steps:
+definition to build and push packages.
+
+```shell
+$ cd pkg/buildx/
+# build all packages matching host platform (shortand for pkg-apk pkg-deb pkg-rpm pkg-static)
+$ make pkg
+# build all packages for all supported platforms (shortand for pkg-multi-apk pkg-multi-deb pkg-multi-rpm pkg-multi-static)
+$ make pkg-multi
+# build debian packages for all supported platforms
+$ make pkg-multi-deb
+# build debian bullseye packages matching host platform
+$ make build-debian11
+# build centos 7 packages for all supported platforms
+$ make build-multi-centos7
+```
+
+To create a new release of Buildx v0.9.1:
 
 ```shell
 # build all packages for buildx v0.9.1 and output to ./bin folder
