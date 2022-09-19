@@ -21,7 +21,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 # go
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.18.5"
-ARG GO_IMAGE_VARIANT="buster"
+ARG GO_IMAGE_VARIANT="bullseye"
 
 # pkg matrix
 ARG PKG_RELEASE="debian11"
