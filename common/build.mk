@@ -34,22 +34,22 @@ pkg-%: pkg-%-releases
 pkg-static:
 	$(MAKE) build-static
 
-.PHONY: pkg-cross
-pkg-cross:
-	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-cross-$(pkg))
+.PHONY: pkg-multi
+pkg-multi:
+	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-multi-$(pkg))
 
 .PHONY: pkg-%
-pkg-cross-%: pkg-%-releases
-	$(MAKE) $(foreach release,$(PKG_RELEASES),build-cross-$(release))
+pkg-multi-%: pkg-%-releases
+	$(MAKE) $(foreach release,$(PKG_RELEASES),build-multi-$(release))
 
-.PHONY: pkg-cross-static
-pkg-cross-static:
-	$(MAKE) build-cross-static
+.PHONY: pkg-multi-static
+pkg-multi-static:
+	$(MAKE) build-multi-static
 
 .PHONY: build-%
 build-%: pkg-info-%
 	$(call run_bake,$*,$(DESTDIR),$(BAKE_DEFINITIONS),pkg)
 
-.PHONY: build-cross-%
-build-cross-%: pkg-info-%
-	$(call run_bake,$*,$(DESTDIR),$(BAKE_DEFINITIONS),pkg-cross)
+.PHONY: build-multi-%
+build-multi-%: pkg-info-%
+	$(call run_bake,$*,$(DESTDIR),$(BAKE_DEFINITIONS),pkg-multi)

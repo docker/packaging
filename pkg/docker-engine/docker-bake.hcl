@@ -145,7 +145,7 @@ target "pkg" {
 }
 
 # Same as pkg but for all supported platforms
-target "pkg-cross" {
+target "pkg-multi" {
   inherits = ["pkg", "_platforms"]
 }
 
@@ -155,8 +155,8 @@ target "meta-helper" {
 }
 
 # Create release image by using ./bin folder as named context. Therefore
-# pkg-cross target must be run before using this target:
-# $ PKG_RELEASE=debian11 docker buildx bake pkg-cross
+# pkg-multi target must be run before using this target:
+# $ PKG_RELEASE=debian11 docker buildx bake pkg-multi
 # $ docker buildx bake release --push --set *.tags=docker/packaging:docker-engine-v20.10.17
 target "release" {
   inherits = ["meta-helper", "_platforms"]
