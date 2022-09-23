@@ -16,19 +16,22 @@ include ../../common/vars.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
+DEFAULT_RULE ?= pkg-multi
+
 PKG_LIST ?= deb rpm static
-DEFAULT_RULE ?= pkg
+# supported platforms: https://github.com/moby/moby/blob/0e873d5cd8b31c08e29ff2f790c19a2e9c4ee30a/.github/workflows/ci.yml#L65-L73
+PKG_PLATFORMS ?= linux/amd64 linux/arm/v7 linux/arm64 linux/ppc64le linux/s390x windows/amd64
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
 
 .PHONY: all
 all: $(DEFAULT_RULE)
-	# noop
+	@#
 
 .PHONY: all-%
 all-%: $(DEFAULT_RULE)-%
-	# noop
+	@#
 
 .PHONY: version
 version:

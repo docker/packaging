@@ -28,25 +28,23 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
+builddepCmd=""
+if command -v dnf &> /dev/null; then
+  builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
+elif command -v yum-builddep &> /dev/null; then
+  builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
+else
+  echo >&2 "unable to detect package manager"
+  exit 1
 fi
 
 set -x
 
 case "$PKG_RELEASE" in
-  centos7)
-    yum-builddep -y /root/rpmbuild/SPECS/*.spec
-    ;;
-  oraclelinux7)
-    yum-builddep --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
-    ;;
-  centos*|oraclelinux*)
-    dnf builddep --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
+  centos8|centos9|oraclelinux*)
+    $builddepCmd --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
     ;;
   *)
-    dnf builddep -y /root/rpmbuild/SPECS/*.spec
+    $builddepCmd -y /root/rpmbuild/SPECS/*.spec
     ;;
 esac

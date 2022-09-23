@@ -53,7 +53,7 @@ export COMPOSE_REPO ?= https://github.com/docker/compose.git
 export SCAN_REPO ?= https://github.com/docker/scan-cli-plugin.git
 export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
 
-export DOCKER_ENGINE_VERSION ?= v20.10.17
+export DOCKER_ENGINE_VERSION ?= v22.06.0-beta.0
 export DOCKER_CLI_VERSION ?= v22.06.0-beta.0
 export CONTAINERD_VERSION ?= v1.6.8
 export BUILDX_VERSION ?= v0.9.1
