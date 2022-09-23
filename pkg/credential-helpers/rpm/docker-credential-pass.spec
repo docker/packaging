@@ -15,6 +15,7 @@ Packager: Docker <support@docker.com>
 Requires: pass
 
 BuildRequires: gcc
+BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 BuildRequires: pkgconfig
 

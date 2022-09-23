@@ -47,7 +47,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 # go base image to retrieve /usr/local/go
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
 # dummy stage for unsupported platforms
 FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
@@ -71,7 +71,7 @@ RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
     mkdir /out && tar -C / -zcf /out/docker-credential-helpers.tgz --exclude .git docker-credential-helpers
 
 # deb
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-deb
+FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
@@ -109,7 +109,7 @@ FROM build-dummy AS builder-deb-windows
 FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-rpm
+FROM ${PKG_BASE_IMAGE} AS build-base-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -145,10 +145,11 @@ FROM build-dummy AS builder-rpm-windows
 FROM builder-rpm-${TARGETOS} AS builder-rpm
 
 # static
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -161,10 +162,11 @@ ARG TARGETPLATFORM
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
   make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-secretservice
@@ -177,11 +179,12 @@ ARG TARGETPLATFORM
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
   set -e
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   go install std
   make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-osxkeychain
@@ -195,14 +198,15 @@ ARG TARGETPLATFORM
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-wincred
   mv /out/docker-credential-wincred/docker-credential-wincred /out/docker-credential-wincred/docker-credential-wincred.exe
-  xx-verify /out/docker-credential-wincred.exe
+  xx-verify /out/docker-credential-wincred/docker-credential-wincred.exe
 EOT
 
 FROM build-static-${TARGETOS} AS build-static

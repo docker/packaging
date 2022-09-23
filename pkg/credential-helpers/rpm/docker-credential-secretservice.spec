@@ -16,6 +16,7 @@ Requires: libsecret
 
 BuildRequires: gcc
 BuildRequires: libsecret-devel
+BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 BuildRequires: pkgconfig
 

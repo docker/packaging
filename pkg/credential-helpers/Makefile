@@ -16,16 +16,19 @@ include ../../common/vars.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
+DEFAULT_RULE ?= pkg-multi
+
 PKG_LIST ?= deb rpm static
-DEFAULT_RULE ?= pkg
+# supported platforms: https://github.com/docker/docker-credential-helpers/blob/ac5992b5f4756fc0398a7d0c93c609e624368bde/docker-bake.hcl#L56-L66
+PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/ppc64le linux/s390x windows/amd64
 
 .PHONY: all
 all: $(DEFAULT_RULE)
-	# noop
+	@#
 
 .PHONY: all-%
 all-%: $(DEFAULT_RULE)-%
-	# noop
+	@#
 
 .PHONY: version
 version:
