@@ -65,6 +65,7 @@ Requires: libseccomp2
 %endif
 BuildRequires: make
 BuildRequires: gcc
+BuildRequires: libtool-ltdl-devel
 BuildRequires: systemd
 BuildRequires: libseccomp-devel
 

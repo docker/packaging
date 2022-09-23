@@ -46,7 +46,7 @@ ARG PKG_RPM_RELEASE="1"
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
 # go base image to retrieve /usr/local/go
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
 # md2man
 FROM go AS go-md2man
@@ -91,7 +91,7 @@ RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
 
 # deb
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-deb
+FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y apt-utils bash ca-certificates curl devscripts equivs git lsb-release
@@ -131,7 +131,7 @@ FROM build-dummy AS builder-deb-windows
 FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-rpm
+FROM ${PKG_BASE_IMAGE} AS build-base-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -171,10 +171,11 @@ FROM build-dummy AS builder-rpm-windows
 FROM builder-rpm-${TARGETOS} AS builder-rpm
 
 # static
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -189,10 +190,11 @@ ARG DOCKER_CLI_VERSION
 ARG CGO_ENABLED
 WORKDIR /go/src/github.com/containerd/containerd
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   mkdir -p /out/containerd
   export CC=$(xx-info)-gcc
@@ -207,10 +209,11 @@ EOT
 WORKDIR /go/src/github.com/opencontainers/runc
 # FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
 RUN --mount=type=bind,from=runc-src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   make static
   xx-verify --static runc

@@ -48,22 +48,18 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
+
+xx-go --wrap
 
 set -x
 
 sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /common/containerd.service
 
 chmod -x debian/compat debian/control debian/copyright debian/manpages
-GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS
+GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
