@@ -41,6 +41,7 @@ Recommends: docker-scan-plugin(x86-64)
 %endif
 
 BuildRequires: gcc
+BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 
 Conflicts: docker
