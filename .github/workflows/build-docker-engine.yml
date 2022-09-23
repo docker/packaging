@@ -1,0 +1,32 @@
+name: build-docker-engine
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    paths:
+      - '.github/workflows/.build-remote.yml'
+      - '.github/workflows/build-docker-engine.yml'
+      - 'common/**'
+      - 'pkg/docker-engine/**'
+
+jobs:
+  run:
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg:
+          - deb
+          - rpm
+          - static
+    uses: ./.github/workflows/.build-remote.yml
+    with:
+      name: docker-engine
+      pkg: ${{ matrix.pkg }}
+    secrets: inherit
