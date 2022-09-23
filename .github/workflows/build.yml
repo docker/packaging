@@ -82,7 +82,7 @@ jobs:
       -
         name: Build
         run: |
-          make -j$(nproc) -C pkg/${{ matrix.name }} all-${{ matrix.pkg }}
+          make -j1 -C pkg/${{ matrix.name }} all-${{ matrix.pkg }}
         env:
           BUILD_CACHE_SCOPE: build-${{ matrix.name }}-${{ matrix.pkg }}
       -

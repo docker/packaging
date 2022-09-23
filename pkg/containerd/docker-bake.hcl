@@ -139,20 +139,6 @@ target "_common" {
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
 }
 
-target "_platforms" {
-  platforms = [
-    "darwin/amd64",
-    "darwin/arm64",
-    "linux/amd64",
-    "linux/arm/v6",
-    "linux/arm/v7",
-    "linux/arm64",
-    "linux/ppc64le",
-    "linux/s390x",
-    "windows/amd64"
-  ]
-}
-
 # $ PKG_RELEASE=debian11 docker buildx bake pkg
 # $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
 target "pkg" {
@@ -161,24 +147,26 @@ target "pkg" {
   output = [bindir(PKG_RELEASE)]
 }
 
-# Same as pkg but for all supported platforms
-target "pkg-multi" {
-  inherits = ["pkg", "_platforms"]
-}
-
 # Special target: https://github.com/docker/metadata-action#bake-definition
 target "meta-helper" {
   tags = ["dockereng/packaging:containerd-local"]
 }
 
-# Create release image by using ./bin folder as named context. Therefore
-# pkg-multi target must be run before using this target:
-# $ PKG_RELEASE=debian11 docker buildx bake pkg-multi
-# $ docker buildx bake release --push --set *.tags=docker/packaging:containerd-v1.6.8
+# Create release image by using ./bin folder as named context. Make sure all
+# pkg targets are called before releasing
 target "release" {
-  inherits = ["meta-helper", "_platforms"]
+  inherits = ["meta-helper"]
   dockerfile = "../../common/release.Dockerfile"
   target = "release"
+  # same as PKG_PLATFORMS in Makefile
+  platforms = [
+    "linux/amd64",
+    "linux/arm/v6",
+    "linux/arm/v7",
+    "linux/arm64",
+    "linux/ppc64le",
+    "linux/s390x"
+  ]
   contexts = {
     bin-folder = "./bin"
   }

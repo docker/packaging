@@ -47,12 +47,6 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 tilde='~'
 debVersion="${CREDENTIAL_HELPERS_VERSION#v}"
 debVersion="${debVersion//-/$tilde}"
@@ -63,10 +57,12 @@ ${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersion}
  -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
 EOF
 
+xx-go --wrap
+
 set -x
 
 chmod -x debian/compat debian/control debian/docs
-dpkg-buildpackage $PKG_DEB_BUILDFLAGS
+dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then

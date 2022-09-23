@@ -21,7 +21,7 @@ variable "DOCKER_CLI_REPO" {
 
 # Sets the docker cli helpers version to build from source.
 variable "DOCKER_CLI_VERSION" {
-  default = "v20.10.17"
+  default = "v22.06.0-beta.0"
 }
 
 # Sets Go image, version and variant to use for building
@@ -125,7 +125,26 @@ target "_common" {
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
 }
 
-target "_platforms" {
+# $ PKG_RELEASE=debian11 docker buildx bake pkg
+# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
+target "pkg" {
+  inherits = ["_common"]
+  target = "pkg"
+  output = [bindir(PKG_RELEASE)]
+}
+
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "meta-helper" {
+  tags = ["dockereng/packaging:docker-cli-local"]
+}
+
+# Create release image by using ./bin folder as named context. Make sure all
+# pkg targets are called before releasing
+target "release" {
+  inherits = ["meta-helper"]
+  dockerfile = "../../common/release.Dockerfile"
+  target = "release"
+  # same as PKG_PLATFORMS in Makefile
   platforms = [
     "darwin/amd64",
     "darwin/arm64",
@@ -137,34 +156,6 @@ target "_platforms" {
     "linux/s390x",
     "windows/amd64"
   ]
-}
-
-# $ PKG_RELEASE=debian11 docker buildx bake pkg
-# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
-target "pkg" {
-  inherits = ["_common"]
-  target = "pkg"
-  output = [bindir(PKG_RELEASE)]
-}
-
-# Same as pkg but for all supported platforms
-target "pkg-multi" {
-  inherits = ["pkg", "_platforms"]
-}
-
-# Special target: https://github.com/docker/metadata-action#bake-definition
-target "meta-helper" {
-  tags = ["dockereng/packaging:docker-cli-local"]
-}
-
-# Create release image by using ./bin folder as named context. Therefore
-# pkg-multi target must be run before using this target:
-# $ PKG_RELEASE=debian11 docker buildx bake pkg-multi
-# $ docker buildx bake release --push --set *.tags=docker/packaging:docker-cli-v20.10.17
-target "release" {
-  inherits = ["meta-helper", "_platforms"]
-  dockerfile = "../../common/release.Dockerfile"
-  target = "release"
   contexts = {
     bin-folder = "./bin"
   }

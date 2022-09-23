@@ -18,10 +18,13 @@ ARG XX_VERSION="1.1.2"
 ARG ALPINE_VERSION="3.16"
 ARG DEBIAN_FRONTEND="noninteractive"
 
+# specific to docker-engine
+ARG GOWINRES_VERSION="v0.2.3"
+
 # go
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.18.5"
-ARG GO_IMAGE_VARIANT="buster"
+ARG GO_IMAGE_VARIANT="bullseye"
 
 # pkg matrix
 ARG PKG_RELEASE="debian11"
@@ -46,7 +49,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
 # dummy stage for unsupported platforms
 FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
@@ -70,7 +73,7 @@ RUN --mount=from=src,source=/src,target=/engine \
     mkdir /out && tar -C / -zcf /out/engine.tgz --exclude .git engine
 
 # deb
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-deb
+FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y bash curl devscripts equivs git
@@ -113,7 +116,7 @@ FROM build-dummy AS builder-deb-windows
 FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-rpm
+FROM ${PKG_BASE_IMAGE} AS build-base-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -155,20 +158,19 @@ FROM build-dummy AS builder-rpm-windows
 FROM builder-rpm-${TARGETOS} AS builder-rpm
 
 # static
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang cmake dpkg-dev file git llvm pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GO111MODULE="off"
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y \
-  bash \
   binutils \
   ca-certificates \
-  cmake \
   curl \
   gcc \
   g++ \
@@ -178,26 +180,44 @@ RUN xx-apt-get install -y \
   libgcc-10-dev \
   libltdl-dev \
   pkg-config
+
+FROM build-base-static AS gowinres
+ARG GOWINRES_VERSION
+RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOBIN=/out GO111MODULE=on go install "github.com/tc-hib/go-winres@${GOWINRES_VERSION}"
+
 FROM build-base-static AS build-static
 ARG TARGETPLATFORM
+ARG TARGETOS
 ARG DOCKER_ENGINE_VERSION
 ARG GO_LINKMODE=static
 ARG DOCKER_BUILDTAGS="apparmor seccomp"
 WORKDIR /go/src/github.com/docker/docker
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gowinres,source=/out/go-winres,target=/usr/bin/go-winres \
     --mount=type=cache,target=/root/.cache \
+    --mount=type=tmpfs,target=cli/winresources/dockerd \
+    --mount=type=tmpfs,target=cli/winresources/docker-proxy \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   mkdir -p /out/docker
-  VERSION=${DOCKER_ENGINE_VERSION} ./hack/make.sh binary
-  mv $(readlink -e ./bundles/binary-daemon/dockerd) /out/docker/dockerd
-  PREFIX=/out/docker TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
-  PREFIX=/out/docker TMP_GOPATH="/go" hack/dockerfile/install/install.sh proxy
-  xx-verify --static /out/docker/dockerd
-  xx-verify --static /out/docker/docker-proxy
-  xx-verify --static /out/docker/docker-init
+  BIN_EXT=$([ "$TARGETOS" = "windows" ] && echo ".exe" || true)
+  VERSION=${DOCKER_ENGINE_VERSION} DOCKER_GITCOMMIT=$(git --git-dir ./.git rev-parse --short HEAD) ./hack/make.sh binary
+  mv $(readlink -e ./bundles/binary-daemon/dockerd${BIN_EXT}) /out/docker/dockerd${BIN_EXT}
+  xx-verify --static /out/docker/dockerd${BIN_EXT}
+  mv $(readlink -e ./bundles/binary-daemon/docker-proxy${BIN_EXT}) /out/docker/docker-proxy${BIN_EXT}
+  # FIXME: docker-proxy is not statically linked (to be fixed upstream)
+  xx-verify /out/docker/docker-proxy${BIN_EXT}
+  # FIXME: can't cross tini, wrong GOOS/GOARCH used by "install.sh tini" (solved by https://github.com/moby/moby/pull/43529/files#diff-dd2c0eb6ea5cfc6c4bd4eac30934e2d5746747af48fef6da689e85b752f39557R408-R415)
+  if ! xx-info is-cross; then
+    PREFIX=/out/docker TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
+    xx-verify --static /out/docker/docker-init
+  fi
 EOT
 
 FROM build-base-static AS builder-static

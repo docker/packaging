@@ -47,17 +47,18 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
+xx-go --wrap
+
 set -x
+
+# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 tilde='~'
 rpmVersion="${DOCKER_ENGINE_VERSION#v}"
@@ -81,7 +82,7 @@ case "$PKG_RELEASE" in
     ;;
 esac
 
-rpmbuild $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
+rpmbuild --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
 cp ./RPMS/*/*.* "${pkgoutput}"/
 if [ "$(ls -A ./SRPMS)" ]; then

@@ -18,10 +18,13 @@ ARG XX_VERSION="1.1.2"
 ARG ALPINE_VERSION="3.16"
 ARG DEBIAN_FRONTEND="noninteractive"
 
+# specific to docker-cli
+ARG GOVERSIONINFO_VERSION="v1.3.0"
+
 # go
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.18.5"
-ARG GO_IMAGE_VARIANT="buster"
+ARG GO_IMAGE_VARIANT="bullseye"
 
 # pkg matrix
 ARG PKG_RELEASE="debian11"
@@ -46,7 +49,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
 # dummy stage for unsupported platforms
 FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
@@ -70,7 +73,7 @@ RUN --mount=from=src,source=/src,target=/cli \
     mkdir /out && tar -C / -zcf /out/cli.tgz --exclude .git cli
 
 # deb
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-deb
+FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
@@ -109,7 +112,7 @@ FROM build-dummy AS builder-deb-windows
 FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-rpm
+FROM ${PKG_BASE_IMAGE} AS build-base-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -146,16 +149,24 @@ FROM build-dummy AS builder-rpm-windows
 FROM builder-rpm-${TARGETOS} AS builder-rpm
 
 # static
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV CGO_ENABLED="1"
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev pkg-config
+
+FROM build-base-static AS goversioninfo
+ARG GOVERSIONINFO_VERSION
+RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
 
 FROM build-base-static AS build-static
 ARG TARGETPLATFORM
@@ -166,16 +177,17 @@ ARG GO_STRIP
 ARG CGO_ENABLED
 WORKDIR /go/src/github.com/docker/cli
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
     --mount=type=tmpfs,target=cli/winresources \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
   mkdir -p /out/docker-cli
-  TARGET=/tmp/docker-cli ./scripts/build/binary
-  mv $(readlink -e /tmp/docker-cli/docker) /out/docker-cli/docker
+  TARGET=/out/docker-cli ./scripts/build/binary
   xx-verify --static /out/docker-cli/docker
 EOT
 

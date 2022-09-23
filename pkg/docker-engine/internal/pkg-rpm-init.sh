@@ -28,41 +28,35 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 set -x
 
 case "$PKG_RELEASE" in
   centos7)
     [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-    yum install -y git rpm-build rpmlint
+    yum install -y git rpm-build rpmlint epel-release
     ;;
   centos8)
     [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
     [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
     ;;
   centos9)
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
     dnf config-manager --set-enabled crb
     ;;
   oraclelinux7)
     [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-    yum install -y git rpm-build rpmlint
+    yum install -y git rpm-build rpmlint epel-release
     yum-config-manager --enable ol7_addons --enable ol7_optional_latest
     ;;
   oraclelinux8)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --enable ol8_addons --enable ol8_codeready_builder
     ;;
   oraclelinux9)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --enable ol9_addons --enable ol9_codeready_builder
     ;;
   fedora*)

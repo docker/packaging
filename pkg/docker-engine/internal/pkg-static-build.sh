@@ -34,12 +34,6 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"

@@ -21,19 +21,16 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
-set -x
-
-if command -v yum-builddep &> /dev/null; then
-  yum-builddep -y /root/rpmbuild/SPECS/*.spec
-elif command -v dnf &> /dev/null; then
-  dnf builddep -y /root/rpmbuild/SPECS/*.spec
+builddepCmd=""
+if command -v dnf &> /dev/null; then
+  builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
+elif command -v yum-builddep &> /dev/null; then
+  builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
 else
   echo >&2 "unable to detect package manager"
   exit 1
 fi
+
+set -x
+
+$builddepCmd -y /root/rpmbuild/SPECS/*.spec

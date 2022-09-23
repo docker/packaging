@@ -30,7 +30,7 @@ Requires: iptables
 # Libcgroup is no longer available in RHEL/CentOS >= 9 distros.
 Requires: libcgroup
 %endif
-Requires: containerd.io >= 1.4.1
+Requires: containerd.io >= 1.6.4
 Requires: tar
 Requires: xz
 
@@ -83,7 +83,6 @@ rm -f /go/src/github.com/docker/docker
 ln -snf ${RPM_BUILD_DIR}/src/engine /go/src/github.com/docker/docker
 pushd /go/src/github.com/docker/docker
 TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
-TMP_GOPATH="/go" hack/dockerfile/install/install.sh proxy dynamic
 VERSION=%{_origversion} DOCKER_GITCOMMIT=%{_commit} PRODUCT=docker hack/make.sh dynbinary
 popd
 
@@ -94,7 +93,7 @@ ver="$(engine/bundles/dynbinary-daemon/dockerd --version)"; \
 %install
 # install binaries
 install -D -p -m 0755 $(readlink -f engine/bundles/dynbinary-daemon/dockerd) ${RPM_BUILD_ROOT}%{_bindir}/dockerd
-install -D -p -m 0755 /usr/local/bin/docker-proxy ${RPM_BUILD_ROOT}%{_bindir}/docker-proxy
+install -D -p -m 0755 $(readlink -f engine/bundles/dynbinary-daemon/docker-proxy) ${RPM_BUILD_ROOT}%{_bindir}/docker-proxy
 install -D -p -m 0755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_bindir}/docker-init
 
 # install systemd scripts

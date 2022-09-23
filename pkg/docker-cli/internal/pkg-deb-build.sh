@@ -48,12 +48,6 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# TODO: add support for cross comp
-if xx-info is-cross; then
-  echo >&2 "warning: cross compilation with $(xx-info arch) not supported"
-  exit 0
-fi
-
 tilde='~'
 debVersion="${DOCKER_CLI_VERSION#v}"
 debVersion="${debVersion//-/$tilde}"
@@ -68,10 +62,12 @@ if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
+xx-go --wrap
+
 set -x
 
 chmod -x debian/compat debian/control debian/docs debian/*.bash-completion debian/*.manpages
-DOCKER_CLI_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS
+DOCKER_CLI_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
