@@ -95,7 +95,19 @@ target "_common" {
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
 }
 
-target "_platforms" {
+# $ PKG_RELEASE=debian11 docker buildx bake pkg
+# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
+group "pkg" {
+  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
+}
+
+# Create release image by using ./bin folder as named context. Make sure all
+# pkg targets are called before releasing
+target "release" {
+  inherits = ["meta-helper"]
+  dockerfile = "../../common/release.Dockerfile"
+  target = "release"
+  # same as PKG_PLATFORMS in Makefile
   platforms = [
     "darwin/amd64",
     "darwin/arm64",
@@ -109,27 +121,6 @@ target "_platforms" {
     "windows/amd64",
     "windows/arm64"
   ]
-}
-
-# $ PKG_RELEASE=debian11 docker buildx bake pkg
-# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
-group "pkg" {
-  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
-}
-
-# Same as pkg but for all supported platforms
-group "pkg-multi" {
-  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build-multi" : "_pkg-download-multi"]
-}
-
-# Create release image by using ./bin folder as named context. Therefore
-# pkg or pkg-multi target must be run before using this target:
-# $ PKG_RELEASE=debian11 docker buildx bake pkg-multi
-# $ docker buildx bake release --push --set *.tags=docker/packaging:compose-v2.10.2
-target "release" {
-  inherits = ["meta-helper", "_platforms"]
-  dockerfile = "../../common/release.Dockerfile"
-  target = "release"
   contexts = {
     bin-folder = "./bin"
   }
@@ -139,12 +130,7 @@ target "_pkg-download" {
   inherits = ["_common"]
   target = "pkg"
   platforms = ["local"]
-  output = [bindir("local")]
-}
-
-target "_pkg-download-multi" {
-  inherits = ["_pkg-download", "_platforms"]
-  output = [bindir("multi")]
+  output = [bindir(PKG_RELEASE)]
 }
 
 target "_pkg-build" {
@@ -156,19 +142,7 @@ target "_pkg-build" {
   contexts = {
     build = "target:_build"
   }
-  output = [bindir("local")]
-}
-
-target "_pkg-build-multi" {
-  inherits = ["_pkg-download-multi"]
-  args = {
-    MODE = "build"
-    COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
-  }
-  contexts = {
-    build = "target:_build-multi"
-  }
-  output = [bindir("multi")]
+  output = [bindir(PKG_RELEASE)]
 }
 
 target "_build" {
@@ -179,8 +153,4 @@ target "_build" {
     BUILDKIT_MULTI_PLATFORM = 1
   }
   target = "binary"
-}
-
-target "_build-multi" {
-  inherits = ["build", "_platforms"]
 }
