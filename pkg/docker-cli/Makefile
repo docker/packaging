@@ -20,7 +20,8 @@ DEFAULT_RULE ?= pkg-multi
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/cli/blob/3e9117b7e241439e314eaf6fe944b4019fbaa941/docker-bake.hcl#L65-L67
-PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/386 linux/amd64 linux/arm/v7 linux/arm64 linux/ppc64le linux/s390x windows/amd64
+# FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
+PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/386 linux/amd64 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3

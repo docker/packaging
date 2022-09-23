@@ -22,7 +22,8 @@ PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/containerd/containerd/blob/39f7cd73e7cc3e1d24f3557adfce5b68484136f7/.github/workflows/ci.yml#L131-L150
 # FIXME: can't build static binaries with containerd Makefile for darwin/amd64 darwin/arm64 windows/amd64 platforms
 # FIXME: linux/riscv64 needs ubuntu:22.04 image
-PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/ppc64le linux/s390x
+# FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
+PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x
 
 export RUNC_REPO ?= https://github.com/opencontainers/runc.git
 export RUNC_VERSION ?=
