@@ -14,8 +14,8 @@
 
 define run_bake
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
-	@PKG_RELEASE=$(1) DESTDIR=$(2) docker buildx bake $(foreach platform,$(4),--set "*.platform=$(platform)") $(3) pkg --print
-	PKG_RELEASE=$(1) DESTDIR=$($@_TMP_OUT) docker buildx bake $(foreach platform,$(4),--set "*.platform=$(platform)") $(3) pkg
+	@PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$(2) docker buildx bake $(foreach platform,$(4),--set "*.platform=$(platform)") $(3) pkg --print
+	PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$($@_TMP_OUT) docker buildx bake $(foreach platform,$(4),--set "*.platform=$(platform)") $(3) pkg
 	mkdir -p $(2)
 	find $($@_TMP_OUT) -mindepth 2 -maxdepth 2 -type d -exec cp -rf {} $(2)/ ';'
 	find $(2) -type d -empty -delete

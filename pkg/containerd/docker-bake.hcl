@@ -106,8 +106,12 @@ function "bindir" {
   result = DESTDIR != "" ? DESTDIR : "./bin/${defaultdir}"
 }
 
-# Defines cache scope for GitHub Actions cache exporter
-variable "BUILD_CACHE_SCOPE" {
+# Defines reference for registry cache exporter
+variable "BUILD_CACHE_REGISTRY_SLUG" {
+  # FIXME: use dockereng/packaging-cache
+  default = "crazymax/docker-packaging-cache"
+}
+variable "BUILD_CACHE_REGISTRY_PUSH" {
   default = ""
 }
 
@@ -135,8 +139,12 @@ target "_common" {
     RUNC_REPO = RUNC_REPO
     RUNC_VERSION = RUNC_VERSION
   }
-  cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
-  cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
+  cache-from = [
+    BUILD_CACHE_REGISTRY_SLUG != "" ? "type=registry,ref=${BUILD_CACHE_REGISTRY_SLUG}:containerd-${PKG_TYPE}-${PKG_RELEASE}" : "",
+  ]
+  cache-to = [
+    BUILD_CACHE_REGISTRY_SLUG != "" && BUILD_CACHE_REGISTRY_PUSH != "" ? "type=registry,ref=${BUILD_CACHE_REGISTRY_SLUG}:containerd-${PKG_TYPE}-${PKG_RELEASE},mode=max" : "",
+  ]
 }
 
 # $ PKG_RELEASE=debian11 docker buildx bake pkg
