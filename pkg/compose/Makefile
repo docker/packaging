@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+export COMPOSE_REPO ?= https://github.com/docker/compose.git
+export COMPOSE_VERSION ?= v2.10.2
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 

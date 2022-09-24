@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+export DOCKER_CLI_REPO ?= https://github.com/docker/cli.git
+export DOCKER_CLI_VERSION ?= v22.06.0-beta.0
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 

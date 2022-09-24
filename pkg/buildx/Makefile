@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+export BUILDX_REPO ?= https://github.com/docker/buildx.git
+export BUILDX_VERSION ?= v0.9.1
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 

@@ -37,7 +37,7 @@ If you just want to build packages only for your current platform, you can set
 
 `common` folder contains helpers that will be used by the main `Makefile` and
 also across projects in [pkg](pkg) folder like the list of supported apk, deb
-and rpm releases to produce and repos with current versions of projects.
+and rpm releases to produce.
 
 `Makefile` contains targets to build specific or all packages and will output
 to `./bin` folder.

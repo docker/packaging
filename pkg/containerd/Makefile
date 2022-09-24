@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
+export CONTAINERD_VERSION ?= v1.6.8
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
