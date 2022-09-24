@@ -12,22 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-# Sets the compose repo. Will be used to clone the repo at COMPOSE_VERSION ref
-# to include the README.md and LICENSE for the static packages and also
-# create version string.
+# Sets the compose repo. Will be used to clone the repo at
+# COMPOSE_VERSION ref to include the README.md and LICENSE for the
+# static packages and also create version string.
 variable "COMPOSE_REPO" {
   default = "https://github.com/docker/compose.git"
 }
 
-# Sets the compose version to download the binary from GitHub Releases.
-# If version starts with # it will build from source.
+# Sets the compose version to build from source.
 variable "COMPOSE_VERSION" {
   default = "v2.10.2"
+}
+
+# Sets Go image, version and variant to use for building
+variable "GO_IMAGE" {
+  default = ""
+}
+variable "GO_VERSION" {
+  default = ""
+}
+variable "GO_IMAGE_VARIANT" {
+  default = ""
 }
 
 # Sets the pkg name.
 variable "PKG_NAME" {
   default = "docker-compose-plugin"
+}
+
+# Sets the list of package types to build: apk, deb, rpm or static
+variable "PKG_TYPE" {
+  default = "static"
 }
 
 # Sets release flavor. See packages.hcl and packages.mk for more details.
@@ -51,10 +66,23 @@ variable "PKG_PACKAGER" {
   default = "Docker <support@docker.com>"
 }
 
-# Include an extra `.0` in the version, in case we ever would have to re-build
-# an already published release with a packaging-only change.
-variable "PKG_REVISION" {
+# deb specific, see vars.mk for more details
+variable "PKG_DEB_BUILDFLAGS" {
+  default = "-b -uc"
+}
+variable "PKG_DEB_REVISION" {
   default = "0"
+}
+variable "PKG_DEB_EPOCH" {
+  default = "5"
+}
+
+# rpm specific, see vars.mk for more details
+variable "PKG_RPM_BUILDFLAGS" {
+  default = "-bb"
+}
+variable "PKG_RPM_RELEASE" {
+  default = "1"
 }
 
 # Defines the output folder
@@ -71,11 +99,6 @@ variable "BUILD_CACHE_SCOPE" {
   default = ""
 }
 
-# Special target: https://github.com/docker/metadata-action#bake-definition
-target "meta-helper" {
-  tags = ["dockereng/packaging:compose-local"]
-}
-
 group "default" {
   targets = ["pkg"]
 }
@@ -86,10 +109,17 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     COMPOSE_REPO = COMPOSE_REPO
     COMPOSE_VERSION = COMPOSE_VERSION
+    GO_IMAGE = GO_IMAGE
+    GO_VERSION = GO_VERSION
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
     PKG_NAME = PKG_NAME
     PKG_VENDOR = PKG_VENDOR
     PKG_PACKAGER = PKG_PACKAGER
-    PKG_REVISION = PKG_REVISION
+    PKG_DEB_BUILDFLAGS = PKG_DEB_BUILDFLAGS
+    PKG_DEB_REVISION = PKG_DEB_REVISION
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH
+    PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
+    PKG_RPM_RELEASE = PKG_RPM_RELEASE
   }
   cache-from = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
   cache-to = [BUILD_CACHE_SCOPE != "" ? "type=gha,scope=${BUILD_CACHE_SCOPE}-${PKG_RELEASE}" : ""]
@@ -97,8 +127,15 @@ target "_common" {
 
 # $ PKG_RELEASE=debian11 docker buildx bake pkg
 # $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
-group "pkg" {
-  targets = [substr(COMPOSE_VERSION, 0, 1) == "#" ? "_pkg-build" : "_pkg-download"]
+target "pkg" {
+  inherits = ["_common"]
+  target = "pkg"
+  output = [bindir(PKG_RELEASE)]
+}
+
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "meta-helper" {
+  tags = ["dockereng/packaging:compose-local"]
 }
 
 # Create release image by using ./bin folder as named context. Make sure all
@@ -124,33 +161,4 @@ target "release" {
   contexts = {
     bin-folder = "./bin"
   }
-}
-
-target "_pkg-download" {
-  inherits = ["_common"]
-  target = "pkg"
-  platforms = ["local"]
-  output = [bindir(PKG_RELEASE)]
-}
-
-target "_pkg-build" {
-  inherits = ["_pkg-download"]
-  args = {
-    MODE = "build"
-    COMPOSE_VERSION = trimprefix(COMPOSE_VERSION, "#")
-  }
-  contexts = {
-    build = "target:_build"
-  }
-  output = [bindir(PKG_RELEASE)]
-}
-
-target "_build" {
-  context = "${COMPOSE_REPO}${COMPOSE_VERSION}"
-  args = {
-    MODE = "build"
-    BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
-    BUILDKIT_MULTI_PLATFORM = 1
-  }
-  target = "binary"
 }

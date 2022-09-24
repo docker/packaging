@@ -1,0 +1,22 @@
+Source: docker-compose-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/compose
+Vcs-Git: git://github.com/docker/compose.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               make
+
+Package: docker-compose-plugin
+Priority: optional
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Docker Compose (V2) plugin for the Docker CLI.
+ .
+ This plugin provides the 'docker compose' subcommand.
+ .
+ The binary can also be run standalone as a direct replacement for
+ Docker Compose V1 ('docker-compose').
+Homepage: https://github.com/docker/compose
