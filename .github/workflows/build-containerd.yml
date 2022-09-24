@@ -1,0 +1,32 @@
+name: build-containerd
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    paths:
+      - '.github/workflows/.build-remote.yml'
+      - '.github/workflows/build-containerd.yml'
+      - 'common/**'
+      - 'pkg/containerd/**'
+
+jobs:
+  run:
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg:
+          - deb
+          - rpm
+          - static
+    uses: ./.github/workflows/.build-remote.yml
+    with:
+      name: containerd
+      pkg: ${{ matrix.pkg }}
+    secrets: inherit

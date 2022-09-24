@@ -1,0 +1,32 @@
+name: build-docker-cli
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    paths:
+      - '.github/workflows/.build-remote.yml'
+      - '.github/workflows/build-docker-cli.yml'
+      - 'common/**'
+      - 'pkg/docker-cli/**'
+
+jobs:
+  run:
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg:
+          - deb
+          - rpm
+          - static
+    uses: ./.github/workflows/.build-remote.yml
+    with:
+      name: docker-cli
+      pkg: ${{ matrix.pkg }}
+    secrets: inherit

@@ -1,0 +1,32 @@
+name: build-scan
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-scan.yml'
+      - 'common/**'
+      - 'pkg/scan/**'
+
+jobs:
+  run:
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg:
+          - deb
+          - rpm
+          - static
+    uses: ./.github/workflows/.build.yml
+    with:
+      name: scan
+      pkg: ${{ matrix.pkg }}
+    secrets: inherit

@@ -1,0 +1,20 @@
+name: validate
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-20.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Run
+        uses: docker/bake-action@v2
+        with:
+          targets: validate
