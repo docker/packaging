@@ -25,7 +25,15 @@ endef
 define build_pkg
 	$(eval FILTERED_PLATFORMS = $(filter $(PKG_SUPPORTED_PLATFORMS),$(4)))
 	$(eval PLATFORMS = $(if $(PKG_SUPPORTED_PLATFORMS:-=),$(FILTERED_PLATFORMS),$(4)))
-	$(if $(PLATFORMS:-=),$(call run_bake,$(1),$(2),$(3),$(PLATFORMS)),$(info no platform compatible for $(1)))
+	@# if local platform enforced then let bake resolve the platform
+	$(if $(LOCAL_PLATFORM:-=), \
+		$(call run_bake,$(1),$(2),$(3),), \
+		@# otherwise use filtered platforms if available or leave \
+		$(if $(PLATFORMS:-=), \
+			$(call run_bake,$(1),$(2),$(3),$(PLATFORMS)), \
+			$(info no platform compatible for $(1)) \
+		) \
+	)
 endef
 
 .PHONY: pkg
@@ -36,26 +44,6 @@ pkg:
 pkg-%: pkg-%-releases
 	$(MAKE) $(foreach release,$(PKG_RELEASES),build-$(release))
 
-.PHONY: pkg-static
-pkg-static:
-	$(MAKE) build-static
-
-.PHONY: pkg-multi
-pkg-multi:
-	$(MAKE) $(foreach pkg,$(PKG_LIST),pkg-multi-$(pkg))
-
-.PHONY: pkg-%
-pkg-multi-%: pkg-%-releases
-	$(MAKE) $(foreach release,$(PKG_RELEASES),build-multi-$(release))
-
-.PHONY: pkg-multi-static
-pkg-multi-static:
-	$(MAKE) build-multi-static
-
 .PHONY: build-%
 build-%: pkg-info-%
-	$(call build_pkg,$*,$(DESTDIR),$(BAKE_DEFINITIONS),)
-
-.PHONY: build-multi-%
-build-multi-%: pkg-info-%
 	$(call build_pkg,$*,$(DESTDIR),$(BAKE_DEFINITIONS),$(PKG_PLATFORMS))

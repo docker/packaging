@@ -16,7 +16,6 @@ include ../../common/vars.mk
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/cli/blob/3e9117b7e241439e314eaf6fe944b4019fbaa941/docker-bake.hcl#L65-L67
@@ -27,11 +26,11 @@ export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
 
 .PHONY: all
-all: $(DEFAULT_RULE)
+all: pkg
 	@#
 
 .PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
+all-%: pkg-%
 	@#
 
 .PHONY: version

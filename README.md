@@ -11,6 +11,28 @@ to request changes to the packaging process.
 This repository creates packages (apk, deb, rpm, static) for various projects
 and are published as a Docker image on Docker Hub.
 
+## Prerequisites
+
+Before building packages, you need to have `docker` and [Buildx CLI plugin](https://docs.docker.com/build/buildx/install/)
+installed and use a compatible [Buildx driver](https://docs.docker.com/build/building/drivers/)
+to be able to build multi plaform packages:
+
+```shell
+# create docker-container builder and use it by default
+# https://docs.docker.com/build/building/drivers/docker-container/
+$ docker buildx create --driver docker-container --name mybuilder --use --bootstrap
+```
+
+> **Note**
+>
+> Some packages don't have cross-compilation support and therefore QEMU will
+> be used. As it can be slow, it is recommended to use a builder with native
+> nodes like we do in CI. See ["Set up Docker Buildx" step](.github/workflows/.build-remote.yml)
+> for more details.
+
+If you just want to build packages only for your current platform, you can set
+`LOCAL_PLATFORM=1` environment variable.
+
 ## Usage
 
 `common` folder contains helpers that will be used by the main `Makefile` and
@@ -18,13 +40,15 @@ also across projects in [pkg](pkg) folder like the list of supported apk, deb
 and rpm releases to produce and repos with current versions of projects.
 
 `Makefile` contains targets to build specific or all packages and will output
-to `./bin` folder:
+to `./bin` folder.
 
 ```shell
 # build debian packages for buildx project
 $ make deb-buildx
 # build deb and rpm packages for all projects
 $ make deb rpm
+# build deb and rpm packages for all projects (only local platform)
+$ LOCAL_PLATFORM=1 make deb rpm
 ```
 
 Each [project](pkg) has also its own `Makefile`, `Dockerfile` and bake
@@ -32,16 +56,14 @@ definition to build and push packages.
 
 ```shell
 $ cd pkg/buildx/
-# build all packages matching host platform (shortand for pkg-apk pkg-deb pkg-rpm pkg-static)
+# build all packages (shortand for pkg-apk pkg-deb pkg-rpm pkg-static)
 $ make pkg
-# build all packages for all supported platforms (shortand for pkg-multi-apk pkg-multi-deb pkg-multi-rpm pkg-multi-static)
-$ make pkg-multi
-# build debian packages for all supported platforms
-$ make pkg-multi-deb
-# build debian bullseye packages matching host platform
+# build all debian packages
+$ make pkg-deb
+# build debian bullseye packages
 $ make build-debian11
-# build centos 7 packages for all supported platforms
-$ make build-multi-centos7
+# build centos 7 packages
+$ make build-centos7
 ```
 
 To create a new release of Buildx v0.9.1:

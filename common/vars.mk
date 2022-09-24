@@ -16,6 +16,7 @@ export BASEDIR ?= $(CURDIR)
 export GO_IMAGE ?= golang
 export GO_VERSION ?= 1.18.5
 export GO_IMAGE_VARIANT ?= bullseye
+export LOCAL_PLATFORM ?=
 
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>

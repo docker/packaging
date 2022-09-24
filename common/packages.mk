@@ -33,6 +33,10 @@ pkg-deb-releases:
 pkg-rpm-releases:
 	$(eval PKG_RELEASES = $(PKG_RPM_RELEASES))
 
+.PHONY: pkg-static-releases
+pkg-static-releases:
+	$(eval PKG_RELEASES = static)
+
 .PHONY: pkg-info-alpine314
 pkg-info-alpine314:
 	$(eval PKG_TYPE = apk)

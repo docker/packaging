@@ -106,6 +106,11 @@ function "bindir" {
   result = DESTDIR != "" ? DESTDIR : "./bin/${defaultdir}"
 }
 
+# Defines if we just want to build for the local platform
+variable "LOCAL_PLATFORM" {
+  default = ""
+}
+
 # Defines reference for registry cache exporter
 variable "BUILD_CACHE_REGISTRY_SLUG" {
   # FIXME: use dockereng/packaging-cache
@@ -139,6 +144,11 @@ target "_common" {
     RUNC_REPO = RUNC_REPO
     RUNC_VERSION = RUNC_VERSION
   }
+  platforms = [
+    # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
+    # default platform specification: https://docs.docker.com/build/customize/bake/file-definition/#built-in-variables
+    LOCAL_PLATFORM != "" ? BAKE_LOCAL_PLATFORM : ""
+  ]
   cache-from = [
     BUILD_CACHE_REGISTRY_SLUG != "" ? "type=registry,ref=${BUILD_CACHE_REGISTRY_SLUG}:containerd-${PKG_TYPE}-${PKG_RELEASE}" : "",
   ]
