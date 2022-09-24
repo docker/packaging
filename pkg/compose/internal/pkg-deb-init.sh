@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright 2022 Docker Packaging authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include ../../common/vars.mk
+: "${PKG_RELEASE=}"
 
-DESTDIR ?= $(BASEDIR)/bin
-BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
+set -e
 
-PKG_LIST ?= apk deb rpm static
-# supported platforms: https://github.com/docker/scan-cli-plugin/blob/9c797021449e3192a46ba86730d6f0e5409b6614/builder.Makefile#L62-L67
-PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
+if [ -z "$PKG_RELEASE" ]; then
+  echo >&2 "error: PKG_RELEASE is required"
+  exit 1
+fi
 
-.PHONY: all
-all: $(DEFAULT_RULE)
-	@#
+if ! command -v xx-info &> /dev/null; then
+  echo >&2 "error: xx cross compilation helper is required"
+  exit 1
+fi
 
-.PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
-	@#
+set -x
 
-.PHONY: version
-version:
-	@echo $(SCAN_VERSION)
+apt-get update
+apt-get install -y --no-install-recommends apt-utils bash curl devscripts equivs git
 
-include ../../common/packages.mk
-include ../../common/build.mk
+case "$PKG_RELEASE" in
+  ubuntu2004|ubuntu2204)
+    if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
+      rm -f /usr/bin/man
+      dpkg-divert --quiet --remove --rename /usr/bin/man
+    fi
+  ;;
+esac

@@ -1,0 +1,17 @@
+Source: docker-scan-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/scan-cli-plugin
+Vcs-Git: git://github.com/docker/scan-cli-plugin.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               make
+
+Package: docker-scan-plugin
+Priority: optional
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Docker Scan plugin for the Docker CLI.
+Homepage: https://github.com/docker/scan-cli-plugin

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright 2022 Docker Packaging authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include ../../common/vars.mk
+set -e
 
-DESTDIR ?= $(BASEDIR)/bin
-BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
+if ! command -v xx-info &> /dev/null; then
+  echo >&2 "error: xx cross compilation helper is required"
+  exit 1
+fi
 
-PKG_LIST ?= apk deb rpm static
-# supported platforms: https://github.com/docker/scan-cli-plugin/blob/9c797021449e3192a46ba86730d6f0e5409b6614/builder.Makefile#L62-L67
-PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
+set -x
 
-.PHONY: all
-all: $(DEFAULT_RULE)
-	@#
-
-.PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
-	@#
-
-.PHONY: version
-version:
-	@echo $(SCAN_VERSION)
-
-include ../../common/packages.mk
-include ../../common/build.mk
+mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control

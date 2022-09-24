@@ -1,0 +1,17 @@
+Source: docker-buildx-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/buildx
+Vcs-Git: git://github.com/docker/buildx.git
+Standards-Version: 3.9.6
+Build-Depends: bash
+
+Package: docker-buildx-plugin
+Priority: optional
+Replaces: docker-ce-cli
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Docker Buildx plugin extends build capabilities with BuildKit.
+Homepage: https://github.com/docker/buildx

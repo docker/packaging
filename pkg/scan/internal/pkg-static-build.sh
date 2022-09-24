@@ -17,12 +17,9 @@
 : "${SCAN_VERSION=}"
 
 : "${PKG_NAME=}"
-: "${PKG_DISTRO=}"
-: "${PKG_SUITE=}"
-: "${PKG_PACKAGER=}"
-: "${PKG_VENDOR=}"
 
-: "${SOURCE_DATE_EPOCH=}"
+: "${BUILDDIR=/work/build}"
+: "${SRCDIR=/work/src}"
 : "${OUTDIR=/out}"
 
 set -e
@@ -39,54 +36,54 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-pkgoutput="${OUTDIR}/${PKG_DISTRO}"
-if [ "${PKG_DISTRO}" = "static" ]; then
-  pkgoutput="${pkgoutput}/$(xx-info os)"
-else
-  pkgoutput="${pkgoutput}/${PKG_SUITE}"
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
-pkgoutput="${pkgoutput}/$(xx-info arch)"
+xx-go --wrap
+
+set -x
+
+# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
+binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
+
+mkdir -p ${BUILDDIR}/${PKG_NAME}
+pushd ${SRCDIR}
+  PLATFORM_BINARY=docker-scan COMMIT=${commit} TAG_NAME=${SCAN_VERSION} make native-build
+  mv bin/docker-scan "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
+popd
+
+xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
+
+pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
 
 mkdir -p "${pkgoutput}"
-if [ "$PKG_TYPE" = "static" ]; then
+
+cd "$BUILDDIR"
+for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${PKG_NAME}"
-  echo "using static packager"
+  mkdir -p "$workdir/${pkgname}"
   (
     set -x
-    cp /src/LICENSE /src/README.md "$workdir/${PKG_NAME}/"
+    cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
     (
       set -x
-      cp /usr/bin/scan "$workdir/${PKG_NAME}/docker-scan.exe"
       cd "$workdir"
-      zip -r "$pkgoutput/${PKG_NAME}_${SCAN_VERSION#v}.zip" ${PKG_NAME}
+      zip -r "${pkgoutput}/${pkgname}_${SCAN_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      cp /usr/bin/scan "$workdir/${PKG_NAME}/docker-scan"
-      tar -czf "$pkgoutput/${PKG_NAME}_${SCAN_VERSION#v}.tgz" -C "$workdir" ${PKG_NAME}
+      tar -czf "${pkgoutput}/${pkgname}_${SCAN_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
-elif [ "$(xx-info os)" = "linux" ]; then
-  case $PKG_TYPE in
-    apk)
-      arch=$(xx-info alpine-arch);;
-    deb)
-      arch=$(xx-info debian-arch);;
-    rpm)
-      arch=$(xx-info rhel-arch);;
-  esac
-  (
-    set -x
-    ARCH="${arch}" VERSION="${SCAN_VERSION}" RELEASE="$PKG_REVISION" VENDOR="${PKG_VENDOR}" PACKAGER="${PKG_PACKAGER}" nfpm package --config ./nfpm.yml --packager "$PKG_TYPE" --target "$pkgoutput"
-  )
-else
-  rm -rf "${pkgoutput}"
-fi
+done

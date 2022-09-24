@@ -14,29 +14,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG ALPINE_VERSION="3.16"
-ARG NFPM_VERSION="v2.15.1"
 ARG XX_VERSION="1.1.2"
-ARG MODE="download"
+ARG ALPINE_VERSION="3.16"
+ARG DEBIAN_FRONTEND="noninteractive"
+
+# go
+ARG GO_IMAGE="golang"
+ARG GO_VERSION="1.18.5"
+ARG GO_IMAGE_VARIANT="bullseye"
 
 # pkg matrix
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
 ARG PKG_SUITE="bullseye"
+ARG PKG_BASE_IMAGE="debian:bullseye"
+
+# deb specific, see vars.mk for more details
+ARG PKG_DEB_BUILDFLAGS="-b -uc"
+ARG PKG_DEB_REVISION="0"
+ARG PKG_DEB_EPOCH="5"
+
+# rpm specific, see vars.mk for more details
+ARG PKG_RPM_BUILDFLAGS="-bb"
+ARG PKG_RPM_RELEASE="1"
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# nFPM
-FROM --platform=$BUILDPLATFORM golang:1.18-alpine AS nfpm
-RUN apk add --no-cache git
-ARG GO111MODULE="on"
-ARG NFPM_VERSION
-RUN go install github.com/goreleaser/nfpm/v2/cmd/nfpm@${NFPM_VERSION}
+# go base image to retrieve /usr/local/go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
+# dummy stage for unsupported platforms
+FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
+RUN mkdir -p /out
+FROM scratch AS build-dummy
+COPY --from=builder-dummy /out /out
+
+# base stage for fetching sources and create final release
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
-COPY --from=xx / /
 RUN apk add --no-cache bash curl file git zip tar
 
 FROM base AS src
@@ -46,57 +62,114 @@ RUN git init . && git remote add origin "${COMPOSE_REPO}"
 ARG COMPOSE_VERSION
 RUN git fetch origin "${COMPOSE_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM scratch AS build
-FROM base AS binary
-WORKDIR /out
-ARG MODE
-ARG COMPOSE_VERSION
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
-RUN --mount=from=build,target=/build <<EOL
-  set -e
-  BIN_EXT=$([ "$TARGETOS" = "windows" ] && echo ".exe" || true)
-  binArch=${TARGETARCH}
-  binArch=$([ "$binArch" = "amd64" ] && echo "x86_64" || echo "$binArch")
-  binArch=$([ "$binArch" = "arm64" ] && echo "aarch64" || echo "$binArch")
-  if [ "$MODE" = "download" ]; then
-    RELEASE_FILENAME="docker-compose-$TARGETOS-$binArch"
-    if [ -n "$TARGETVARIANT" ]; then
-      RELEASE_FILENAME="$RELEASE_FILENAME$TARGETVARIANT"
-    fi
-    (set -x ; wget -q "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/${RELEASE_FILENAME}${BIN_EXT}" -qO "compose")
-  else
-    cp /build/docker-compose${BIN_EXT} compose
-  fi
-  chmod +x compose
-  xx-verify --static compose
-EOL
+FROM base AS src-tgz
+RUN --mount=from=src,source=/src,target=/compose \
+    mkdir /out && tar -C / -zcf /out/compose.tgz --exclude .git compose
 
-FROM base AS build-pkg
-WORKDIR /work
-COPY --from=binary /out/compose /usr/bin/compose
-ARG MODE
+# deb
+FROM ${PKG_BASE_IMAGE} AS build-base-deb
+COPY --from=xx / /
+ARG DEBIAN_FRONTEND
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
+ENV CGO_ENABLED="0"
+ARG PKG_RELEASE
+RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
+
+FROM build-base-deb AS build-deb
+COPY deb /root/package/debian
+ARG TARGETPLATFORM
+RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
+WORKDIR /root/package
 ARG COMPOSE_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
-ARG PKG_TYPE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
-ARG PKG_VENDOR
-ARG PKG_REVISION
+ARG PKG_DEB_BUILDFLAGS
+ARG PKG_DEB_REVISION
+ARG PKG_DEB_EPOCH
+ARG SOURCE_DATE_EPOCH
+RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=src,source=/src,target=/root/package/compose,rw \
+    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
+    --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=./compose pkg-deb-build
+
+FROM build-dummy AS builder-deb-darwin
+FROM build-deb AS builder-deb-linux
+FROM build-dummy AS builder-deb-windows
+FROM builder-deb-${TARGETOS} AS builder-deb
+
+# rpm
+FROM ${PKG_BASE_IMAGE} AS build-base-rpm
+COPY --from=xx / /
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
+ENV CGO_ENABLED="0"
+ARG PKG_RELEASE
+RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
+
+FROM build-base-rpm AS build-rpm
+COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=bind,source=internal/pkg-build.sh,target=/usr/local/bin/pkg-build \
-    --mount=type=bind,source=internal/nfpm.yml,target=nfpm.yml \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=nfpm,source=/go/bin/nfpm,target=/usr/bin/nfpm <<EOT
-  set -e
-  if [ "$MODE" != "download" ]; then
-    export COMPOSE_VERSION="$(git -C "/src" describe --match 'v[0-9]*' --dirty='.m' --always --tags)"
-  fi
-  OUTDIR=/out pkg-build
-EOT
+RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
+WORKDIR /root/rpmbuild
+ARG COMPOSE_VERSION
+ARG PKG_NAME
+ARG PKG_RELEASE
+ARG PKG_DISTRO
+ARG PKG_SUITE
+ARG PKG_PACKAGER
+ARG PKG_RPM_BUILDFLAGS
+ARG PKG_RPM_RELEASE
+ARG SOURCE_DATE_EPOCH
+RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,from=src-tgz,source=/out/compose.tgz,target=/root/rpmbuild/SOURCES/compose.tgz \
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
+    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
+    --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out SRCDIR=/usr/local/src/compose pkg-rpm-build
+
+FROM build-dummy AS builder-rpm-darwin
+FROM build-rpm AS builder-rpm-linux
+FROM build-dummy AS builder-rpm-windows
+FROM builder-rpm-${TARGETOS} AS builder-rpm
+
+# static
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
+FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
+COPY --from=xx / /
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
+ENV CGO_ENABLED="0"
+
+FROM build-base-static AS builder-static
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y --no-install-recommends make
+ARG PKG_NAME
+ARG COMPOSE_VERSION
+WORKDIR /build
+ARG TARGETPLATFORM
+RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/go/pkg/mod \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
+
+FROM builder-${PKG_TYPE} AS build-pkg
 
 FROM scratch AS pkg
 COPY --from=build-pkg /out /

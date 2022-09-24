@@ -11,7 +11,7 @@ on:
       - 'main'
   pull_request:
     paths:
-      - '.github/workflows/.build.yml'
+      - '.github/workflows/.build-remote.yml'
       - '.github/workflows/build-buildx.yml'
       - 'common/**'
       - 'pkg/buildx/**'
@@ -25,7 +25,8 @@ jobs:
           - deb
           - rpm
           - static
-    uses: ./.github/workflows/.build.yml
+    uses: ./.github/workflows/.build-remote.yml
     with:
       name: buildx
       pkg: ${{ matrix.pkg }}
+    secrets: inherit
