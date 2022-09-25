@@ -7,6 +7,7 @@ Vcs-Browser: https://github.com/docker/compose
 Vcs-Git: git://github.com/docker/compose.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
+               debhelper (>= 10~) | dh-systemd,
                make
 
 Package: docker-compose-plugin
