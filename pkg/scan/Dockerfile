@@ -51,18 +51,18 @@ RUN mkdir -p /out
 FROM scratch AS build-dummy
 COPY --from=builder-dummy /out /out
 
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG SCAN_REPO
 RUN git init . && git remote add origin "${SCAN_REPO}"
 ARG SCAN_VERSION
 RUN git fetch origin "${SCAN_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/scan \
     mkdir /out && tar -C / -zcf /out/scan.tgz --exclude .git scan
 
@@ -153,7 +153,7 @@ ENV CGO_ENABLED="0"
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends make
+RUN apt-get install -y --no-install-recommends make
 ARG PKG_NAME
 ARG SCAN_VERSION
 WORKDIR /build
