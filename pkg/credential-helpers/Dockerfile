@@ -145,72 +145,26 @@ FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS 
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev libsecret-1-dev pkg-config
-
-FROM build-base-static AS build-static-linux
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
-  make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-secretservice
-  xx-verify /out/docker-credential-pass/docker-credential-pass
-  xx-verify /out/docker-credential-secretservice/docker-credential-secretservice
-EOT
-
-FROM build-base-static AS build-static-darwin
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  go install std
-  make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-osxkeychain
-  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
-  xx-verify /out/docker-credential-osxkeychain/docker-credential-osxkeychain
-  xx-verify /out/docker-credential-pass/docker-credential-pass
-EOT
-
-FROM build-base-static AS build-static-windows
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-wincred
-  mv /out/docker-credential-wincred/docker-credential-wincred /out/docker-credential-wincred/docker-credential-wincred.exe
-  xx-verify /out/docker-credential-wincred/docker-credential-wincred.exe
-EOT
-
-FROM build-static-${TARGETOS} AS build-static
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
+RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+ARG PKG_NAME
 ARG CREDENTIAL_HELPERS_VERSION
+WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/credential-helpers pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 
