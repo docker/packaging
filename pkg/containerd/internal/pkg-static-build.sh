@@ -16,6 +16,8 @@
 
 : "${CONTAINERD_VERSION=}"
 
+: "${PKG_NAME=}"
+
 : "${BUILDDIR=/work/build}"
 : "${SRCDIR=/work/src}"
 : "${OUTDIR=/out}"
@@ -36,11 +38,44 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
+xx-go --wrap
+
+# FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
+export CC=$(xx-info)-gcc
+
+mkdir -p ${BUILDDIR}/${PKG_NAME}
+
+(
+  set -x
+  pushd ${SRCDIR}
+    make STATIC=1 bin/containerd
+    make STATIC=1 bin/containerd-shim-runc-v2
+    make STATIC=1 bin/ctr
+    mv bin/* "${BUILDDIR}/${PKG_NAME}"
+  popd
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2"
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd"
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/ctr"
+)
+
+(
+  set -x
+  pushd ${RUNC_SRCDIR}
+    make static
+    mv runc "${BUILDDIR}/${PKG_NAME}"
+  popd
+  xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
+)
+
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
-
 mkdir -p "${pkgoutput}"
 
 cd "$BUILDDIR"

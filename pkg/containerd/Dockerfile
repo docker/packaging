@@ -171,58 +171,26 @@ FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS 
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GO111MODULE="off"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils dpkg-dev g++ gcc libbtrfs-dev libseccomp-dev libsecret-1-dev pkg-config
-
-FROM build-base-static AS build-static
-ARG TARGETPLATFORM
-ARG DOCKER_CLI_VERSION
-ARG CGO_ENABLED
-WORKDIR /go/src/github.com/containerd/containerd
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  mkdir -p /out/containerd
-  export CC=$(xx-info)-gcc
-  make STATIC=1 bin/containerd
-  make STATIC=1 bin/containerd-shim-runc-v2
-  make STATIC=1 bin/ctr
-  xx-verify --static bin/containerd-shim-runc-v2
-  xx-verify --static bin/containerd
-  xx-verify --static bin/ctr
-  mv bin/* /out/containerd
-EOT
-WORKDIR /go/src/github.com/opencontainers/runc
-# FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
-RUN --mount=type=bind,from=runc-src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make static
-  xx-verify --static runc
-  mv runc /out/containerd/
-EOT
 
 FROM build-base-static AS builder-static
-ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
+RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev git make pkg-config
+ARG PKG_NAME
 ARG CONTAINERD_VERSION
+ARG RUNC_VERSION
+WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y libbtrfs-dev libseccomp-dev btrfs-progs gcc
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=runc-src,source=/src,target=/runc-src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src RUNC_SRCDIR=/runc-src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
+    --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 
