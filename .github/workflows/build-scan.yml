@@ -11,7 +11,7 @@ on:
       - 'main'
   pull_request:
     paths:
-      - '.github/workflows/.build-remote.yml'
+      - '.github/workflows/.build.yml'
       - '.github/workflows/build-scan.yml'
       - 'common/**'
       - 'pkg/scan/**'
@@ -25,7 +25,7 @@ jobs:
           - deb
           - rpm
           - static
-    uses: ./.github/workflows/.build-remote.yml
+    uses: ./.github/workflows/.build.yml
     with:
       name: scan
       pkg: ${{ matrix.pkg }}
