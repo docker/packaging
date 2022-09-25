@@ -47,17 +47,15 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
+# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
 fi
 
 xx-go --wrap
 
-set -x
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
 tilde='~'
@@ -81,6 +79,8 @@ case "$PKG_RELEASE" in
     export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
     ;;
 esac
+
+set -x
 
 rpmbuild --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
