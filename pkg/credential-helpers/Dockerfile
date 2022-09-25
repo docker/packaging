@@ -99,8 +99,6 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
@@ -135,8 +133,6 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/docker-credential-helpers.tgz,target=/root/rpmbuild/SOURCES/docker-credential-helpers.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/docker-credential-helpers pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
@@ -162,9 +158,7 @@ ARG TARGETPLATFORM
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
   set -e
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
@@ -180,8 +174,6 @@ ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
   set -e
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
@@ -198,9 +190,7 @@ ARG TARGETPLATFORM
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /src
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
   set -e
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap

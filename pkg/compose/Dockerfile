@@ -96,8 +96,6 @@ ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=src,source=/src,target=/root/package/compose,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=./compose pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
@@ -134,8 +132,6 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/compose.tgz,target=/root/rpmbuild/SOURCES/compose.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/compose pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
@@ -165,8 +161,6 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg

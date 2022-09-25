@@ -106,8 +106,6 @@ ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=source=common,target=/common \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=./engine pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
@@ -148,8 +146,6 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/engine.tgz,target=/root/rpmbuild/SOURCES/engine.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/engine \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/engine pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
@@ -184,8 +180,6 @@ RUN xx-apt-get install -y \
 FROM build-base-static AS gowinres
 ARG GOWINRES_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
     GOBIN=/out GO111MODULE=on go install "github.com/tc-hib/go-winres@${GOWINRES_VERSION}"
 
 FROM build-base-static AS build-static
@@ -198,10 +192,8 @@ WORKDIR /go/src/github.com/docker/docker
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=gowinres,source=/out/go-winres,target=/usr/bin/go-winres \
-    --mount=type=cache,target=/root/.cache \
     --mount=type=tmpfs,target=cli/winresources/dockerd \
-    --mount=type=tmpfs,target=cli/winresources/docker-proxy \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=tmpfs,target=cli/winresources/docker-proxy <<EOT
   set -ex
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap

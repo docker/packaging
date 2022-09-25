@@ -121,8 +121,6 @@ RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
@@ -161,8 +159,6 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
@@ -190,9 +186,7 @@ ARG DOCKER_CLI_VERSION
 ARG CGO_ENABLED
 WORKDIR /go/src/github.com/containerd/containerd
 RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
   set -ex
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
@@ -209,9 +203,7 @@ EOT
 WORKDIR /go/src/github.com/opencontainers/runc
 # FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
 RUN --mount=type=bind,from=runc-src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw <<EOT
   set -ex
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap

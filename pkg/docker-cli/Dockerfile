@@ -102,8 +102,6 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=./cli pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
@@ -139,8 +137,6 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/cli.tgz,target=/root/rpmbuild/SOURCES/cli.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/cli \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/cli pkg-rpm-build
 
 FROM build-dummy AS builder-rpm-darwin
@@ -164,8 +160,6 @@ RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev pkg-config
 FROM build-base-static AS goversioninfo
 ARG GOVERSIONINFO_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
     GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
 
 FROM build-base-static AS build-static
@@ -180,9 +174,7 @@ RUN --mount=type=bind,from=src,source=/src,target=.,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
-    --mount=type=tmpfs,target=cli/winresources \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=tmpfs,target=cli/winresources <<EOT
   set -ex
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
   xx-go --wrap
