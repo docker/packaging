@@ -62,16 +62,21 @@ if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
+# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
 xx-go --wrap
-
-set -x
-
-chmod -x debian/compat debian/control debian/docs debian/*.bash-completion debian/*.manpages
-DOCKER_CLI_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
 mkdir -p "${pkgoutput}"
+
+set -x
+
+chmod -x debian/compat debian/control debian/docs debian/*.bash-completion debian/*.manpages
+DOCKER_CLI_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/

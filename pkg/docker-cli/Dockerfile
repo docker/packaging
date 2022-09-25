@@ -149,50 +149,32 @@ FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS 
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev pkg-config
 
 FROM build-base-static AS goversioninfo
 ARG GOVERSIONINFO_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
 
-FROM build-base-static AS build-static
-ARG TARGETPLATFORM
+FROM build-base-static AS builder-static
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+ARG PKG_NAME
 ARG DOCKER_CLI_VERSION
-ARG GO_LINKMODE=static
-ARG GO_BUILDTAGS
-ARG GO_STRIP
-ARG CGO_ENABLED
-WORKDIR /go/src/github.com/docker/cli
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
+WORKDIR /build
+ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev
+RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/cli,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
-    --mount=type=tmpfs,target=cli/winresources <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  mkdir -p /out/docker-cli
-  TARGET=/out/docker-cli ./scripts/build/binary
-  xx-verify --static /out/docker-cli/docker
-EOT
-
-FROM build-base-static AS builder-static
-ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
-ARG DOCKER_CLI_VERSION
-ARG TARGETPLATFORM
-RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
+    --mount=type=tmpfs,target=/go/src/github.com/docker/cli/winresources \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/docker/cli pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 
