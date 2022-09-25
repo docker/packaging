@@ -51,18 +51,18 @@ RUN mkdir -p /out
 FROM scratch AS build-dummy
 COPY --from=builder-dummy /out /out
 
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG BUILDX_REPO
 RUN git init . && git remote add origin "${BUILDX_REPO}"
 ARG BUILDX_VERSION
 RUN git fetch origin "${BUILDX_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/buildx \
     mkdir /out && tar -C / -zcf /out/buildx.tgz --exclude .git buildx
 

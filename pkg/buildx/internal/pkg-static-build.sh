@@ -38,10 +38,8 @@ fi
 
 xx-go --wrap
 
-set -x
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
   go env -w CC=gcc
 fi
 
@@ -51,21 +49,22 @@ if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
-pushd ${SRCDIR}
-go build \
-  -mod=vendor \
-  -trimpath \
-  -ldflags="-s -w -X ${pkg}/version.Version=${BUILDX_VERSION} -X ${pkg}/version.Revision=${commit} -X ${pkg}/version.Package=${pkg}" \
-  -o "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}" ./cmd/buildx
-popd
-
-xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
+(
+  set -x
+  pushd ${SRCDIR}
+    go build \
+      -mod=vendor \
+      -trimpath \
+      -ldflags="-s -w -X ${pkg}/version.Version=${BUILDX_VERSION} -X ${pkg}/version.Revision=${commit} -X ${pkg}/version.Package=${pkg}" \
+      -o "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}" ./cmd/buildx
+  popd
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
+)
 
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
-
 mkdir -p "${pkgoutput}"
 
 cd "$BUILDDIR"
