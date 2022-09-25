@@ -18,7 +18,6 @@ BuildRequires: gcc
 BuildRequires: libsecret-devel
 BuildRequires: libtool-ltdl-devel
 BuildRequires: make
-BuildRequires: pkgconfig
 
 %description
 docker-credential-secretservice is a credential helper backend which uses libsecret to keep Docker credentials safe.
@@ -28,18 +27,18 @@ docker-credential-secretservice is a credential helper backend which uses libsec
 
 %build
 pushd ${RPM_BUILD_DIR}/src/docker-credential-helpers
-CGO_ENABLED=1 make build-secretservice VERSION=v%{_origversion} REVISION=%{_commit} DESTDIR=bin
+    CGO_ENABLED=1 make build-secretservice VERSION=%{_origversion} REVISION=%{_commit} DESTDIR=bin
 popd
 
 %check
 pushd ${RPM_BUILD_DIR}/src/docker-credential-helpers
 ver="$(bin/docker-credential-secretservice version)"; \
-	test "$ver" = "docker-credential-secretservice (github.com/docker/docker-credential-helpers) v%{_origversion}" && echo "PASS: docker-credential-secretservice version OK" || (echo "FAIL: docker-credential-secretservice version ($ver) did not match" && exit 1)
+    test "$ver" = "docker-credential-secretservice (github.com/docker/docker-credential-helpers) %{_origversion}" && echo "PASS: docker-credential-secretservice version OK" || (echo "FAIL: docker-credential-secretservice version ($ver) did not match" && exit 1)
 popd
 
 %install
 pushd ${RPM_BUILD_DIR}/src/docker-credential-helpers
-install -D -p -m 0755 bin/docker-credential-secretservice ${RPM_BUILD_ROOT}%{_bindir}/docker-credential-secretservice
+    install -D -p -m 0755 bin/docker-credential-secretservice ${RPM_BUILD_ROOT}%{_bindir}/docker-credential-secretservice
 popd
 
 %files

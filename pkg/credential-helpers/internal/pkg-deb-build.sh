@@ -27,6 +27,7 @@
 : "${PKG_DEB_EPOCH=}"
 
 : "${SOURCE_DATE_EPOCH=}"
+: "${SRCDIR=/work/src}"
 : "${OUTDIR=/out}"
 
 set -e
@@ -47,6 +48,10 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
+fi
+
 tilde='~'
 debVersion="${CREDENTIAL_HELPERS_VERSION#v}"
 debVersion="${debVersion//-/$tilde}"
@@ -57,12 +62,12 @@ ${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersion}
  -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
 EOF
 
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
+xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
   go env -w CC=gcc
 fi
-
-xx-go --wrap
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
@@ -72,6 +77,6 @@ fi
 set -x
 
 chmod -x debian/compat debian/control debian/docs
-dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+CREDENTIAL_HELPERS_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 mkdir -p "${pkgoutput}"
 cp /root/docker-credential-* "${pkgoutput}"/

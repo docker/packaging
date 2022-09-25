@@ -48,15 +48,15 @@ if ! command -v xx-info &> /dev/null; then
 fi
 
 if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
-fi
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
 xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 tilde='~'
 rpmVersion="${CREDENTIAL_HELPERS_VERSION#v}"

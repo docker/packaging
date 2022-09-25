@@ -16,7 +16,6 @@
 
 ARG XX_VERSION="1.1.2"
 ARG ALPINE_VERSION="3.16"
-ARG OSXCROSS_VERSION="11.3-r7-debian"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # go
@@ -43,8 +42,8 @@ ARG PKG_RPM_RELEASE="1"
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# osxcross contains the MacOSX cross toolchain for xx
-FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
+# osxcross contains the MacOSX SDK for xx
+FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
@@ -74,7 +73,6 @@ RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -86,7 +84,6 @@ COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./docker-credential-helpers
 ARG CREDENTIAL_HELPERS_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
@@ -98,8 +95,9 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=src,source=/src,target=/root/package/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    OUTDIR=/out pkg-deb-build
+    OUTDIR=/out SRCDIR=/root/package/docker-credential-helpers pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
 FROM build-deb AS builder-deb-linux
@@ -154,7 +152,7 @@ ENV CGO_ENABLED="1"
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+RUN apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
 ARG PKG_NAME
 ARG CREDENTIAL_HELPERS_VERSION
 WORKDIR /build
@@ -163,7 +161,7 @@ RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
+    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/credential-helpers pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
