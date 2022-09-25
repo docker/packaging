@@ -50,12 +50,7 @@ FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
-
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
 # base stage for fetching sources and create final release
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
@@ -85,7 +80,7 @@ ENV RUNC_BUILDTAGS apparmor seccomp selinux
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND
@@ -107,11 +102,6 @@ RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/root/package/engine pkg-deb-build
 
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
-
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
 COPY --from=xx / /
@@ -124,7 +114,7 @@ ENV RUNC_BUILDTAGS seccomp selinux
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG PKG_RELEASE
 ARG TARGETPLATFORM
@@ -146,13 +136,7 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/usr/local/src/engine pkg-rpm-build
 
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
-
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
