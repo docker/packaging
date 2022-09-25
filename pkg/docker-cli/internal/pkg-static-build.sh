@@ -36,17 +36,21 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
 xx-go --wrap
 
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
 (
   set -x
   pushd ${SRCDIR}
-    GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
+    VERSION=$DOCKER_CLI_VERSION GITCOMMIT=$commit GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker"
 )

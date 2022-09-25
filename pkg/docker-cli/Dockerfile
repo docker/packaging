@@ -76,7 +76,6 @@ RUN --mount=from=src,source=/src,target=/cli \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GO111MODULE="off"
@@ -89,7 +88,6 @@ COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./cli
 ARG DOCKER_CLI_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
@@ -101,8 +99,9 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=src,source=/src,target=/root/package/cli,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    OUTDIR=/out SRCDIR=./cli pkg-deb-build
+    OUTDIR=/out SRCDIR=/root/package/cli pkg-deb-build
 
 FROM build-dummy AS builder-deb-darwin
 FROM build-deb AS builder-deb-linux
@@ -162,7 +161,7 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+RUN apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
 ARG PKG_NAME
 ARG DOCKER_CLI_VERSION
 WORKDIR /build
