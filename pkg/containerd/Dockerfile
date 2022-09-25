@@ -55,22 +55,22 @@ ARG GO111MODULE="on"
 ARG MD2MAN_VERSION
 RUN go install github.com/cpuguy83/go-md2man/v2@${MD2MAN_VERSION}
 
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG CONTAINERD_REPO
 RUN git init . && git remote add origin "${CONTAINERD_REPO}"
 ARG CONTAINERD_VERSION
 RUN git fetch origin "${CONTAINERD_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/containerd \
     mkdir /out && tar -C / -zcf /out/containerd.tgz --exclude .git containerd
 
-FROM base AS runc-src
+FROM src-base AS runc-src
 WORKDIR /src
 ARG RUNC_REPO
 ARG RUNC_VERSION
@@ -80,7 +80,7 @@ RUN --mount=from=src,source=/src,target=/containerd <<EOT
   git fetch origin "$RUNC_VERSION" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 EOT
 
-FROM base AS runc-src-tgz
+FROM src-base AS runc-src-tgz
 RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
 

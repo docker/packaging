@@ -52,18 +52,18 @@ FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG DOCKER_CLI_REPO
 RUN git init . && git remote add origin "${DOCKER_CLI_REPO}"
 ARG DOCKER_CLI_VERSION
 RUN git fetch origin "${DOCKER_CLI_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/cli \
     mkdir /out && tar -C / -zcf /out/cli.tgz --exclude .git cli
 
