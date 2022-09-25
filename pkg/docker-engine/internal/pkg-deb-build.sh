@@ -48,12 +48,16 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
 fi
 
 xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 tilde='~'
 debVersion="${DOCKER_ENGINE_VERSION#v}"
@@ -64,10 +68,6 @@ ${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersion}
   * Version: $DOCKER_ENGINE_VERSION
  -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
 EOF
-
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
-fi
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then

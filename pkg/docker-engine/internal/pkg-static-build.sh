@@ -36,12 +36,16 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
 fi
 
 xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 mkdir -p "${BUILDDIR}/${PKG_NAME}"
@@ -49,7 +53,7 @@ mkdir -p "${BUILDDIR}/${PKG_NAME}"
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${DOCKER_ENGINE_VERSION} DOCKER_GITCOMMIT=$(git --git-dir ./.git rev-parse --short HEAD) ./hack/make.sh binary
+    VERSION=${DOCKER_ENGINE_VERSION} DOCKER_GITCOMMIT=$commit ./hack/make.sh binary
     mv $(readlink -e "./bundles/binary-daemon/dockerd${binext}") "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
     mv $(readlink -e "./bundles/binary-daemon/docker-proxy${binext}") "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
     # FIXME: can't use clang with tini
