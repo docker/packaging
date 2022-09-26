@@ -94,12 +94,12 @@ RUN --mount=from=runc-src,source=/src,target=/runc \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash ca-certificates curl devscripts equivs git lsb-release
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
+RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
 FROM build-base-deb AS build-deb
 COPY deb /root/package/debian
@@ -179,7 +179,7 @@ ENV GO111MODULE="off"
 ENV CGO_ENABLED="1"
 
 FROM build-base-static AS builder-static
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev git make pkg-config
+RUN apt-get install -y --no-install-recommends dpkg-dev git make pkg-config
 ARG PKG_NAME
 ARG CONTAINERD_VERSION
 ARG RUNC_VERSION

@@ -38,12 +38,16 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
 xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 # FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
 export CC=$(xx-info)-gcc
@@ -53,9 +57,9 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    make STATIC=1 bin/containerd
-    make STATIC=1 bin/containerd-shim-runc-v2
-    make STATIC=1 bin/ctr
+    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/containerd
+    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/containerd-shim-runc-v2
+    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/ctr
     mv bin/* "${BUILDDIR}/${PKG_NAME}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2"
