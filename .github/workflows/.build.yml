@@ -11,6 +11,11 @@ on:
         required: true
         type: string
 
+env:
+  BUILDER_NAME: remote-builder
+  # FIXME: use dockereng/packaging-cache
+  BUILD_CACHE_REGISTRY_SLUG: crazymax/docker-packaging-cache
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -19,11 +24,46 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Prepare
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "BUILD_CACHE_REGISTRY_PUSH=1" >> $GITHUB_ENV
+      -
+        name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
         name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
+      -
+        name: Set up remote builders
+        if: inputs.pkg != 'static' # do not use remote builders for static builds (cross)
+        # FIXME: use docker/setup-buildx-action@v2 when https://github.com/docker/setup-buildx-action/pull/165 merged
+        uses: crazy-max/docker-setup-buildx-action@append
+        with:
+          driver: remote
+          endpoint: docker-container://buildx_buildkit_${{ steps.buildx.outputs.name }}0
+          append: |
+            - name: aws_graviton2
+              endpoint: tcp://${{ secrets.AWS_ARM64_HOST }}:1234
+              platforms: darwin/arm64,linux/arm64,linux/arm/v5,linux/arm/v6,linux/arm/v7,windows/arm64
+            - name: linuxone_s390x
+              endpoint: tcp://${{ secrets.LINUXONE_S390X_HOST }}:1234
+              platforms: linux/s390x
+        env:
+          BUILDER_NODE_1_AUTH_TLS_CACERT: ${{ secrets.AWS_ARM64_CACERT }}
+          BUILDER_NODE_1_AUTH_TLS_CERT: ${{ secrets.AWS_ARM64_CERT }}
+          BUILDER_NODE_1_AUTH_TLS_KEY: ${{ secrets.AWS_ARM64_KEY }}
+          BUILDER_NODE_2_AUTH_TLS_CACERT: ${{ secrets.LINUXONE_S390X_CACERT }}
+          BUILDER_NODE_2_AUTH_TLS_CERT: ${{ secrets.LINUXONE_S390X_CERT }}
+          BUILDER_NODE_2_AUTH_TLS_KEY: ${{ secrets.LINUXONE_S390X_KEY }}
       -
         # necessary to use gha cache export
         name: Expose GitHub Runtime
@@ -32,8 +72,6 @@ jobs:
         name: Build
         run: |
           make -j1 -C pkg/${{ inputs.name }} all-${{ inputs.pkg }}
-        env:
-          BUILD_CACHE_SCOPE: build-${{ inputs.name }}-${{ inputs.pkg }}
       -
         name: List artifacts
         run: |

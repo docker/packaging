@@ -14,9 +14,11 @@
 
 include ../../common/vars.mk
 
+export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
+export CONTAINERD_VERSION ?= v1.6.8
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/containerd/containerd/blob/39f7cd73e7cc3e1d24f3557adfce5b68484136f7/.github/workflows/ci.yml#L131-L150
@@ -30,11 +32,11 @@ export RUNC_VERSION ?=
 export PKG_DEB_REVISION = 1
 
 .PHONY: all
-all: $(DEFAULT_RULE)
+all: pkg
 	@#
 
 .PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
+all-%: pkg-%
 	@#
 
 .PHONY: version

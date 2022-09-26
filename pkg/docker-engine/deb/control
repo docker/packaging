@@ -6,14 +6,11 @@ Homepage: https://www.docker.com
 Vcs-Browser: https://github.com/docker/docker
 Vcs-Git: git://github.com/docker/docker.git
 Standards-Version: 3.9.6
-Build-Depends: bash,
-               bash-completion,
-               ca-certificates,
+Build-Depends: ca-certificates,
                cmake,
                dh-apparmor,
                debhelper (>= 10~) | dh-systemd,
                gcc,
-               git,
                libbtrfs-dev | btrfs-tools,
                libc-dev,
                libdevmapper-dev,

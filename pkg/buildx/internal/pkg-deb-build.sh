@@ -48,6 +48,13 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
 tilde='~'
 debVersion="${BUILDX_VERSION#v}"
 debVersion="${debVersion//-/$tilde}"
@@ -62,16 +69,14 @@ if [ -d "${SRCDIR}" ]; then
   commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
 fi
 
-xx-go --wrap
-
-set -x
-
-chmod -x debian/compat debian/control debian/docs
-BUILDX_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
-
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
 mkdir -p "${pkgoutput}"
+
+set -x
+
+chmod -x debian/compat debian/control debian/docs
+BUILDX_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/

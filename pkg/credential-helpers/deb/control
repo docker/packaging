@@ -6,14 +6,10 @@ Homepage: https://www.docker.com
 Vcs-Browser: https://github.com/docker/docker-credential-helpers
 Vcs-Git: git://github.com/docker/docker-credential-helpers.git
 Standards-Version: 3.9.6
-Build-Depends: debhelper,
-               dh-make,
+Build-Depends: debhelper (>= 10~) | dh-systemd,
                gcc,
-               git,
-               libc-dev,
                libsecret-1-dev,
-               make,
-               pkg-config
+               make
 
 Package: docker-credential-secretservice
 Architecture: linux-any

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 : "${CREDENTIAL_HELPERS_VERSION=}"
+: "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
 : "${SRCDIR=/work/src}"
@@ -34,11 +35,57 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+if [ -d "${SRCDIR}" ]; then
+  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
+fi
+
+xx-go --wrap
+
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
+
+case "$(xx-info os)" in
+  darwin)
+    (
+      go install std
+      set -x
+      pushd ${SRCDIR}
+        make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+      popd
+      xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-osxkeychain"
+      xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-pass"
+    )
+  ;;
+  linux)
+    (
+      set -x
+      pushd ${SRCDIR}
+        make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+      popd
+      xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-pass"
+      xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-secretservice"
+    )
+  ;;
+  windows)
+    (
+      set -x
+      pushd ${SRCDIR}
+        make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+      popd
+      mv "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred" "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred.exe"
+      xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred.exe"
+    )
+  ;;
+esac
+
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
-
 mkdir -p "${pkgoutput}"
 
 cd "$BUILDDIR"

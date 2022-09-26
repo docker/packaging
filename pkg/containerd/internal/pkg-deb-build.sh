@@ -54,16 +54,21 @@ fi
 
 xx-go --wrap
 
-set -x
-
-sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /common/containerd.service
-
-chmod -x debian/compat debian/control debian/copyright debian/manpages
-GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
+  go env -w CC=gcc
+fi
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
 mkdir -p "${pkgoutput}"
+
+set -x
+
+sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /common/containerd.service
+
+chmod -x debian/compat debian/control debian/copyright debian/manpages
+GO_SRC_PATH=${GOPATH}/src/github.com/containerd/containerd CONTAINERD_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/${PKG_NAME}* "${pkgoutput}"/

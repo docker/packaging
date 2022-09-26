@@ -6,7 +6,8 @@ Homepage: https://www.docker.com
 Vcs-Browser: https://github.com/docker/buildx
 Vcs-Git: git://github.com/docker/buildx.git
 Standards-Version: 3.9.6
-Build-Depends: bash
+Build-Depends: bash,
+               debhelper (>= 10~) | dh-systemd
 
 Package: docker-buildx-plugin
 Priority: optional

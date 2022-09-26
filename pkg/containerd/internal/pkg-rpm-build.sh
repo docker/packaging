@@ -53,14 +53,10 @@ fi
 
 xx-go --wrap
 
-set -x
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
   go env -w CC=gcc
 fi
-
-sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /root/rpmbuild/SOURCES/containerd.service
 
 tilde='~'
 rpmVersion="${CONTAINERD_VERSION#v}"
@@ -76,6 +72,10 @@ pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
+
+set -x
+
+sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /root/rpmbuild/SOURCES/containerd.service
 
 rpmbuild --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"

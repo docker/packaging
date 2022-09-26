@@ -10,10 +10,8 @@ Build-Depends: bash,
                bash-completion,
                debhelper (>= 10~) | dh-systemd,
                gcc,
-               git,
                libc-dev,
-               make,
-               pkg-config
+               make
 
 Package: docker-ce-cli
 Architecture: linux-any

@@ -50,25 +50,20 @@ FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
-
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG DOCKER_ENGINE_REPO
 RUN git init . && git remote add origin "${DOCKER_ENGINE_REPO}"
 ARG DOCKER_ENGINE_VERSION
 RUN git fetch origin "${DOCKER_ENGINE_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/engine \
     mkdir /out && tar -C / -zcf /out/engine.tgz --exclude .git engine
 
@@ -76,7 +71,6 @@ RUN --mount=from=src,source=/src,target=/engine \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GO111MODULE="off"
@@ -86,14 +80,13 @@ ENV RUNC_BUILDTAGS apparmor seccomp selinux
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./engine
 ARG DOCKER_ENGINE_VERSION
 ARG PKG_NAME
 ARG PKG_DISTRO
@@ -105,15 +98,9 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=source=common,target=/common \
+    --mount=type=bind,from=src,source=/src,target=/root/package/engine,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    OUTDIR=/out SRCDIR=./engine pkg-deb-build
-
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
+    OUTDIR=/out SRCDIR=/root/package/engine pkg-deb-build
 
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
@@ -127,13 +114,12 @@ ENV RUNC_BUILDTAGS seccomp selinux
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG PKG_RELEASE
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
 WORKDIR /root/rpmbuild
-COPY --from=src-tgz /out/engine.tgz ./SOURCES/
 ARG DOCKER_ENGINE_VERSION
 ARG PKG_NAME
 ARG PKG_DISTRO
@@ -148,88 +134,39 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/engine.tgz,target=/root/rpmbuild/SOURCES/engine.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/engine \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/engine pkg-rpm-build
 
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
-
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang cmake dpkg-dev file git llvm pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV CGO_ENABLED="1"
 ENV GO111MODULE="off"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y \
-  binutils \
-  ca-certificates \
-  curl \
-  gcc \
-  g++ \
-  libbtrfs-dev \
-  libc6-dev \
-  libdevmapper-dev \
-  libgcc-10-dev \
-  libltdl-dev \
-  pkg-config
 
 FROM build-base-static AS gowinres
 ARG GOWINRES_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
     GOBIN=/out GO111MODULE=on go install "github.com/tc-hib/go-winres@${GOWINRES_VERSION}"
-
-FROM build-base-static AS build-static
-ARG TARGETPLATFORM
-ARG TARGETOS
-ARG DOCKER_ENGINE_VERSION
-ARG GO_LINKMODE=static
-ARG DOCKER_BUILDTAGS="apparmor seccomp"
-WORKDIR /go/src/github.com/docker/docker
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=bind,from=gowinres,source=/out/go-winres,target=/usr/bin/go-winres \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=tmpfs,target=cli/winresources/dockerd \
-    --mount=type=tmpfs,target=cli/winresources/docker-proxy \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  mkdir -p /out/docker
-  BIN_EXT=$([ "$TARGETOS" = "windows" ] && echo ".exe" || true)
-  VERSION=${DOCKER_ENGINE_VERSION} DOCKER_GITCOMMIT=$(git --git-dir ./.git rev-parse --short HEAD) ./hack/make.sh binary
-  mv $(readlink -e ./bundles/binary-daemon/dockerd${BIN_EXT}) /out/docker/dockerd${BIN_EXT}
-  xx-verify --static /out/docker/dockerd${BIN_EXT}
-  mv $(readlink -e ./bundles/binary-daemon/docker-proxy${BIN_EXT}) /out/docker/docker-proxy${BIN_EXT}
-  # FIXME: docker-proxy is not statically linked (to be fixed upstream)
-  xx-verify /out/docker/docker-proxy${BIN_EXT}
-  # FIXME: can't cross tini, wrong GOOS/GOARCH used by "install.sh tini" (solved by https://github.com/moby/moby/pull/43529/files#diff-dd2c0eb6ea5cfc6c4bd4eac30934e2d5746747af48fef6da689e85b752f39557R408-R415)
-  if ! xx-info is-cross; then
-    PREFIX=/out/docker TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
-    xx-verify --static /out/docker/docker-init
-  fi
-EOT
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
+RUN apt-get install -y --no-install-recommends dpkg-dev clang cmake make pkg-config
+ARG PKG_NAME
+ARG DOCKER_CLI_VERSION
 WORKDIR /build
-ARG DOCKER_ENGINE_VERSION
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev libbtrfs-dev libdevmapper-dev libltdl-dev
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/docker,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=gowinres,source=/out/go-winres,target=/usr/bin/go-winres \
+    --mount=type=tmpfs,target=/go/src/github.com/docker/docker/cli/winresources/dockerd \
+    --mount=type=tmpfs,target=/go/src/github.com/docker/docker/cli/winresources/docker-proxy \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/docker/docker pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 

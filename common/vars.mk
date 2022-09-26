@@ -16,6 +16,7 @@ export BASEDIR ?= $(CURDIR)
 export GO_IMAGE ?= golang
 export GO_VERSION ?= 1.18.5
 export GO_IMAGE_VARIANT ?= bullseye
+export LOCAL_PLATFORM ?=
 
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
@@ -42,21 +43,3 @@ export PKG_RPM_BUILDFLAGS ?= -bb
 # - Version: 1   : Package was built for an upstream (pre)release version
 # - Version: > 1 : Only to be used for packaging-only changes (new package built for a version for which a package was already built/released)
 export PKG_RPM_RELEASE ?= 1
-
-## pkgs
-
-export DOCKER_ENGINE_REPO ?= https://github.com/docker/docker.git
-export DOCKER_CLI_REPO ?= https://github.com/docker/cli.git
-export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
-export BUILDX_REPO ?= https://github.com/docker/buildx.git
-export COMPOSE_REPO ?= https://github.com/docker/compose.git
-export SCAN_REPO ?= https://github.com/docker/scan-cli-plugin.git
-export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
-
-export DOCKER_ENGINE_VERSION ?= v22.06.0-beta.0
-export DOCKER_CLI_VERSION ?= v22.06.0-beta.0
-export CONTAINERD_VERSION ?= v1.6.8
-export BUILDX_VERSION ?= v0.9.1
-export COMPOSE_VERSION ?= v2.10.2
-export SCAN_VERSION ?= v0.19.0
-export CREDENTIAL_HELPERS_VERSION ?= v0.7.0

@@ -38,30 +38,28 @@ fi
 
 xx-go --wrap
 
-set -x
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
   go env -w CC=gcc
 fi
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 
-pushd ${SRCDIR}
-make VERSION=${COMPOSE_VERSION} DESTDIR=${BUILDDIR}/${PKG_NAME} build
-popd
-
-if [ "$(xx-info os)" = "windows" ]; then
-  mv "${BUILDDIR}/${PKG_NAME}/docker-compose" "${BUILDDIR}/${PKG_NAME}/docker-compose.exe"
-fi
-
-xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-compose${binext}"
+(
+  set -x
+  pushd ${SRCDIR}
+    make VERSION=${COMPOSE_VERSION} DESTDIR=${BUILDDIR}/${PKG_NAME} build
+  popd
+  if [ "$(xx-info os)" = "windows" ]; then
+    mv "${BUILDDIR}/${PKG_NAME}/docker-compose" "${BUILDDIR}/${PKG_NAME}/docker-compose.exe"
+  fi
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-compose${binext}"
+)
 
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
-
 mkdir -p "${pkgoutput}"
 
 cd "$BUILDDIR"

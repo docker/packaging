@@ -42,28 +42,27 @@ fi
 
 xx-go --wrap
 
-set -x
-
-# FIXME: CC is set to a cross package: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! command "$(go env CC)" &> /dev/null; then
+# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
+if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
   go env -w CC=gcc
 fi
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
-
 mkdir -p ${BUILDDIR}/${PKG_NAME}
-pushd ${SRCDIR}
-  PLATFORM_BINARY=docker-scan COMMIT=${commit} TAG_NAME=${SCAN_VERSION} make native-build
-  mv bin/docker-scan "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
-popd
 
-xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
+(
+  set -x
+  pushd ${SRCDIR}
+    PLATFORM_BINARY=docker-scan COMMIT=${commit} TAG_NAME=${SCAN_VERSION} make native-build
+    mv bin/docker-scan "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
+  popd
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
+)
 
 pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
-
 mkdir -p "${pkgoutput}"
 
 cd "$BUILDDIR"

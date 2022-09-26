@@ -44,25 +44,20 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
-
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG BUILDX_REPO
 RUN git init . && git remote add origin "${BUILDX_REPO}"
 ARG BUILDX_VERSION
 RUN git fetch origin "${BUILDX_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/buildx \
     mkdir /out && tar -C / -zcf /out/buildx.tgz --exclude .git buildx
 
@@ -78,7 +73,7 @@ ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
@@ -96,14 +91,7 @@ ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=src,source=/src,target=/root/package/buildx,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=./buildx pkg-deb-build
-
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
@@ -116,7 +104,7 @@ ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
@@ -134,17 +122,9 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/buildx.tgz,target=/root/rpmbuild/SOURCES/buildx.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/buildx \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/buildx pkg-rpm-build
 
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
-
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
@@ -163,8 +143,6 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/buildx \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/buildx pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg

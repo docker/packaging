@@ -50,25 +50,20 @@ FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
-
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG DOCKER_CLI_REPO
 RUN git init . && git remote add origin "${DOCKER_CLI_REPO}"
 ARG DOCKER_CLI_VERSION
 RUN git fetch origin "${DOCKER_CLI_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/cli \
     mkdir /out && tar -C / -zcf /out/cli.tgz --exclude .git cli
 
@@ -76,7 +71,6 @@ RUN --mount=from=src,source=/src,target=/cli \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GO111MODULE="off"
@@ -84,12 +78,11 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./cli
 ARG DOCKER_CLI_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
@@ -101,15 +94,9 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=src,source=/src,target=/root/package/cli,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    OUTDIR=/out SRCDIR=./cli pkg-deb-build
-
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
+    OUTDIR=/out SRCDIR=/root/package/cli pkg-deb-build
 
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
@@ -121,7 +108,7 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
@@ -139,68 +126,38 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/cli.tgz,target=/root/rpmbuild/SOURCES/cli.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/cli \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/cli pkg-rpm-build
 
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
-
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev pkg-config
 
 FROM build-base-static AS goversioninfo
 ARG GOVERSIONINFO_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
     GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
-
-FROM build-base-static AS build-static
-ARG TARGETPLATFORM
-ARG DOCKER_CLI_VERSION
-ARG GO_LINKMODE=static
-ARG GO_BUILDTAGS
-ARG GO_STRIP
-ARG CGO_ENABLED
-WORKDIR /go/src/github.com/docker/cli
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
-    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
-    --mount=type=tmpfs,target=cli/winresources \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  mkdir -p /out/docker-cli
-  TARGET=/out/docker-cli ./scripts/build/binary
-  xx-verify --static /out/docker-cli/docker
-EOT
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
+RUN apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+ARG PKG_NAME
 ARG DOCKER_CLI_VERSION
+WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/cli,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
+    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
+    --mount=type=tmpfs,target=/go/src/github.com/docker/cli/winresources \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/docker/cli pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 

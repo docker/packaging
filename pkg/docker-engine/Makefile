@@ -14,9 +14,11 @@
 
 include ../../common/vars.mk
 
+export DOCKER_ENGINE_REPO ?= https://github.com/docker/docker.git
+export DOCKER_ENGINE_VERSION ?= v22.06.0-beta.0
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/moby/moby/blob/0e873d5cd8b31c08e29ff2f790c19a2e9c4ee30a/.github/workflows/ci.yml#L65-L73
@@ -27,11 +29,11 @@ export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
 
 .PHONY: all
-all: $(DEFAULT_RULE)
+all: pkg
 	@#
 
 .PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
+all-%: pkg-%
 	@#
 
 .PHONY: version

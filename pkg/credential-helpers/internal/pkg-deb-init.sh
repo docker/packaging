@@ -30,11 +30,5 @@ fi
 
 set -x
 
-case "$PKG_RELEASE" in
-  ubuntu2004|ubuntu2204)
-    if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
-      rm -f /usr/bin/man
-      dpkg-divert --quiet --remove --rename /usr/bin/man
-    fi
-  ;;
-esac
+apt-get update
+apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git

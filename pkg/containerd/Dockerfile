@@ -55,28 +55,22 @@ ARG GO111MODULE="on"
 ARG MD2MAN_VERSION
 RUN go install github.com/cpuguy83/go-md2man/v2@${MD2MAN_VERSION}
 
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
-
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG CONTAINERD_REPO
 RUN git init . && git remote add origin "${CONTAINERD_REPO}"
 ARG CONTAINERD_VERSION
 RUN git fetch origin "${CONTAINERD_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/containerd \
     mkdir /out && tar -C / -zcf /out/containerd.tgz --exclude .git containerd
 
-FROM base AS runc-src
+FROM src-base AS runc-src
 WORKDIR /src
 ARG RUNC_REPO
 ARG RUNC_VERSION
@@ -86,7 +80,7 @@ RUN --mount=from=src,source=/src,target=/containerd <<EOT
   git fetch origin "$RUNC_VERSION" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 EOT
 
-FROM base AS runc-src-tgz
+FROM src-base AS runc-src-tgz
 RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
 
@@ -94,14 +88,14 @@ RUN --mount=from=runc-src,source=/src,target=/runc \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash ca-certificates curl devscripts equivs git lsb-release
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
+RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
@@ -121,14 +115,7 @@ RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-deb-build
-
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
 
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
@@ -140,7 +127,7 @@ COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
@@ -161,76 +148,33 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
-
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
 
 # static
 FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GO111MODULE="off"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils dpkg-dev g++ gcc libbtrfs-dev libseccomp-dev libsecret-1-dev pkg-config
-
-FROM build-base-static AS build-static
-ARG TARGETPLATFORM
-ARG DOCKER_CLI_VERSION
-ARG CGO_ENABLED
-WORKDIR /go/src/github.com/containerd/containerd
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  mkdir -p /out/containerd
-  export CC=$(xx-info)-gcc
-  make STATIC=1 bin/containerd
-  make STATIC=1 bin/containerd-shim-runc-v2
-  make STATIC=1 bin/ctr
-  xx-verify --static bin/containerd-shim-runc-v2
-  xx-verify --static bin/containerd
-  xx-verify --static bin/ctr
-  mv bin/* /out/containerd
-EOT
-WORKDIR /go/src/github.com/opencontainers/runc
-# FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
-RUN --mount=type=bind,from=runc-src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -ex
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make static
-  xx-verify --static runc
-  mv runc /out/containerd/
-EOT
 
 FROM build-base-static AS builder-static
-ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
+RUN apt-get install -y --no-install-recommends dpkg-dev git make pkg-config
+ARG PKG_NAME
 ARG CONTAINERD_VERSION
+ARG RUNC_VERSION
+WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y libbtrfs-dev libseccomp-dev btrfs-progs gcc
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=runc-src,source=/src,target=/runc-src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src RUNC_SRCDIR=/runc-src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
+    --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 

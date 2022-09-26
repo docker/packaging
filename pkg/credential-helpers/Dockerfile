@@ -16,7 +16,6 @@
 
 ARG XX_VERSION="1.1.2"
 ARG ALPINE_VERSION="3.16"
-ARG OSXCROSS_VERSION="11.3-r7-debian"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # go
@@ -43,30 +42,25 @@ ARG PKG_RPM_RELEASE="1"
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# osxcross contains the MacOSX cross toolchain for xx
-FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
+# osxcross contains the MacOSX SDK for xx
+FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
-# dummy stage for unsupported platforms
-FROM --platform=$BUILDPLATFORM busybox AS builder-dummy
-RUN mkdir -p /out
-FROM scratch AS build-dummy
-COPY --from=builder-dummy /out /out
-
-# base stage for fetching sources and create final release
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS base
+# base stage for fetching sources
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
-FROM base AS src
+FROM src-base AS src
 WORKDIR /src
 ARG CREDENTIAL_HELPERS_REPO
 RUN git init . && git remote add origin "${CREDENTIAL_HELPERS_REPO}"
 ARG CREDENTIAL_HELPERS_VERSION
 RUN git fetch origin "${CREDENTIAL_HELPERS_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
-FROM base AS src-tgz
+FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
     mkdir /out && tar -C / -zcf /out/docker-credential-helpers.tgz --exclude .git docker-credential-helpers
 
@@ -74,19 +68,17 @@ RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
 FROM ${PKG_BASE_IMAGE} AS build-base-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y apt-utils bash curl devscripts equivs git
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
 
-FROM build-base-deb AS build-deb
+FROM build-base-deb AS builder-deb
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
 WORKDIR /root/package
-COPY --from=src /src ./docker-credential-helpers
 ARG CREDENTIAL_HELPERS_VERSION
 ARG PKG_NAME
 ARG PKG_RELEASE
@@ -98,15 +90,9 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=src,source=/src,target=/root/package/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    OUTDIR=/out pkg-deb-build
-
-FROM build-dummy AS builder-deb-darwin
-FROM build-deb AS builder-deb-linux
-FROM build-dummy AS builder-deb-windows
-FROM builder-deb-${TARGETOS} AS builder-deb
+    OUTDIR=/out SRCDIR=/root/package/docker-credential-helpers pkg-deb-build
 
 # rpm
 FROM ${PKG_BASE_IMAGE} AS build-base-rpm
@@ -117,7 +103,7 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
 RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
 
-FROM build-base-rpm AS build-rpm
+FROM build-base-rpm AS builder-rpm
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
@@ -135,92 +121,32 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     --mount=type=bind,from=src-tgz,source=/out/docker-credential-helpers.tgz,target=/root/rpmbuild/SOURCES/docker-credential-helpers.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
     OUTDIR=/out SRCDIR=/usr/local/src/docker-credential-helpers pkg-rpm-build
 
-FROM build-dummy AS builder-rpm-darwin
-FROM build-rpm AS builder-rpm-linux
-FROM build-dummy AS builder-rpm-windows
-FROM builder-rpm-${TARGETOS} AS builder-rpm
-
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates clang dpkg-dev file git llvm make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
-ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev libsecret-1-dev pkg-config
-
-FROM build-base-static AS build-static-linux
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
-  make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-secretservice
-  xx-verify /out/docker-credential-pass/docker-credential-pass
-  xx-verify /out/docker-credential-secretservice/docker-credential-secretservice
-EOT
-
-FROM build-base-static AS build-static-darwin
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  go install std
-  make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-osxkeychain
-  make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-pass
-  xx-verify /out/docker-credential-osxkeychain/docker-credential-osxkeychain
-  xx-verify /out/docker-credential-pass/docker-credential-pass
-EOT
-
-FROM build-base-static AS build-static-windows
-ARG TARGETPLATFORM
-ARG CREDENTIAL_HELPERS_VERSION
-WORKDIR /src
-RUN --mount=type=bind,from=src,source=/src,target=.,rw \
-    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
-  set -e
-  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
-  xx-go --wrap
-  make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION DESTDIR=/out/docker-credential-wincred
-  mv /out/docker-credential-wincred/docker-credential-wincred /out/docker-credential-wincred/docker-credential-wincred.exe
-  xx-verify /out/docker-credential-wincred/docker-credential-wincred.exe
-EOT
-
-FROM build-static-${TARGETOS} AS build-static
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash file zip tar
-WORKDIR /build
+RUN apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+ARG PKG_NAME
 ARG CREDENTIAL_HELPERS_VERSION
+WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=build-static,source=/out,target=/build \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/src pkg-static-build
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/credential-helpers pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 

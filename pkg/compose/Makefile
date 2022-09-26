@@ -14,21 +14,23 @@
 
 include ../../common/vars.mk
 
+export COMPOSE_REPO ?= https://github.com/docker/compose.git
+export COMPOSE_VERSION ?= v2.10.2
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
-DEFAULT_RULE ?= pkg-multi
 
-PKG_LIST ?= apk deb rpm static
+PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/compose/blob/e2a3fe94273b05a1428652ba248edeee4171427f/docker-bake.hcl#L95-L107
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/riscv64 linux/s390x windows/amd64 windows/arm64
 
 .PHONY: all
-all: $(DEFAULT_RULE)
+all: pkg
 	@#
 
 .PHONY: all-%
-all-%: $(DEFAULT_RULE)-%
+all-%: pkg-%
 	@#
 
 .PHONY: version
