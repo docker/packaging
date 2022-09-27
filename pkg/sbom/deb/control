@@ -1,0 +1,18 @@
+Source: docker-sbom-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/sbom-cli-plugin
+Vcs-Git: git://github.com/docker/sbom-cli-plugin.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               debhelper (>= 10~) | dh-systemd,
+               make
+
+Package: docker-sbom-plugin
+Priority: optional
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Plugin for Docker CLI to support SBOM creation using Syft.
+Homepage: https://github.com/docker/sbom-cli-plugin
