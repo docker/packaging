@@ -65,10 +65,6 @@ jobs:
           BUILDER_NODE_2_AUTH_TLS_CERT: ${{ secrets.LINUXONE_S390X_CERT }}
           BUILDER_NODE_2_AUTH_TLS_KEY: ${{ secrets.LINUXONE_S390X_KEY }}
       -
-        # necessary to use gha cache export
-        name: Expose GitHub Runtime
-        uses: crazy-max/ghaction-github-runtime@v2
-      -
         name: Build
         run: |
           make -j1 -C pkg/${{ inputs.name }} all-${{ inputs.pkg }}
