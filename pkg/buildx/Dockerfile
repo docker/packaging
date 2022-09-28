@@ -53,7 +53,7 @@ RUN apk add --no-cache bash curl file git zip tar
 FROM src-base AS src
 WORKDIR /src
 ARG BUILDX_REPO
-RUN git init . && git remote add origin "${BUILDX_REPO}"
+RUN git init . && git remote add origin "${BUILDX_REPO}.git"
 ARG BUILDX_VERSION
 RUN git fetch origin "${BUILDX_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 

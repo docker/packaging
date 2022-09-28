@@ -14,19 +14,23 @@
 
 include ../../common/vars.mk
 
-export DOCKER_CLI_REPO ?= https://github.com/docker/cli.git
-export DOCKER_CLI_VERSION ?= v22.06.0-beta.0
-
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
+
+export DOCKER_CLI_REPO ?= https://github.com/docker/cli
+export DOCKER_CLI_VERSION ?= v22.06.0-beta.0
+export PKG_DEB_REVISION = 3
+export PKG_RPM_RELEASE = 3
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/cli/blob/3e9117b7e241439e314eaf6fe944b4019fbaa941/docker-bake.hcl#L65-L67
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/386 linux/amd64 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
 
-export PKG_DEB_REVISION = 3
-export PKG_RPM_RELEASE = 3
+define PKG_SUMMARY
+* repo: $(DOCKER_CLI_REPO)
+* version: `$(DOCKER_CLI_VERSION)`
+endef
 
 .PHONY: all
 all: pkg
@@ -36,9 +40,18 @@ all: pkg
 all-%: pkg-%
 	@#
 
+.PHONY: repo
+repo:
+	@echo $(DOCKER_CLI_REPO)
+
 .PHONY: version
 version:
 	@echo $(DOCKER_CLI_VERSION)
+
+export PKG_SUMMARY
+.PHONY: summary
+summary:
+	@echo "$$PKG_SUMMARY"
 
 include ../../common/packages.mk
 include ../../common/build.mk

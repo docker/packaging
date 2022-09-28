@@ -62,7 +62,7 @@ RUN apk add --no-cache bash curl file git zip tar
 FROM src-base AS src
 WORKDIR /src
 ARG CONTAINERD_REPO
-RUN git init . && git remote add origin "${CONTAINERD_REPO}"
+RUN git init . && git remote add origin "${CONTAINERD_REPO}.git"
 ARG CONTAINERD_VERSION
 RUN git fetch origin "${CONTAINERD_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
@@ -74,7 +74,7 @@ FROM src-base AS runc-src
 WORKDIR /src
 ARG RUNC_REPO
 ARG RUNC_VERSION
-RUN git init . && git remote add origin "${RUNC_REPO}"
+RUN git init . && git remote add origin "${RUNC_REPO}.git"
 RUN --mount=from=src,source=/src,target=/containerd <<EOT
   [ -z "$RUNC_VERSION" ] && RUNC_VERSION=$(cat /containerd/script/setup/runc-version)
   git fetch origin "$RUNC_VERSION" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD

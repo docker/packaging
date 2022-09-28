@@ -121,9 +121,22 @@ jobs:
           name: ${{ inputs.package }}
           path: ./pkg/${{ inputs.package }}/bin
       -
-        name: List artifacts
+        name: List artifacts and set summary
         run: |
-          tree -nh ./pkg/${{ inputs.package }}/bin
+          tree -nh ./pkg/${{ inputs.package }}/bin | tee /tmp/pkgs.txt
+          cat > /tmp/summary.txt <<EOF
+          $(make --no-print-directory -C pkg/${{ inputs.package }} summary)
+          * packages: $(find ./pkg/${{ inputs.package }}/bin -type f | wc -l) files / $(du -sh ./pkg/${{ inputs.package }}/bin | awk '{print $1}')
+          EOF
+      -
+        name: Set packages list and summary outputs
+        uses: actions/github-script@v6
+        id: release-summary
+        with:
+          script: |
+            const fs = require('fs');
+            core.setOutput('pkgs', fs.readFileSync('/tmp/pkgs.txt', {encoding: 'utf8'}));
+            core.setOutput('summary', fs.readFileSync('/tmp/summary.txt', {encoding: 'utf8'}));
       -
         name: Docker meta
         id: meta
@@ -173,11 +186,23 @@ jobs:
           body: |
             Image available at [https://hub.docker.com/r/${{ env.REPO_SLUG }}](https://hub.docker.com/r/${{ env.REPO_SLUG }}).
             
+            ## Summary
+            ${{ steps.release-summary.outputs.summary }}
+            
             ## Usage
             Extract with [Undock](https://github.com/crazy-max/undock):
             ```console
             $ undock --wrap --rm-dist --all ${{ env.REPO_SLUG }}:${{ steps.meta.outputs.version }} ./${{ inputs.package }}/${{ env.VERSION }}
             ```
+            
+            ## Packages
+            <details>
+              <summary>Show list</summary>
+
+            ```text
+            ${{ steps.release-summary.outputs.pkgs }}
+            ```
+            </details>
             
             ## Build result metadata
             <details>
