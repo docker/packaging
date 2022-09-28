@@ -22,16 +22,22 @@ define run_bake
 	rm -rf "$($@_TMP_OUT)"
 endef
 
+# build_pkg will filter PKG_SUPPORTED_PLATFORMS of the base pkg image with
+# projects ones in $(4) and call run_bake. If LIMITED_PLATFORMS is set, then it
+# will filter against those. If LOCAL_PLATFORM is set, then it will build only
+# for the current local platform (no platform passed). Static package is a
+# special case where PKG_SUPPORTED_PLATFORMS is always empty as this kind of
+# package is built with cross compilation support and therefore all supported
+# platforms of the project are always passed.
 define build_pkg
-	$(eval FILTERED_PLATFORMS = $(filter $(PKG_SUPPORTED_PLATFORMS),$(4)))
-	$(eval PLATFORMS = $(if $(PKG_SUPPORTED_PLATFORMS:-=),$(FILTERED_PLATFORMS),$(4)))
-	@# if local platform enforced then let bake resolve the platform
+	$(eval SUPPORTED_PLATFORMS = $(if $(LIMITED_PLATFORMS:-=),$(LIMITED_PLATFORMS),$(4)))
+	$(eval FILTERED_PLATFORMS = $(filter $(PKG_SUPPORTED_PLATFORMS),$(SUPPORTED_PLATFORMS)))
+	$(eval BUILD_PLATFORMS = $(if $(PKG_SUPPORTED_PLATFORMS:-=),$(FILTERED_PLATFORMS),$(4)))
 	$(if $(LOCAL_PLATFORM:-=), \
 		$(call run_bake,$(1),$(2),$(3),), \
-		@# otherwise use filtered platforms if available or leave \
-		$(if $(PLATFORMS:-=), \
-			$(call run_bake,$(1),$(2),$(3),$(PLATFORMS)), \
-			$(info no platform compatible for $(1)) \
+		$(if $(BUILD_PLATFORMS:-=), \
+			$(call run_bake,$(1),$(2),$(3),$(BUILD_PLATFORMS)), \
+			$(info $(SUPPORTED_PLATFORMS) platform(s) not supported by $(1)) \
 		) \
 	)
 endef

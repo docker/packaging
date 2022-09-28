@@ -13,11 +13,21 @@
 # limitations under the License.
 
 export BASEDIR ?= $(CURDIR)
+
+# go base image
 export GO_IMAGE ?= golang
 export GO_VERSION ?= 1.18.5
 export GO_IMAGE_VARIANT ?= bullseye
+
+# if set, ony build matching the local platform
+# e.g., LOCAL_PLATFORM=1 make deb
 export LOCAL_PLATFORM ?=
 
+# limit set of platforms to build against (for testing purpose)
+# e.g., LIMITED_PLATFORMS="linux/arm64 linux/arm/v7" make deb
+export LIMITED_PLATFORMS ?=
+
+# package metadata
 export PKG_VENDOR ?= Docker
 export PKG_PACKAGER ?= Docker <support@docker.com>
 

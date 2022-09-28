@@ -18,15 +18,6 @@ on:
 
 jobs:
   run:
-    strategy:
-      fail-fast: false
-      matrix:
-        pkg:
-          - deb
-          - rpm
-          - static
     uses: ./.github/workflows/.build.yml
     with:
       name: buildx
-      pkg: ${{ matrix.pkg }}
-    secrets: inherit
