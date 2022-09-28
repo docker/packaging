@@ -14,15 +14,20 @@
 
 include ../../common/vars.mk
 
-export SCAN_REPO ?= https://github.com/docker/scan-cli-plugin.git
-export SCAN_VERSION ?= v0.19.0
-
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
+
+export SCAN_REPO ?= https://github.com/docker/scan-cli-plugin
+export SCAN_VERSION ?= v0.19.0
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/scan-cli-plugin/blob/9c797021449e3192a46ba86730d6f0e5409b6614/builder.Makefile#L62-L67
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
+
+define PKG_SUMMARY
+* repo: $(SCAN_REPO)
+* version: `$(SCAN_VERSION)`
+endef
 
 .PHONY: all
 all: pkg
@@ -32,9 +37,18 @@ all: pkg
 all-%: pkg-%
 	@#
 
+.PHONY: repo
+repo:
+	@echo $(SCAN_REPO)
+
 .PHONY: version
 version:
 	@echo $(SCAN_VERSION)
+
+export PKG_SUMMARY
+.PHONY: summary
+summary:
+	@echo "$$PKG_SUMMARY"
 
 include ../../common/packages.mk
 include ../../common/build.mk

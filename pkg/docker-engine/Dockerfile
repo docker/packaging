@@ -59,7 +59,7 @@ RUN apk add --no-cache bash curl file git zip tar
 FROM src-base AS src
 WORKDIR /src
 ARG DOCKER_ENGINE_REPO
-RUN git init . && git remote add origin "${DOCKER_ENGINE_REPO}"
+RUN git init . && git remote add origin "${DOCKER_ENGINE_REPO}.git"
 ARG DOCKER_ENGINE_VERSION
 RUN git fetch origin "${DOCKER_ENGINE_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 

@@ -53,7 +53,7 @@ RUN apk add --no-cache bash curl file git zip tar
 FROM src-base AS src
 WORKDIR /src
 ARG SCAN_REPO
-RUN git init . && git remote add origin "${SCAN_REPO}"
+RUN git init . && git remote add origin "${SCAN_REPO}.git"
 ARG SCAN_VERSION
 RUN git fetch origin "${SCAN_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
