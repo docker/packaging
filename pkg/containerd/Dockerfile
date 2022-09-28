@@ -15,38 +15,27 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.1.2"
-ARG ALPINE_VERSION="3.16"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 ARG MD2MAN_VERSION="v2.0.1"
 ARG RUNC_REPO="https://github.com/opencontainers/runc.git"
 
-# go
-ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.18.5"
-ARG GO_IMAGE_VARIANT="bullseye"
-
-# pkg matrix
-ARG PKG_RELEASE="debian11"
-ARG PKG_TYPE="deb"
-ARG PKG_DISTRO="debian"
-ARG PKG_SUITE="bullseye"
-ARG PKG_BASE_IMAGE="debian:bullseye"
-
-# deb specific, see vars.mk for more details
-ARG PKG_DEB_BUILDFLAGS="-b -uc"
-ARG PKG_DEB_REVISION="0"
-ARG PKG_DEB_EPOCH="5"
-
-# rpm specific, see vars.mk for more details
-ARG PKG_RPM_BUILDFLAGS="-bb"
-ARG PKG_RPM_RELEASE="1"
+# common args
+ARG GO_IMAGE
+ARG GO_VERSION
+ARG GO_IMAGE_VARIANT
+ARG PKG_RELEASE
+ARG PKG_TYPE
+ARG PKG_DISTRO
+ARG PKG_SUITE
+ARG PKG_BASE_IMAGE
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
 
 # md2man
 FROM go AS go-md2man
@@ -55,8 +44,8 @@ ARG GO111MODULE="on"
 ARG MD2MAN_VERSION
 RUN go install github.com/cpuguy83/go-md2man/v2@${MD2MAN_VERSION}
 
-# base stage for fetching sources
-FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS src-base
+# src
+FROM --platform=$BUILDPLATFORM alpine AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
@@ -85,7 +74,7 @@ RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
 
 # deb
-FROM ${PKG_BASE_IMAGE} AS build-base-deb
+FROM ${PKG_BASE_IMAGE} AS builder-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
@@ -93,16 +82,13 @@ ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
-RUN --mount=type=bind,source=internal/pkg-deb-init.sh,target=/usr/local/bin/pkg-deb-init pkg-deb-init
-
-FROM build-base-deb AS builder-deb
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git lsb-release
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
-RUN --mount=type=bind,source=internal/pkg-deb-builddeps.sh,target=/usr/local/bin/pkg-deb-builddeps pkg-deb-builddeps
+RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG CONTAINERD_VERSION
 ARG PKG_NAME
-ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
@@ -110,7 +96,7 @@ ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
-RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,source=common,target=/common,rw \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
@@ -118,30 +104,75 @@ RUN --mount=type=bind,source=internal/pkg-deb-build.sh,target=/usr/local/bin/pkg
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-deb-build
 
 # rpm
-FROM ${PKG_BASE_IMAGE} AS build-base-rpm
+FROM ${PKG_BASE_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
-RUN --mount=type=bind,source=internal/pkg-rpm-init.sh,target=/usr/local/bin/pkg-rpm-init pkg-rpm-init
-
-FROM build-base-rpm AS builder-rpm
+RUN <<EOT
+  set -e
+  case "$PKG_RELEASE" in
+    centos7)
+      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
+      yum install -y git rpm-build rpmlint epel-release
+      ;;
+    centos8)
+      [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
+      [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
+      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
+      ;;
+    centos9)
+      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
+      dnf config-manager --set-enabled crb
+      ;;
+    oraclelinux7)
+      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
+      yum install -y git rpm-build rpmlint epel-release
+      yum-config-manager --enable ol7_addons --enable ol7_optional_latest
+      ;;
+    oraclelinux8)
+      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+      dnf config-manager --enable ol8_addons --enable ol8_codeready_builder
+      ;;
+    oraclelinux9)
+      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+      dnf config-manager --enable ol9_addons --enable ol9_codeready_builder
+      ;;
+    fedora*)
+      dnf install -y git rpm-build rpmlint dnf-plugins-core
+      ;;
+  esac
+EOT
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=bind,source=internal/pkg-rpm-builddeps.sh,target=/usr/local/bin/pkg-rpm-builddeps pkg-rpm-builddeps
+RUN <<EOT
+  set -e
+  builddepCmd=""
+  if command -v dnf &> /dev/null; then
+    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
+  elif command -v yum-builddep &> /dev/null; then
+    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
+  else
+    echo >&2 "unable to detect package manager"
+    exit 1
+  fi
+  set -x
+  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
+EOT
 WORKDIR /root/rpmbuild
 ARG CONTAINERD_VERSION
 ARG PKG_NAME
-ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
-RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,source=common/containerd.toml,target=/root/rpmbuild/SOURCES/containerd.toml \
     --mount=type=bind,from=src-tgz,source=/out/containerd.tgz,target=/root/rpmbuild/SOURCES/containerd.tgz \
     --mount=type=bind,from=runc-src-tgz,source=/out/runc.tgz,target=/root/rpmbuild/SOURCES/runc.tgz \
@@ -151,26 +182,23 @@ RUN --mount=type=bind,source=internal/pkg-rpm-build.sh,target=/usr/local/bin/pkg
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
 
 # static
-FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
+FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
+  dpkg-dev git make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GO111MODULE="off"
 ENV CGO_ENABLED="1"
-
-FROM build-base-static AS builder-static
-RUN apt-get install -y --no-install-recommends dpkg-dev git make pkg-config
 ARG PKG_NAME
 ARG CONTAINERD_VERSION
 ARG RUNC_VERSION
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y libbtrfs-dev libseccomp-dev btrfs-progs gcc
-RUN --mount=type=bind,source=internal/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
