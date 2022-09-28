@@ -21,3 +21,4 @@ jobs:
     uses: ./.github/workflows/.build.yml
     with:
       name: containerd
+    secrets: inherit
