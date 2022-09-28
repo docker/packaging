@@ -9,7 +9,7 @@ to request changes to the packaging process.
 ## About
 
 This repository creates packages (apk, deb, rpm, static) for various projects
-and are published as a Docker image on Docker Hub.
+and are published as a Docker image [on Docker Hub](https://hub.docker.com/r/dockereng/packaging).
 
 ## Prerequisites
 
@@ -83,276 +83,118 @@ to extract packages:
 
 ```shell
 # extract packages for all platforms and output to ./bin/undock folder
-$ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./bin/undock
+$ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./buildx/v0.9.1
 ```
 
 <details>
   <summary>tree ./bin/undock</summary>
 
 ```
-./bin/undock/
-├── alpine
-│   ├── 3.14
-│   │   ├── amd64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_x86_64.apk
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin_0.9.1-0_armhf.apk
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin_0.9.1-0_armv7.apk
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_aarch64.apk
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin_0.9.1-0_ppc64le.apk
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.apk
-│   │   └── s390x
-│   │       └── docker-buildx-plugin_0.9.1-0_s390x.apk
-│   ├── 3.15
-│   │   ├── amd64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_x86_64.apk
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin_0.9.1-0_armhf.apk
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin_0.9.1-0_armv7.apk
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_aarch64.apk
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin_0.9.1-0_ppc64le.apk
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.apk
-│   │   └── s390x
-│   │       └── docker-buildx-plugin_0.9.1-0_s390x.apk
-│   └── 3.16
-│       ├── amd64
-│       │   └── docker-buildx-plugin_0.9.1-0_x86_64.apk
-│       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin_0.9.1-0_armhf.apk
-│       │   └── v7
-│       │       └── docker-buildx-plugin_0.9.1-0_armv7.apk
-│       ├── arm64
-│       │   └── docker-buildx-plugin_0.9.1-0_aarch64.apk
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin_0.9.1-0_ppc64le.apk
-│       ├── riscv64
-│       │   └── docker-buildx-plugin_0.9.1-0_riscv64.apk
-│       └── s390x
-│           └── docker-buildx-plugin_0.9.1-0_s390x.apk
+./buildx/v0.9.1/
 ├── centos
 │   ├── 7
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.el7.x86_64.rpm
+│   │   └── arm64
+│   │       └── docker-buildx-plugin-0.9.1-1.el7.aarch64.rpm
 │   ├── 8
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.el8.x86_64.rpm
+│   │   └── arm64
+│   │       └── docker-buildx-plugin-0.9.1-1.el8.aarch64.rpm
 │   └── 9
 │       ├── amd64
-│       │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│       │   └── v7
-│       │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│       ├── arm64
-│       │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│       ├── riscv64
-│       │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│       └── s390x
-│           └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│       │   └── docker-buildx-plugin-0.9.1-1.el9.x86_64.rpm
+│       └── arm64
+│           └── docker-buildx-plugin-0.9.1-1.el9.aarch64.rpm
 ├── debian
 │   ├── bullseye
 │   │   ├── amd64
+│   │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.buildinfo
+│   │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.changes
 │   │   │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
 │   │   ├── arm
 │   │   │   ├── v6
+│   │   │   │   ├── docker-buildx-plugin_0.9.1-0_armel.buildinfo
+│   │   │   │   ├── docker-buildx-plugin_0.9.1-0_armel.changes
 │   │   │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
 │   │   │   └── v7
+│   │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+│   │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.changes
 │   │   │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
 │   │   ├── arm64
+│   │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.buildinfo
+│   │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.changes
 │   │   │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
 │   │   └── s390x
+│   │       ├── docker-buildx-plugin_0.9.1-0_s390x.buildinfo
+│   │       ├── docker-buildx-plugin_0.9.1-0_s390x.changes
 │   │       └── docker-buildx-plugin_0.9.1-0_s390x.deb
 │   └── buster
 │       ├── amd64
+│       │   ├── docker-buildx-plugin_0.9.1-0_amd64.buildinfo
+│       │   ├── docker-buildx-plugin_0.9.1-0_amd64.changes
 │       │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
 │       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
 │       │   └── v7
+│       │       ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+│       │       ├── docker-buildx-plugin_0.9.1-0_armhf.changes
 │       │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
-│       ├── arm64
-│       │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-│       ├── riscv64
-│       │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
-│       └── s390x
-│           └── docker-buildx-plugin_0.9.1-0_s390x.deb
+│       └── arm64
+│           ├── docker-buildx-plugin_0.9.1-0_arm64.buildinfo
+│           ├── docker-buildx-plugin_0.9.1-0_arm64.changes
+│           └── docker-buildx-plugin_0.9.1-0_arm64.deb
 ├── fedora
 │   ├── 35
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.fc35.x86_64.rpm
 │   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.fc35.aarch64.rpm
 │   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │       └── docker-buildx-plugin-0.9.1-1.fc35.s390x.rpm
 │   ├── 36
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.fc36.x86_64.rpm
 │   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.fc36.aarch64.rpm
 │   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │       └── docker-buildx-plugin-0.9.1-1.fc36.s390x.rpm
 │   └── 37
 │       ├── amd64
-│       │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│       │   └── v7
-│       │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
+│       │   └── docker-buildx-plugin-0.9.1-1.fc37.x86_64.rpm
 │       ├── arm64
-│       │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│       ├── riscv64
-│       │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
+│       │   └── docker-buildx-plugin-0.9.1-1.fc37.aarch64.rpm
 │       └── s390x
-│           └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│           └── docker-buildx-plugin-0.9.1-1.fc37.s390x.rpm
 ├── oraclelinux
 │   ├── 7
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.el7.x86_64.rpm
+│   │   └── arm64
+│   │       └── docker-buildx-plugin-0.9.1-1.el7.aarch64.rpm
 │   ├── 8
 │   │   ├── amd64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│   │   └── s390x
-│   │       └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│   │   │   └── docker-buildx-plugin-0.9.1-1.el8.x86_64.rpm
+│   │   └── arm64
+│   │       └── docker-buildx-plugin-0.9.1-1.el8.aarch64.rpm
 │   └── 9
 │       ├── amd64
-│       │   └── docker-buildx-plugin-0.9.1-0.x86_64.rpm
-│       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin-0.9.1-0.armv6hl.rpm
-│       │   └── v7
-│       │       └── docker-buildx-plugin-0.9.1-0.armv7hl.rpm
-│       ├── arm64
-│       │   └── docker-buildx-plugin-0.9.1-0.aarch64.rpm
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin-0.9.1-0.ppc64le.rpm
-│       ├── riscv64
-│       │   └── docker-buildx-plugin-0.9.1-0.riscv64.rpm
-│       └── s390x
-│           └── docker-buildx-plugin-0.9.1-0.s390x.rpm
+│       │   └── docker-buildx-plugin-0.9.1-1.el9.x86_64.rpm
+│       └── arm64
+│           └── docker-buildx-plugin-0.9.1-1.el9.aarch64.rpm
 ├── raspbian
 │   ├── bullseye
-│   │   ├── amd64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
-│   │   ├── arm
-│   │   │   ├── v6
-│   │   │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
-│   │   │   └── v7
-│   │   │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
-│   │   ├── arm64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-│   │   ├── riscv64
-│   │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
-│   │   └── s390x
-│   │       └── docker-buildx-plugin_0.9.1-0_s390x.deb
+│   │   └── arm
+│   │       └── v7
+│   │           ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+│   │           ├── docker-buildx-plugin_0.9.1-0_armhf.changes
+│   │           └── docker-buildx-plugin_0.9.1-0_armhf.deb
 │   └── buster
-│       ├── amd64
-│       │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
-│       ├── arm
-│       │   ├── v6
-│       │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
-│       │   └── v7
-│       │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
-│       ├── arm64
-│       │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-│       ├── ppc64le
-│       │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-│       ├── riscv64
-│       │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
-│       └── s390x
-│           └── docker-buildx-plugin_0.9.1-0_s390x.deb
+│       └── arm
+│           └── v7
+│               ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+│               ├── docker-buildx-plugin_0.9.1-0_armhf.changes
+│               └── docker-buildx-plugin_0.9.1-0_armhf.deb
 ├── static
 │   ├── darwin
 │   │   ├── amd64
@@ -369,8 +211,6 @@ $ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./bin/undock
 │   │   │       └── docker-buildx-plugin_0.9.1.tgz
 │   │   ├── arm64
 │   │   │   └── docker-buildx-plugin_0.9.1.tgz
-│   │   ├── ppc64le
-│   │   │   └── docker-buildx-plugin_0.9.1.tgz
 │   │   ├── riscv64
 │   │   │   └── docker-buildx-plugin_0.9.1.tgz
 │   │   └── s390x
@@ -383,54 +223,60 @@ $ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./bin/undock
 └── ubuntu
     ├── bionic
     │   ├── amd64
+    │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.buildinfo
+    │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.changes
     │   │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
     │   ├── arm
-    │   │   ├── v6
-    │   │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
     │   │   └── v7
+    │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+    │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.changes
     │   │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
     │   ├── arm64
+    │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.buildinfo
+    │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.changes
     │   │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-    │   ├── ppc64le
-    │   │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-    │   ├── riscv64
-    │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
     │   └── s390x
+    │       ├── docker-buildx-plugin_0.9.1-0_s390x.buildinfo
+    │       ├── docker-buildx-plugin_0.9.1-0_s390x.changes
     │       └── docker-buildx-plugin_0.9.1-0_s390x.deb
     ├── focal
     │   ├── amd64
+    │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.buildinfo
+    │   │   ├── docker-buildx-plugin_0.9.1-0_amd64.changes
     │   │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
     │   ├── arm
-    │   │   ├── v6
-    │   │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
     │   │   └── v7
+    │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+    │   │       ├── docker-buildx-plugin_0.9.1-0_armhf.changes
     │   │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
     │   ├── arm64
+    │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.buildinfo
+    │   │   ├── docker-buildx-plugin_0.9.1-0_arm64.changes
     │   │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-    │   ├── ppc64le
-    │   │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-    │   ├── riscv64
-    │   │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
     │   └── s390x
+    │       ├── docker-buildx-plugin_0.9.1-0_s390x.buildinfo
+    │       ├── docker-buildx-plugin_0.9.1-0_s390x.changes
     │       └── docker-buildx-plugin_0.9.1-0_s390x.deb
     └── jammy
         ├── amd64
+        │   ├── docker-buildx-plugin_0.9.1-0_amd64.buildinfo
+        │   ├── docker-buildx-plugin_0.9.1-0_amd64.changes
         │   └── docker-buildx-plugin_0.9.1-0_amd64.deb
         ├── arm
-        │   ├── v6
-        │   │   └── docker-buildx-plugin_0.9.1-0_armel.deb
         │   └── v7
+        │       ├── docker-buildx-plugin_0.9.1-0_armhf.buildinfo
+        │       ├── docker-buildx-plugin_0.9.1-0_armhf.changes
         │       └── docker-buildx-plugin_0.9.1-0_armhf.deb
         ├── arm64
+        │   ├── docker-buildx-plugin_0.9.1-0_arm64.buildinfo
+        │   ├── docker-buildx-plugin_0.9.1-0_arm64.changes
         │   └── docker-buildx-plugin_0.9.1-0_arm64.deb
-        ├── ppc64le
-        │   └── docker-buildx-plugin_0.9.1-0_ppc64el.deb
-        ├── riscv64
-        │   └── docker-buildx-plugin_0.9.1-0_riscv64.deb
         └── s390x
+            ├── docker-buildx-plugin_0.9.1-0_s390x.buildinfo
+            ├── docker-buildx-plugin_0.9.1-0_s390x.changes
             └── docker-buildx-plugin_0.9.1-0_s390x.deb
 
-194 directories, 144 files
+87 directories, 97 files
 ```
 </details>
 
