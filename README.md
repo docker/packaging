@@ -27,7 +27,7 @@ $ docker buildx create --driver docker-container --name mybuilder --use --bootst
 >
 > Some packages don't have cross-compilation support and therefore QEMU will
 > be used. As it can be slow, it is recommended to use a builder with native
-> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/.build.yml)
+> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/release.yml)
 > for more details.
 
 If you just want to build packages only for your current platform, you can set

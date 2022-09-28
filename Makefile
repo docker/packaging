@@ -35,3 +35,9 @@ rpm-%:
 .PHONY: static-%
 static-%:
 	$(MAKE) -C pkg/$* pkg-static
+
+include common/packages.mk
+
+.PHONY: gha-release-matrix
+gha-release-matrix:
+	@echo "$(PKG_DEB_RELEASES) $(PKG_RPM_RELEASES) static" | jq -cR 'split(" ")'
