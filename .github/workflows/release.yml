@@ -4,9 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       package:
-        description: 'Package (e.g. buildx)'
+        description: 'Package'
         required: true
-        type: string
+        type: choice
+        options:
+          - buildx
+          - compose
+          - containerd
+          - credential-helpers
+          - docker-cli
+          - docker-engine
+          - sbom
+          - scan
       release:
         description: 'Push image and create release'
         required: false
