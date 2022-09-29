@@ -113,8 +113,7 @@ variable "LOCAL_PLATFORM" {
 
 # Defines reference for registry cache exporter
 variable "BUILD_CACHE_REGISTRY_SLUG" {
-  # FIXME: use dockereng/packaging-cache
-  default = "crazymax/docker-packaging-cache"
+  default = "dockereng/packaging-cache"
 }
 variable "BUILD_CACHE_REGISTRY_PUSH" {
   default = ""
