@@ -13,10 +13,8 @@ on:
         type: boolean
 
 env:
-  # FIXME: temporary for testing, use dockereng/packaging
-  REPO_SLUG: crazymax/docker-packaging
-  # FIXME: use dockereng/packaging-cache
-  BUILD_CACHE_REGISTRY_SLUG: crazymax/docker-packaging-cache
+  REPO_SLUG: dockereng/packaging
+  BUILD_CACHE_REGISTRY_SLUG: dockereng/packaging-cache
 
 jobs:
   prepare:

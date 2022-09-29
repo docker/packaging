@@ -9,8 +9,7 @@ on:
         type: string
 
 env:
-  # FIXME: use dockereng/packaging-cache
-  BUILD_CACHE_REGISTRY_SLUG: crazymax/docker-packaging-cache
+  BUILD_CACHE_REGISTRY_SLUG: dockereng/packaging-cache
 
 jobs:
   build:
