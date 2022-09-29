@@ -26,13 +26,13 @@ variable "COMPOSE_VERSION" {
 
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
-  default = ""
+  default = "golang"
 }
 variable "GO_VERSION" {
-  default = ""
+  default = "1.18.5"
 }
 variable "GO_IMAGE_VARIANT" {
-  default = ""
+  default = "bullseye"
 }
 
 # Sets the pkg name.
