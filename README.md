@@ -30,7 +30,7 @@ $ docker buildx create --driver docker-container --name mybuilder --use --bootst
 > nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/release.yml)
 > for more details.
 
-If you just want to build packages only for your current platform, you can set
+If you just want to build packages for your current platform, you can set
 `LOCAL_PLATFORM=1` environment variable.
 
 ## Usage

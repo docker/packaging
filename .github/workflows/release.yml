@@ -179,6 +179,7 @@ jobs:
         if: ${{ inputs.release }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
+          draft: true
           tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           body: |
