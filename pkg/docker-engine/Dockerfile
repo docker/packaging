@@ -202,7 +202,7 @@ FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang cmake make pkg-config
 ARG PKG_NAME
-ARG DOCKER_CLI_VERSION
+ARG DOCKER_ENGINE_VERSION
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev libbtrfs-dev libdevmapper-dev libltdl-dev
