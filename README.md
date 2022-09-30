@@ -56,14 +56,14 @@ definition to build and push packages.
 
 ```shell
 $ cd pkg/buildx/
-# build all packages (shortand for pkg-apk pkg-deb pkg-rpm pkg-static)
-$ make pkg
+# build all packages
+$ make
 # build all debian packages
 $ make pkg-deb
 # build debian bullseye packages
-$ make build-debian11
+$ make run-pkg-debian11
 # build centos 7 packages
-$ make build-centos7
+$ make run-pkg-centos7
 ```
 
 To create a new release of Buildx v0.9.1:

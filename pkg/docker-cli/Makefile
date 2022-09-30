@@ -32,13 +32,8 @@ define PKG_SUMMARY
 * version: `$(DOCKER_CLI_VERSION)`
 endef
 
-.PHONY: all
-all: pkg
-	@#
-
-.PHONY: all-%
-all-%: pkg-%
-	@#
+.PHONY: default
+default: pkg ;
 
 .PHONY: repo
 repo:

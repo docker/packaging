@@ -179,3 +179,13 @@ target "release" {
     bin-folder = "./bin"
   }
 }
+
+# Verify packages
+target "verify" {
+  inherits = ["_pkg-${PKG_RELEASE}"]
+  dockerfile = "verify.Dockerfile"
+  output = ["type=cacheonly"]
+  contexts = {
+    bin-folder = "./bin"
+  }
+}
