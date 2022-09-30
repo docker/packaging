@@ -53,3 +53,8 @@ pkg-%: pkg-%-releases
 .PHONY: build-%
 build-%: pkg-info-%
 	$(call build_pkg,$*,$(DESTDIR),$(BAKE_DEFINITIONS),$(PKG_PLATFORMS))
+
+.PHONY: verify-%
+verify-%: pkg-info-%
+	@PKG_RELEASE=$* PKG_TYPE=$(PKG_TYPE) docker buildx bake $(BAKE_DEFINITIONS) verify --print
+	PKG_RELEASE=$* PKG_TYPE=$(PKG_TYPE) docker buildx bake $(BAKE_DEFINITIONS) verify

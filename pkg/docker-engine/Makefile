@@ -32,14 +32,6 @@ define PKG_SUMMARY
 * version: `$(DOCKER_ENGINE_VERSION)`
 endef
 
-.PHONY: all
-all: pkg
-	@#
-
-.PHONY: all-%
-all-%: pkg-%
-	@#
-
 .PHONY: repo
 repo:
 	@echo $(DOCKER_ENGINE_REPO)

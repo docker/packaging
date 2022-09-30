@@ -30,14 +30,6 @@ define PKG_SUMMARY
 * version: `$(CREDENTIAL_HELPERS_VERSION)`
 endef
 
-.PHONY: all
-all: pkg
-	@#
-
-.PHONY: all-%
-all-%: pkg-%
-	@#
-
 .PHONY: repo
 repo:
 	@echo $(CREDENTIAL_HELPERS_REPO)
