@@ -89,7 +89,7 @@ jobs:
       -
         name: Build
         run: |
-          make -C pkg/${{ inputs.package }} build-${{ matrix.pkg }}
+          make -C pkg/${{ inputs.package }} run-pkg-${{ matrix.pkg }}
       -
         name: List artifacts
         run: |

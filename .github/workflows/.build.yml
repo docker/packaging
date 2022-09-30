@@ -60,7 +60,7 @@ jobs:
       -
         name: Build
         run: |
-          make -C pkg/${{ inputs.name }} build-${{ matrix.pkg }}
+          make -C pkg/${{ inputs.name }} run-pkg-${{ matrix.pkg }}
       -
         name: List artifacts
         run: |
@@ -68,7 +68,7 @@ jobs:
       -
         name: Verify
         run: |
-          make -C pkg/${{ inputs.name }} verify-${{ matrix.pkg }}
+          make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
