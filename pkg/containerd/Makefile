@@ -37,6 +37,9 @@ define PKG_SUMMARY
 * runc version: $(if $(RUNC_VERSION),$(RUNC_VERSION),_N/A_)
 endef
 
+.PHONY: default
+default: pkg ;
+
 .PHONY: repo
 repo:
 	@echo $(CONTAINERD_REPO)

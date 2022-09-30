@@ -32,6 +32,9 @@ define PKG_SUMMARY
 * version: `$(DOCKER_CLI_VERSION)`
 endef
 
+.PHONY: default
+default: pkg ;
+
 .PHONY: repo
 repo:
 	@echo $(DOCKER_CLI_REPO)

@@ -29,6 +29,9 @@ define PKG_SUMMARY
 * version: `$(SBOM_VERSION)`
 endef
 
+.PHONY: default
+default: pkg ;
+
 .PHONY: repo
 repo:
 	@echo $(SBOM_REPO)

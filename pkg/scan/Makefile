@@ -29,6 +29,9 @@ define PKG_SUMMARY
 * version: `$(SCAN_VERSION)`
 endef
 
+.PHONY: default
+default: pkg ;
+
 .PHONY: repo
 repo:
 	@echo $(SCAN_REPO)
