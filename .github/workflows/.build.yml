@@ -66,6 +66,10 @@ jobs:
         run: |
           tree -nh ./pkg/${{ inputs.name }}/bin
       -
+        name: Verify
+        run: |
+          make -C pkg/${{ inputs.name }} verify-${{ matrix.pkg }}
+      -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
