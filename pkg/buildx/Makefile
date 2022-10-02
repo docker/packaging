@@ -17,8 +17,8 @@ include ../../common/vars.mk
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
-export BUILDX_REPO ?= https://github.com/docker/buildx.git
-export BUILDX_REF ?= v0.9.1
+export BUILDX_REPO := $(if $(BUILDX_REPO),$(BUILDX_REPO),https://github.com/docker/buildx.git)
+export BUILDX_REF := $(if $(BUILDX_REF),$(BUILDX_REF),v0.9.1)
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/buildx/blob/e98c2524905e659d34ac01cc328cd21c966be3f2/docker-bake.hcl#L112-L124

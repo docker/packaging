@@ -1,23 +1,16 @@
-name: release
+# reusable workflow
+name: .release
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      package:
-        description: 'Package'
+      name:
         required: true
-        type: choice
-        options:
-          - buildx
-          - compose
-          - containerd
-          - credential-helpers
-          - docker-cli
-          - docker-engine
-          - sbom
-          - scan
+        type: string
+      env:
+        required: false
+        type: string
       release:
-        description: 'Push image and create release'
         required: false
         type: boolean
 
@@ -58,6 +51,12 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Environment variables
+        run: |
+          for l in "${{ inputs.env }}"; do
+            echo "${l?}" >> $GITHUB_ENV
+          done
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
@@ -89,17 +88,17 @@ jobs:
       -
         name: Build
         run: |
-          make -C pkg/${{ inputs.package }} run-pkg-${{ matrix.pkg }}
+          make -C pkg/${{ inputs.name }} run-pkg-${{ matrix.pkg }}
       -
         name: List artifacts
         run: |
-          tree -nh ./pkg/${{ inputs.package }}/bin
+          tree -nh ./pkg/${{ inputs.name }}/bin
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.package }}
-          path: ./pkg/${{ inputs.package }}/bin/*
+          name: ${{ inputs.name }}
+          path: ./pkg/${{ inputs.name }}/bin/*
           if-no-files-found: ignore
           retention-days: 1
 
@@ -112,19 +111,25 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Environment variables
+        run: |
+          for l in "${{ inputs.env }}"; do
+            echo "${l?}" >> $GITHUB_ENV
+          done
+      -
         name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.package }}
-          path: ./pkg/${{ inputs.package }}/bin
+          name: ${{ inputs.name }}
+          path: ./pkg/${{ inputs.name }}/bin
       -
         name: Generate metadata
         run: |
-          make -C pkg/${{ inputs.package }} metadata
+          make -C pkg/${{ inputs.name }} metadata
       -
         name: Summary
         run: |
-          for l in $(cat ./pkg/${{ inputs.package }}/bin/metadata.env); do
+          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
             export "${l?}"
           done
           
@@ -135,7 +140,7 @@ jobs:
           * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
           EOF
           
-          if [ "${{ inputs.package }}" = "containerd" ]; then
+          if [ "${{ inputs.name }}" = "containerd" ]; then
             cat >> "/tmp/summary.txt" <<-EOF
           * runc
             * repo: ${RUNC_REPO}
@@ -146,17 +151,17 @@ jobs:
           fi
           
           cat >> "/tmp/summary.txt" <<-EOF
-          * packages: \`$(find ./pkg/${{ inputs.package }}/bin -type f | wc -l)\` files
-          * size: \`$(du -sh ./pkg/${{ inputs.package }}/bin | awk '{print $1}')\`
+          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
+          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
           EOF
 
-          echo "GIT_TAG=${{ inputs.package }}/$VERSION" >> $GITHUB_ENV
+          echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           cat /tmp/summary.txt >> $GITHUB_STEP_SUMMARY
       -
         name: List artifacts
         run: |
-          tree -nh ./pkg/${{ inputs.package }}/bin | tee /tmp/pkgs.txt
+          tree -nh ./pkg/${{ inputs.name }}/bin | tee /tmp/pkgs.txt
       -
         name: Set packages list and summary outputs
         uses: actions/github-script@v6
@@ -197,7 +202,7 @@ jobs:
         id: build
         uses: docker/bake-action@v2
         with:
-          workdir: ./pkg/${{ inputs.package }}
+          workdir: ./pkg/${{ inputs.name }}
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
@@ -222,7 +227,7 @@ jobs:
             ## Usage
             Extract with [Undock](https://github.com/crazy-max/undock):
             ```console
-            $ undock --wrap --rm-dist --all ${{ env.REPO_SLUG }}:${{ steps.meta.outputs.version }} ./${{ inputs.package }}/${{ env.VERSION }}
+            $ undock --wrap --rm-dist --all ${{ env.REPO_SLUG }}:${{ steps.meta.outputs.version }} ./${{ inputs.name }}/${{ env.VERSION }}
             ```
             
             ## Packages
