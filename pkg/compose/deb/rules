@@ -7,11 +7,11 @@ override_dh_builddeb:
 
 override_dh_auto_build:
 	cd $(CURDIR)/compose && \
-	make VERSION=$(COMPOSE_VERSION) DESTDIR=/usr/libexec/docker/cli-plugins build
+	make VERSION=$(VERSION) DESTDIR=/usr/libexec/docker/cli-plugins build
 
 override_dh_auto_test:
 	ver="$$(/usr/libexec/docker/cli-plugins/docker-compose docker-cli-plugin-metadata | awk '{ gsub(/[",:]/,"")}; $$1 == "Version" { print $$2 }')"; \
-		test "$$ver" = "$(COMPOSE_VERSION)" && echo "PASS: docker-compose version OK" || (echo "FAIL: docker-compose version ($$ver) did not match" && exit 1)
+		test "$$ver" = "$(VERSION)" && echo "PASS: docker-compose version OK" || (echo "FAIL: docker-compose version ($$ver) did not match" && exit 1)
 
 override_dh_strip:
 	# Go has lots of problems with stripping, so just don't

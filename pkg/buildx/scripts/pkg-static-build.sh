@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${BUILDX_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -36,6 +34,10 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
+
 xx-go --wrap
 
 # FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
@@ -45,9 +47,6 @@ fi
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 pkg=github.com/docker/buildx
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
-fi
 
 (
   set -x
@@ -55,13 +54,13 @@ fi
     go build \
       -mod=vendor \
       -trimpath \
-      -ldflags="-s -w -X ${pkg}/version.Version=${BUILDX_VERSION} -X ${pkg}/version.Revision=${commit} -X ${pkg}/version.Package=${pkg}" \
+      -ldflags="-s -w -X ${pkg}/version.Version=${GENVER_VERSION} -X ${pkg}/version.Revision=${GENVER_COMMIT} -X ${pkg}/version.Package=${pkg}" \
       -o "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}" ./cmd/buildx
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
 )
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -79,12 +78,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${BUILDX_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${BUILDX_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

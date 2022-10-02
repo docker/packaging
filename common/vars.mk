@@ -52,4 +52,4 @@ export PKG_RPM_BUILDFLAGS ?= -bb
 # - Version: 0   : Package was built, but no matching upstream release (e.g., can be used for "nightly" builds)
 # - Version: 1   : Package was built for an upstream (pre)release version
 # - Version: > 1 : Only to be used for packaging-only changes (new package built for a version for which a package was already built/released)
-export PKG_RPM_RELEASE ?= 1
+export PKG_RPM_RELEASE ?=

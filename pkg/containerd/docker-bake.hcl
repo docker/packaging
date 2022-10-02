@@ -13,14 +13,14 @@
 // limitations under the License.
 
 # Sets the containerd repo. Will be used to clone the repo at
-# CONTAINERD_VERSION ref to include the README.md and LICENSE for the
+# CONTAINERD_REF ref to include the README.md and LICENSE for the
 # static packages and also create version string.
 variable "CONTAINERD_REPO" {
   default = "https://github.com/containerd/containerd.git"
 }
 
-# Sets the containerd version to build from source.
-variable "CONTAINERD_VERSION" {
+# Sets the containerd ref.
+variable "CONTAINERD_REF" {
   default = "v1.6.8"
 }
 
@@ -85,7 +85,7 @@ variable "PKG_RPM_BUILDFLAGS" {
   default = "-bb"
 }
 variable "PKG_RPM_RELEASE" {
-  default = "1"
+  default = ""
 }
 
 # In case we want to set runc version to a specific version instead of using
@@ -93,7 +93,7 @@ variable "PKG_RPM_RELEASE" {
 variable "RUNC_REPO" {
   default = "https://github.com/opencontainers/runc.git"
 }
-variable "RUNC_VERSION" {
+variable "RUNC_REF" {
   default = ""
 }
 
@@ -128,7 +128,7 @@ target "_common" {
   args = {
     BUILDKIT_MULTI_PLATFORM = 1
     CONTAINERD_REPO = CONTAINERD_REPO
-    CONTAINERD_VERSION = CONTAINERD_VERSION
+    CONTAINERD_REF = CONTAINERD_REF
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -141,7 +141,7 @@ target "_common" {
     PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
     RUNC_REPO = RUNC_REPO
-    RUNC_VERSION = RUNC_VERSION
+    RUNC_REF = RUNC_REF
   }
   platforms = [
     # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
@@ -162,6 +162,9 @@ target "pkg" {
   inherits = ["_common"]
   target = "pkg"
   output = [bindir(PKG_RELEASE)]
+  contexts = {
+    common-scripts = "../../common/scripts"
+  }
 }
 
 # Special target: https://github.com/docker/metadata-action#bake-definition
@@ -196,5 +199,21 @@ target "verify" {
   output = ["type=cacheonly"]
   contexts = {
     bin-folder = "./bin"
+  }
+}
+
+# Output metadata
+target "metadata" {
+  inherits = ["_pkg-${PKG_RELEASE}"]
+  args = {
+    CONTAINERD_REPO = CONTAINERD_REPO
+    CONTAINERD_REF = CONTAINERD_REF
+    RUNC_REPO = RUNC_REPO
+    RUNC_REF = RUNC_REF
+  }
+  target = "metadata"
+  output = ["./bin"]
+  contexts = {
+    common-scripts = "../../common/scripts"
   }
 }

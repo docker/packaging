@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${SBOM_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -36,6 +34,10 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
+
 xx-go --wrap
 
 # FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
@@ -45,22 +47,19 @@ fi
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 pkg=github.com/docker/sbom-cli-plugin
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
-fi
 
 (
   set -x
   pushd ${SRCDIR}
     go build \
       -trimpath \
-      -ldflags="-s -w -X ${pkg}/internal/version.version=${SBOM_VERSION} -X ${pkg}/internal/version.gitCommit=${commit}" \
+      -ldflags="-s -w -X ${pkg}/internal/version.version=${GENVER_VERSION} -X ${pkg}/internal/version.gitCommit=${GENVER_COMMIT}" \
       -o "${BUILDDIR}/${PKG_NAME}/docker-sbom${binext}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-sbom${binext}"
 )
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -78,12 +77,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${SBOM_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${SBOM_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

@@ -17,11 +17,11 @@ include ../../common/vars.mk
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
-export CONTAINERD_REPO ?= https://github.com/containerd/containerd
-export CONTAINERD_VERSION ?= v1.6.8
+export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
+export CONTAINERD_REF ?= v1.6.8
 export PKG_DEB_REVISION = 1
-export RUNC_REPO ?= https://github.com/opencontainers/runc
-export RUNC_VERSION ?=
+export RUNC_REPO ?= https://github.com/opencontainers/runc.git
+export RUNC_REF ?=
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/containerd/containerd/blob/39f7cd73e7cc3e1d24f3557adfce5b68484136f7/.github/workflows/ci.yml#L131-L150
@@ -30,28 +30,12 @@ PKG_LIST ?= deb rpm static
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x
 
-define PKG_SUMMARY
-* containerd repo: $(CONTAINERD_REPO)
-* containerd version: `$(CONTAINERD_VERSION)`
-* runc repo: $(RUNC_REPO)
-* runc version: $(if $(RUNC_VERSION),$(RUNC_VERSION),_N/A_)
-endef
-
 .PHONY: default
 default: pkg ;
 
-.PHONY: repo
-repo:
-	@echo $(CONTAINERD_REPO)
-
-.PHONY: version
-version:
-	@echo $(CONTAINERD_VERSION)
-
-export PKG_SUMMARY
-.PHONY: summary
-summary:
-	@echo "$$PKG_SUMMARY"
+.PHONY: metadata
+metadata:
+	docker buildx bake metadata
 
 include ../../common/packages.mk
 include ../../common/build.mk

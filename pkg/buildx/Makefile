@@ -17,34 +17,20 @@ include ../../common/vars.mk
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
-export BUILDX_REPO ?= https://github.com/docker/buildx
-export BUILDX_VERSION ?= v0.9.1
+export BUILDX_REPO ?= https://github.com/docker/buildx.git
+export BUILDX_REF ?= v0.9.1
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/buildx/blob/e98c2524905e659d34ac01cc328cd21c966be3f2/docker-bake.hcl#L112-L124
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/riscv64 linux/s390x windows/amd64 windows/arm64
 
-define PKG_SUMMARY
-* repo: $(BUILDX_REPO)
-* version: `$(BUILDX_VERSION)`
-endef
-
 .PHONY: default
 default: pkg ;
 
-.PHONY: repo
-repo:
-	@echo $(BUILDX_REPO)
-
-.PHONY: version
-version:
-	@echo $(BUILDX_VERSION)
-
-export PKG_SUMMARY
-.PHONY: summary
-summary:
-	@echo "$$PKG_SUMMARY"
+.PHONY: metadata
+metadata:
+	docker buildx bake metadata
 
 include ../../common/packages.mk
 include ../../common/build.mk
