@@ -13,14 +13,14 @@
 // limitations under the License.
 
 # Sets the compose repo. Will be used to clone the repo at
-# COMPOSE_VERSION ref to include the README.md and LICENSE for the
+# COMPOSE_REF ref to include the README.md and LICENSE for the
 # static packages and also create version string.
 variable "COMPOSE_REPO" {
   default = "https://github.com/docker/compose.git"
 }
 
-# Sets the compose version to build from source.
-variable "COMPOSE_VERSION" {
+# Sets the compose ref.
+variable "COMPOSE_REF" {
   default = "v2.10.2"
 }
 
@@ -82,7 +82,7 @@ variable "PKG_RPM_BUILDFLAGS" {
   default = "-bb"
 }
 variable "PKG_RPM_RELEASE" {
-  default = "1"
+  default = ""
 }
 
 # Defines the output folder
@@ -116,7 +116,7 @@ target "_common" {
   args = {
     BUILDKIT_MULTI_PLATFORM = 1
     COMPOSE_REPO = COMPOSE_REPO
-    COMPOSE_VERSION = COMPOSE_VERSION
+    COMPOSE_REF = COMPOSE_REF
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -148,6 +148,9 @@ target "pkg" {
   inherits = ["_common"]
   target = "pkg"
   output = [bindir(PKG_RELEASE)]
+  contexts = {
+    common-scripts = "../../common/scripts"
+  }
 }
 
 # Special target: https://github.com/docker/metadata-action#bake-definition
@@ -187,5 +190,19 @@ target "verify" {
   output = ["type=cacheonly"]
   contexts = {
     bin-folder = "./bin"
+  }
+}
+
+# Output metadata
+target "metadata" {
+  inherits = ["_pkg-${PKG_RELEASE}"]
+  args = {
+    COMPOSE_REPO = COMPOSE_REPO
+    COMPOSE_REF = COMPOSE_REF
+  }
+  target = "metadata"
+  output = ["./bin"]
+  contexts = {
+    common-scripts = "../../common/scripts"
   }
 }

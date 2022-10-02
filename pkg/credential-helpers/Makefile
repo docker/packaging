@@ -14,8 +14,8 @@
 
 include ../../common/vars.mk
 
-export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers
-export CREDENTIAL_HELPERS_VERSION ?= v0.7.0
+export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
+export CREDENTIAL_HELPERS_REF ?= v0.7.0
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
@@ -25,26 +25,12 @@ PKG_LIST ?= deb rpm static
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
 
-define PKG_SUMMARY
-* repo: $(CREDENTIAL_HELPERS_REPO)
-* version: `$(CREDENTIAL_HELPERS_VERSION)`
-endef
-
 .PHONY: default
 default: pkg ;
 
-.PHONY: repo
-repo:
-	@echo $(CREDENTIAL_HELPERS_REPO)
-
-.PHONY: version
-version:
-	@echo $(CREDENTIAL_HELPERS_VERSION)
-
-export PKG_SUMMARY
-.PHONY: summary
-summary:
-	@echo "$$PKG_SUMMARY"
+.PHONY: metadata
+metadata:
+	docker buildx bake metadata
 
 include ../../common/packages.mk
 include ../../common/build.mk

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${CREDENTIAL_HELPERS_VERSION=}"
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -35,9 +34,9 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
-fi
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
 
 xx-go --wrap
 
@@ -52,8 +51,8 @@ case "$(xx-info os)" in
       go install std
       set -x
       pushd ${SRCDIR}
-        make build-osxkeychain VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
-        make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-osxkeychain VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-pass VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
       popd
       xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-osxkeychain"
       xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-pass"
@@ -63,8 +62,8 @@ case "$(xx-info os)" in
     (
       set -x
       pushd ${SRCDIR}
-        make build-pass VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
-        make build-secretservice VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-pass VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-secretservice VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
       popd
       xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-pass"
       xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-secretservice"
@@ -74,7 +73,7 @@ case "$(xx-info os)" in
     (
       set -x
       pushd ${SRCDIR}
-        make build-wincred VERSION=$CREDENTIAL_HELPERS_VERSION REVISION="${commit}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
+        make build-wincred VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" DESTDIR="${BUILDDIR}/${PKG_NAME}"
       popd
       mv "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred" "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred.exe"
       xx-verify "${BUILDDIR}/${PKG_NAME}/docker-credential-wincred.exe"
@@ -82,7 +81,7 @@ case "$(xx-info os)" in
   ;;
 esac
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -100,12 +99,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${CREDENTIAL_HELPERS_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

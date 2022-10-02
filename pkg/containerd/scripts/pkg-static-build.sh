@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${CONTAINERD_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -38,9 +36,9 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
-fi
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
 
 xx-go --wrap
 
@@ -57,9 +55,9 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/containerd
-    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/containerd-shim-runc-v2
-    make STATIC=1 VERSION=${CONTAINERD_VERSION} REVISION="${commit}" bin/ctr
+    make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/containerd
+    make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/containerd-shim-runc-v2
+    make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/ctr
     mv bin/* "${BUILDDIR}/${PKG_NAME}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2"
@@ -76,7 +74,7 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
   xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
 )
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -96,12 +94,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${CONTAINERD_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${CONTAINERD_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

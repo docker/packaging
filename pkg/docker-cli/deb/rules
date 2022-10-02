@@ -9,12 +9,12 @@ override_dh_auto_build:
 	mkdir -p /go/src/github.com/docker && \
 	ln -snf $(CURDIR)/cli /go/src/github.com/docker/cli && \
 	cd /go/src/github.com/docker/cli && \
-	VERSION=$(DOCKER_CLI_VERSION) GITCOMMIT=$(DOCKER_CLI_REVISION) LDFLAGS='' GO_LINKMODE=dynamic ./scripts/build/binary && \
+	VERSION=$(VERSION) GITCOMMIT=$(REVISION) LDFLAGS='' GO_LINKMODE=dynamic ./scripts/build/binary && \
 	DISABLE_WARN_OUTSIDE_CONTAINER=1 LDFLAGS='' make manpages
 
 override_dh_auto_test:
 	ver="$$(cli/build/docker --version)"; \
-		test "$$ver" = "Docker version $(DOCKER_CLI_VERSION), build $(DOCKER_CLI_REVISION)" && echo "PASS: cli version OK" || (echo "FAIL: cli version ($$ver) did not match" && exit 1)
+		test "$$ver" = "Docker version $(VERSION), build $(REVISION)" && echo "PASS: cli version OK" || (echo "FAIL: cli version ($$ver) did not match" && exit 1)
 
 override_dh_strip:
 	# Go has lots of problems with stripping, so just don't

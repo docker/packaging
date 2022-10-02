@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${SCAN_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -36,9 +34,9 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse HEAD)"
-fi
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
 
 xx-go --wrap
 
@@ -53,13 +51,13 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    PLATFORM_BINARY=docker-scan COMMIT=${commit} TAG_NAME=${SCAN_VERSION} make native-build
+    PLATFORM_BINARY=docker-scan COMMIT=${GENVER_COMMIT} TAG_NAME=${GENVER_VERSION} make native-build
     mv bin/docker-scan "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-scan${binext}"
 )
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -77,12 +75,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${SCAN_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${SCAN_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

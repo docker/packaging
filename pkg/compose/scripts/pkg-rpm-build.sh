@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${COMPOSE_VERSION=}"
-
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
@@ -47,6 +45,10 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
+
 xx-go --wrap
 
 # FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
@@ -54,13 +56,11 @@ if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /
   go env -w CC=gcc
 fi
 
-tilde='~'
-rpmVersion="${COMPOSE_VERSION#v}"
-rpmVersion="${rpmVersion//-/$tilde}"
 rpmDefine=(
-  --define "_version ${rpmVersion}"
-  --define "_origversion ${COMPOSE_VERSION#v}"
-  --define "_release $PKG_RPM_RELEASE"
+  --define "_version ${GENVER_PKG_VERSION}"
+  --define "_origversion ${GENVER_VERSION}"
+  --define "_release ${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}"
+  --define "_commit ${GENVER_COMMIT}"
 )
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"

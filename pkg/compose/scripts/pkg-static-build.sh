@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${COMPOSE_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -36,6 +34,10 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
+
 xx-go --wrap
 
 # FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
@@ -48,7 +50,7 @@ binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 (
   set -x
   pushd ${SRCDIR}
-    make VERSION=${COMPOSE_VERSION} DESTDIR=${BUILDDIR}/${PKG_NAME} build
+    make VERSION=${GENVER_VERSION} DESTDIR=${BUILDDIR}/${PKG_NAME} build
   popd
   if [ "$(xx-info os)" = "windows" ]; then
     mv "${BUILDDIR}/${PKG_NAME}/docker-compose" "${BUILDDIR}/${PKG_NAME}/docker-compose.exe"
@@ -56,7 +58,7 @@ binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-compose${binext}"
 )
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -74,12 +76,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${COMPOSE_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${COMPOSE_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

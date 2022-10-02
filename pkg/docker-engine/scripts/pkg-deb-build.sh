@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${DOCKER_ENGINE_VERSION=}"
-
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
@@ -48,9 +46,9 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
-fi
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
 
 xx-go --wrap
 
@@ -59,13 +57,9 @@ if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /
   go env -w CC=gcc
 fi
 
-tilde='~'
-debVersion="${DOCKER_ENGINE_VERSION#v}"
-debVersion="${debVersion//-/$tilde}"
-
 cat > "debian/changelog" <<-EOF
-${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${debVersion}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low
-  * Version: $DOCKER_ENGINE_VERSION
+${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low
+  * Version: ${GENVER_VERSION}
  -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
 EOF
 
@@ -78,5 +72,5 @@ mkdir -p "${pkgoutput}"
 set -x
 
 chmod -x debian/compat debian/control debian/docs
-DOCKER_ENGINE_REVISION=$commit dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT_SHORT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/

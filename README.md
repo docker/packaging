@@ -71,7 +71,7 @@ To create a new release of Buildx v0.9.1:
 ```shell
 # build all packages for buildx v0.9.1 and output to ./bin folder
 $ cd pkg/buildx/ 
-$ BUILDX_VERSION=v0.9.1 make
+$ BUILDX_REF=v0.9.1 make
 # build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
 # "release" target will use the "bin" folder as named context to create the
 # image with artifacts previously built with make.

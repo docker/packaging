@@ -18,14 +18,18 @@ ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
-ARG GO_IMAGE
-ARG GO_VERSION
-ARG GO_IMAGE_VARIANT
-ARG PKG_RELEASE
-ARG PKG_TYPE
-ARG PKG_DISTRO
-ARG PKG_SUITE
-ARG PKG_BASE_IMAGE
+ARG GO_IMAGE="golang"
+ARG GO_VERSION="1.18.5"
+ARG GO_IMAGE_VARIANT="bullseye"
+ARG PKG_RELEASE="debian11"
+ARG PKG_TYPE="deb"
+ARG PKG_DISTRO="debian"
+ARG PKG_SUITE="bullseye"
+ARG PKG_BASE_IMAGE="debian:bullseye"
+
+# stage used as named context that mounts common/scripts
+# see pkg target in docker-bake.hcl
+FROM scratch AS common-scripts
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -44,13 +48,35 @@ RUN apk add --no-cache bash curl file git zip tar
 FROM src-base AS src
 WORKDIR /src
 ARG CREDENTIAL_HELPERS_REPO
-RUN git init . && git remote add origin "${CREDENTIAL_HELPERS_REPO}.git"
-ARG CREDENTIAL_HELPERS_VERSION
-RUN git fetch origin "${CREDENTIAL_HELPERS_VERSION}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+RUN git init . && git remote add origin "${CREDENTIAL_HELPERS_REPO}"
+ARG CREDENTIAL_HELPERS_REF
+RUN git fetch origin "${CREDENTIAL_HELPERS_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
 FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
     mkdir /out && tar -C / -zcf /out/docker-credential-helpers.tgz --exclude .git docker-credential-helpers
+
+# metadata
+FROM src-base AS metadata-builder
+ARG CREDENTIAL_HELPERS_REPO
+ARG CREDENTIAL_HELPERS_REF
+RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=src,source=/src,target=/src <<EOT
+  set -e
+  mkdir -p /out
+  for l in $(gen-ver "/src"); do
+    export "${l?}"
+  done
+  cat > "/out/metadata.env" <<-EOF
+REPO=${CREDENTIAL_HELPERS_REPO%.*}
+REF=${CREDENTIAL_HELPERS_REF}
+VERSION=${GENVER_VERSION}
+COMMIT=${GENVER_COMMIT}
+EOF
+EOT
+
+FROM scratch AS metadata
+COPY --from=metadata-builder /out /
 
 # deb
 FROM ${PKG_BASE_IMAGE} AS builder-deb
@@ -65,7 +91,7 @@ COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
-ARG CREDENTIAL_HELPERS_VERSION
+ARG CREDENTIAL_HELPERS_REF
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -75,6 +101,7 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/root/package/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/root/package/docker-credential-helpers pkg-deb-build
@@ -86,42 +113,8 @@ ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ARG PKG_RELEASE
-RUN <<EOT
-  set -e
-  case "$PKG_RELEASE" in
-    centos7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint epel-release
-      ;;
-    centos8)
-      [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
-      [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
-      ;;
-    centos9)
-      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
-      dnf config-manager --set-enabled crb
-      ;;
-    oraclelinux7)
-      [ -f /etc/yum.repos.d/CentOS-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Sources.repo
-      yum install -y git rpm-build rpmlint epel-release
-      yum-config-manager --enable ol7_addons --enable ol7_optional_latest
-      ;;
-    oraclelinux8)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
-      dnf config-manager --enable ol8_addons --enable ol8_codeready_builder
-      ;;
-    oraclelinux9)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
-      dnf config-manager --enable ol9_addons --enable ol9_codeready_builder
-      ;;
-    fedora*)
-      dnf install -y git rpm-build rpmlint dnf-plugins-core
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
+  rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN <<EOT
@@ -139,7 +132,7 @@ RUN <<EOT
   $builddepCmd -y /root/rpmbuild/SPECS/*.spec
 EOT
 WORKDIR /root/rpmbuild
-ARG CREDENTIAL_HELPERS_VERSION
+ARG CREDENTIAL_HELPERS_REF
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -148,6 +141,7 @@ ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src-tgz,source=/out/docker-credential-helpers.tgz,target=/root/rpmbuild/SOURCES/docker-credential-helpers.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/docker-credential-helpers \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
@@ -165,11 +159,12 @@ ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
-ARG CREDENTIAL_HELPERS_VERSION
+ARG CREDENTIAL_HELPERS_REF
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \

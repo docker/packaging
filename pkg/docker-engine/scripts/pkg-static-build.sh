@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${DOCKER_ENGINE_VERSION=}"
-
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -36,9 +34,9 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-if [ -d "${SRCDIR}" ]; then
-  commit="$(git --git-dir ${SRCDIR}/.git rev-parse --short HEAD)"
-fi
+for l in $(gen-ver "${SRCDIR}"); do
+  export "${l?}"
+done
 
 xx-go --wrap
 
@@ -53,7 +51,7 @@ mkdir -p "${BUILDDIR}/${PKG_NAME}"
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${DOCKER_ENGINE_VERSION} DOCKER_GITCOMMIT=$commit ./hack/make.sh binary
+    VERSION=${GENVER_VERSION} DOCKER_GITCOMMIT=${GENVER_COMMIT_SHORT} ./hack/make.sh binary
     mv $(readlink -e "./bundles/binary-daemon/dockerd${binext}") "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
     mv $(readlink -e "./bundles/binary-daemon/docker-proxy${binext}") "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
     # FIXME: can't use clang with tini
@@ -75,7 +73,7 @@ if [ "$(xx-info os)" != "windows" ]; then
   )
 fi
 
-pkgoutput="/out/static/$(xx-info os)/$(xx-info arch)"
+pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
@@ -93,12 +91,12 @@ for pkgname in *; do
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${DOCKER_ENGINE_VERSION#v}.zip" "${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${DOCKER_ENGINE_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
     )
   fi
 done

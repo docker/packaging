@@ -96,6 +96,38 @@ jobs:
           name: ${{ inputs.name }}
           path: ./pkg/${{ inputs.name }}/bin
       -
+        name: Generate metadata
+        run: |
+          make -C pkg/${{ inputs.name }} metadata
+      -
+        name: Summary
+        run: |
+          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
+            export "${l?}"
+          done
+          
+          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * repo: ${REPO}
+          * ref: \`${REF}\`
+          * version: \`${VERSION}\`
+          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+          EOF
+          
+          if [ "${{ inputs.name }}" = "containerd" ]; then
+            cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * runc
+            * repo: ${RUNC_REPO}
+            * ref: \`${RUNC_REF}\`
+            * version: \`${RUNC_VERSION}\`
+            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+          EOF
+          fi
+          
+          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
+          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
+          EOF
+      -
         name: Release
         uses: docker/bake-action@v2
         with:

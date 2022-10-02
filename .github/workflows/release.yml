@@ -112,33 +112,55 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Prepare
-        run: |
-          version=$(make --no-print-directory -C pkg/${{ inputs.package }} version)
-          git_tag="${{ inputs.package }}/$version"
-          echo "Package: ${{ inputs.package }}"
-          echo "Release: ${{ inputs.release }}"
-          echo "Git tag prefix: $git_tag"
-          echo "GIT_TAG=$git_tag" >> $GITHUB_ENV
-          echo "VERSION=$version" >> $GITHUB_ENV
-      -
         name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.package }}
           path: ./pkg/${{ inputs.package }}/bin
       -
-        name: List artifacts and set summary
+        name: Generate metadata
+        run: |
+          make -C pkg/${{ inputs.package }} metadata
+      -
+        name: Summary
+        run: |
+          for l in $(cat ./pkg/${{ inputs.package }}/bin/metadata.env); do
+            export "${l?}"
+          done
+          
+          cat > "/tmp/summary.txt" <<-EOF
+          * repo: ${REPO}
+          * ref: \`${REF}\`
+          * version: \`${VERSION}\`
+          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+          EOF
+          
+          if [ "${{ inputs.package }}" = "containerd" ]; then
+            cat >> "/tmp/summary.txt" <<-EOF
+          * runc
+            * repo: ${RUNC_REPO}
+            * ref: \`${RUNC_REF}\`
+            * version: \`${RUNC_VERSION}\`
+            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+          EOF
+          fi
+          
+          cat >> "/tmp/summary.txt" <<-EOF
+          * packages: \`$(find ./pkg/${{ inputs.package }}/bin -type f | wc -l)\` files
+          * size: \`$(du -sh ./pkg/${{ inputs.package }}/bin | awk '{print $1}')\`
+          EOF
+
+          echo "GIT_TAG=${{ inputs.package }}/$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          cat /tmp/summary.txt >> $GITHUB_STEP_SUMMARY
+      -
+        name: List artifacts
         run: |
           tree -nh ./pkg/${{ inputs.package }}/bin | tee /tmp/pkgs.txt
-          cat > /tmp/summary.txt <<EOF
-          $(make --no-print-directory -C pkg/${{ inputs.package }} summary)
-          * packages: $(find ./pkg/${{ inputs.package }}/bin -type f | wc -l) files / $(du -sh ./pkg/${{ inputs.package }}/bin | awk '{print $1}')
-          EOF
       -
         name: Set packages list and summary outputs
         uses: actions/github-script@v6
-        id: release-summary
+        id: release-metadata
         with:
           script: |
             const fs = require('fs');
@@ -195,7 +217,7 @@ jobs:
             Image available at [https://hub.docker.com/r/${{ env.REPO_SLUG }}](https://hub.docker.com/r/${{ env.REPO_SLUG }}).
             
             ## Summary
-            ${{ steps.release-summary.outputs.summary }}
+            ${{ steps.release-metadata.outputs.summary }}
             
             ## Usage
             Extract with [Undock](https://github.com/crazy-max/undock):
@@ -208,7 +230,7 @@ jobs:
               <summary>Show list</summary>
 
             ```text
-            ${{ steps.release-summary.outputs.pkgs }}
+            ${{ steps.release-metadata.outputs.pkgs }}
             ```
             </details>
             
