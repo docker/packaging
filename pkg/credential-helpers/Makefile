@@ -14,8 +14,8 @@
 
 include ../../common/vars.mk
 
-export CREDENTIAL_HELPERS_REPO ?= https://github.com/docker/docker-credential-helpers.git
-export CREDENTIAL_HELPERS_REF ?= v0.7.0
+export CREDENTIAL_HELPERS_REPO := $(if $(CREDENTIAL_HELPERS_REPO),$(CREDENTIAL_HELPERS_REPO),https://github.com/docker/docker-credential-helpers.git)
+export CREDENTIAL_HELPERS_REF := $(if $(CREDENTIAL_HELPERS_REF),$(CREDENTIAL_HELPERS_REF),v0.7.0)
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl

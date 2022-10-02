@@ -17,11 +17,12 @@ include ../../common/vars.mk
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
-export CONTAINERD_REPO ?= https://github.com/containerd/containerd.git
-export CONTAINERD_REF ?= v1.6.8
+export CONTAINERD_REPO := $(if $(CONTAINERD_REPO),$(CONTAINERD_REPO),https://github.com/containerd/containerd.git)
+export CONTAINERD_REF := $(if $(CONTAINERD_REF),$(CONTAINERD_REF),v1.6.8)
+export RUNC_REPO := $(if $(RUNC_REPO),$(RUNC_REPO),https://github.com/opencontainers/runc.git)
+export RUNC_REF := $(if $(RUNC_REF),$(RUNC_REF),)
+
 export PKG_DEB_REVISION = 1
-export RUNC_REPO ?= https://github.com/opencontainers/runc.git
-export RUNC_REF ?=
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/containerd/containerd/blob/39f7cd73e7cc3e1d24f3557adfce5b68484136f7/.github/workflows/ci.yml#L131-L150

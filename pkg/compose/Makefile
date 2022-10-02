@@ -17,8 +17,8 @@ include ../../common/vars.mk
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
-export COMPOSE_REPO ?= https://github.com/docker/compose.git
-export COMPOSE_REF ?= v2.10.2
+export COMPOSE_REPO := $(if $(COMPOSE_REPO),$(COMPOSE_REPO),https://github.com/docker/compose.git)
+export COMPOSE_REF := $(if $(COMPOSE_REF),$(COMPOSE_REF),v2.10.2)
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/compose/blob/e2a3fe94273b05a1428652ba248edeee4171427f/docker-bake.hcl#L95-L107

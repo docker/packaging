@@ -1,0 +1,42 @@
+name: release-containerd
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Override repo'
+        required: false
+        type: string
+      ref:
+        description: 'Override ref'
+        required: false
+        type: string
+      runc_repo:
+        description: 'Override runc repo'
+        required: false
+        type: string
+      runc_ref:
+        description: 'Override runc ref'
+        required: false
+        type: string
+      release:
+        description: 'Push image and create release'
+        required: false
+        type: boolean
+
+jobs:
+  manual:
+    uses: ./.github/workflows/.release.yml
+    with:
+      name: containerd
+      release: ${{ inputs.release }}
+      env: |
+        CONTAINERD_REPO=${{ inputs.repo }}
+        CONTAINERD_REF=${{ inputs.ref }}
+        RUNC_REPO=${{ inputs.runc_repo }}
+        RUNC_REF=${{ inputs.runc_ref }}
+    secrets: inherit
