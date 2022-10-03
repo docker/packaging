@@ -170,7 +170,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ENV CGO_ENABLED="1"
+ENV CGO_ENABLED="0"
+ENV GO111MODULE="off"
 
 FROM build-base-static AS goversioninfo
 ARG GOVERSIONINFO_VERSION
@@ -179,7 +180,7 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get install -y --no-install-recommends dpkg-dev clang make pkg-config
+RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
 ARG DOCKER_CLI_REF
 WORKDIR /build
