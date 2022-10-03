@@ -126,7 +126,7 @@ pkg-info-centos7:
 	$(eval PKG_SUITE = 7)
 	$(eval PKG_BASE_IMAGE = centos:7)
 	@# FIXME: packages look broken for linux/arm/v7 on centos:7
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/ppc64le)
+	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le)
 
 .PHONY: pkg-info-centos8
 pkg-info-centos8:
