@@ -56,6 +56,9 @@ RUN --mount=from=bin-folder,source=.,target=/release <<EOT
       done
     fi
   done
+  if [ -d "/out" ] && [ -f "/release/metadata.env" ]; then
+    cp "/release/metadata.env" "/out/"
+  fi
 EOT
 
 FROM scratch AS release
