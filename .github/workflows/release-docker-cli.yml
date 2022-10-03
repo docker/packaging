@@ -5,6 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  schedule:
+    - cron: '0 5 * * 0' # every sunday at 5am
   workflow_dispatch:
     inputs:
       repo:
@@ -22,6 +24,7 @@ on:
 
 jobs:
   manual:
+    if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/.release.yml
     with:
       name: docker-cli
@@ -29,4 +32,13 @@ jobs:
       env: |
         DOCKER_CLI_REPO=${{ inputs.repo }}
         DOCKER_CLI_REF=${{ inputs.ref }}
+    secrets: inherit
+
+  schedule:
+    if: github.event_name == 'schedule'
+    uses: ./.github/workflows/.release.yml
+    with:
+      name: docker-cli
+      env: |
+        DOCKER_CLI_REF=master
     secrets: inherit
