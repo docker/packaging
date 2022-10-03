@@ -11,6 +11,13 @@ to request changes to the packaging process.
 This repository creates packages (apk, deb, rpm, static) for various projects
 and are published as a Docker image [on Docker Hub](https://hub.docker.com/r/dockereng/packaging).
 
+___
+
+* [Prerequisites](#prerequisites)
+* [Supported tags](#supported-tags)
+* [Usage](#usage)
+* [Contributing](#contributing)
+
 ## Prerequisites
 
 Before building packages, you need to have `docker` and [Buildx CLI plugin](https://docs.docker.com/build/buildx/install/)
@@ -27,11 +34,21 @@ $ docker buildx create --driver docker-container --name mybuilder --use --bootst
 >
 > Some packages don't have cross-compilation support and therefore QEMU will
 > be used. As it can be slow, it is recommended to use a builder with native
-> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/release.yml)
+> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/.release.yml)
 > for more details.
 
-If you just want to build packages for your current platform, you can set
+If you just want to build packages for the current platform, you can set
 `LOCAL_PLATFORM=1` environment variable.
+
+## Supported tags
+
+See [GitHub Releases](https://github.com/docker/packaging/releases) for the
+list of published Docker tags.
+
+> **Note**
+>
+> We are also publishing nightly builds using the
+> [`<project>/nightly/<version>` tags](https://hub.docker.com/r/dockereng/packaging/tags?page=1&name=%2Fnightly%2F).
 
 ## Usage
 
