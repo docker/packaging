@@ -186,7 +186,6 @@ jobs:
             type=ref,event=pr
             type=raw,value=${{ env.GIT_TAG }}
             type=raw,value=${{ env.GIT_TAG }}-${{ github.run_number }}
-            type=raw,value=${{ env.GIT_TAG }}-{{sha}}
           labels: |
             com.github.docker.packaging.event_name=${{ github.event_name }}
             com.github.docker.packaging.run_id=${{ github.run_id }}
