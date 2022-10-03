@@ -39,11 +39,7 @@ for l in $(gen-ver "${SRCDIR}"); do
 done
 
 xx-go --wrap
-
-# FIXME: Verify CC exists. Can be set to cross in official Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if ! which "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
-fi
+fix-cc
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 pkg=github.com/docker/docker

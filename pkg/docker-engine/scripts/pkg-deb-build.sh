@@ -51,11 +51,7 @@ for l in $(gen-ver "${SRCDIR}"); do
 done
 
 xx-go --wrap
-
-# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
-fi
+fix-cc
 
 cat > "debian/changelog" <<-EOF
 ${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low

@@ -39,11 +39,7 @@ for l in $(gen-ver "${SRCDIR}"); do
 done
 
 xx-go --wrap
-
-# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
-fi
+fix-cc
 
 # remove once llvm 12 available on debian
 # https://github.com/docker/cli/blob/65438e008c20a6125a1319eca07dcc3d7d4e38eb/Dockerfile#L30-L36
