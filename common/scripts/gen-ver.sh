@@ -20,7 +20,7 @@ if [ -z "$srcdir" ]; then
   exit 1
 fi
 
-version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --dirty='-dev' --always --tags)
+version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
 
