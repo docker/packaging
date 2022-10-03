@@ -39,10 +39,18 @@ for l in $(gen-ver "${SRCDIR}"); do
 done
 
 xx-go --wrap
+fix-cc
 
-# FIXME: CC is set to a cross package in Go release: https://github.com/docker/packaging/pull/25#issuecomment-1256594482
-if [ "$(go env CC)" = "$(xx-info triple)-gcc" ] && ! command "$(go env CC)" &> /dev/null; then
-  go env -w CC=gcc
+# remove once llvm 12 available on debian
+# https://github.com/docker/cli/blob/65438e008c20a6125a1319eca07dcc3d7d4e38eb/Dockerfile#L30-L36
+if [ "$(xx-info os)/$(xx-info arch)" != "darwin/amd64" ]; then
+  ln -sfnT /bin/true /usr/bin/llvm-strip
+fi
+
+# prefer ld for cross-compiling arm64
+# https://github.com/docker/cli/pull/3493/commits/d45030380d8e1f8eadcb9512e81cfc63885aa638
+if [  "$(xx-info arch)" = "arm64" ]; then
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
 fi
 
 (

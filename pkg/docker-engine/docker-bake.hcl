@@ -167,11 +167,13 @@ target "release" {
   # same as PKG_PLATFORMS in Makefile
   platforms = [
     "linux/amd64",
+    "linux/arm/v6",
     "linux/arm/v7",
     "linux/arm64",
     "linux/ppc64le",
     "linux/s390x",
-    "windows/amd64"
+    "windows/amd64",
+    "windows/arm64"
   ]
   contexts = {
     bin-folder = "./bin"

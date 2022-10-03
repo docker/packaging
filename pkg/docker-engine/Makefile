@@ -26,7 +26,7 @@ export PKG_RPM_RELEASE = 3
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/moby/moby/blob/0e873d5cd8b31c08e29ff2f790c19a2e9c4ee30a/.github/workflows/ci.yml#L65-L73
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
-PKG_PLATFORMS ?= linux/amd64 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
+PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x windows/amd64 windows/arm64
 
 .PHONY: default
 default: pkg ;

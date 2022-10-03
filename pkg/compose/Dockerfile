@@ -101,6 +101,7 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/root/package/compose,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=./compose pkg-deb-build
@@ -143,6 +144,7 @@ ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src-tgz,source=/out/compose.tgz,target=/root/rpmbuild/SOURCES/compose.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
@@ -165,6 +167,7 @@ WORKDIR /build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
