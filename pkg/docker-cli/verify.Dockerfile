@@ -55,11 +55,14 @@ RUN --mount=from=bin-folder,target=/build <<EOT
     (
       set -x
       rpm -qilp $f
-      if [ "$PKG_RELEASE" = "centos7" ]; then
-        rpm --install --nodeps $f
-      else
-        yum install -y $f
-      fi
+      case "$PKG_RELEASE" in
+        centos7 | oraclelinux7)
+          rpm --install --nodeps $f
+          ;;
+        *)
+          yum install -y $f
+          ;;
+      esac
     )
   done
   set -x
