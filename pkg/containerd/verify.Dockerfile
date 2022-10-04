@@ -48,8 +48,24 @@ EOT
 
 FROM ${PKG_BASE_IMAGE} AS verify-rpm
 COPY --from=xx / /
+ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
+RUN <<EOT
+  set -e
+  # ol*_addons package required for container-selinux
+  case "$PKG_RELEASE" in
+    oraclelinux7)
+      yum-config-manager --enable ol7_addons
+      ;;
+    oraclelinux8)
+      dnf config-manager --enable ol8_addons
+      ;;
+    oraclelinux9)
+      dnf config-manager --enable ol9_addons
+      ;;
+  esac
+EOT
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
