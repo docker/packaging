@@ -25,6 +25,7 @@ jobs:
           - ubuntu2204
           - centos7
           - centos9
+          - oraclelinux7
           - fedora37
           - static
     steps:
