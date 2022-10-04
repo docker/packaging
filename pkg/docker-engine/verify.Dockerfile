@@ -55,6 +55,18 @@ RUN <<EOT
       dnf install -y dnf-plugins-core
       dnf config-manager --set-enabled crb
       ;;
+    oraclelinux7)
+      yum install -y oraclelinux-release-el7 oracle-epel-release-el7
+      yum-config-manager --enable ol7_addons ol7_latest ol7_optional_latest
+      ;;
+    oraclelinux8)
+      dnf install -y dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
+      dnf config-manager --enable ol8_addons ol8_codeready_builder
+      ;;
+    oraclelinux9)
+      dnf install -y dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
+      dnf config-manager --enable ol9_addons ol9_codeready_builder
+      ;;
   esac
   yum install -y device-mapper-devel
 EOT
