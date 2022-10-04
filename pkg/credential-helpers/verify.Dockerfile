@@ -52,8 +52,11 @@ ARG PKG_SUITE
 RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
-    centos*|oraclelinux*)
+    centos*)
       yum install -y epel-release
+      ;;
+    oraclelinux*)
+      yum install -y oracle-epel-release-el7
       ;;
   esac
 EOT
