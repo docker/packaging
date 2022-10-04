@@ -43,6 +43,9 @@ case "$pkgrelease" in
     #  https://wiki.centos.org/AdditionalResources/Repositories/SCL
     yum install -y centos-release-scl-rh
     swcolInstallGit "227"
+    # remove software collections repo when Git installed otherwise wrong deps
+    # are picked up by yum-builddep
+    yum remove -y centos-release-scl-rh
     ;;
   centos8)
     [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
@@ -65,6 +68,9 @@ case "$pkgrelease" in
     yum install -y oracle-softwarecollection-release-el7
     yum-config-manager --enable ol7_software_collections
     swcolInstallGit "29"
+    # disable software collections repo when Git installed otherwise wrong deps
+    # are picked up by yum-builddep
+    yum-config-manager --disable ol7_software_collections
     ;;
   oraclelinux8)
     dnf install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
