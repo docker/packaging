@@ -156,7 +156,7 @@ jobs:
           EOF
 
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "GIT_TAG=${{ inputs.name }}/nightly/$VERSION" >> $GITHUB_ENV
+            echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
           else
             echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
           fi

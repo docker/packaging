@@ -48,7 +48,7 @@ list of published Docker tags.
 > **Note**
 >
 > We are also publishing nightly builds using the
-> [`<project>/nightly/<version>` tags](https://hub.docker.com/r/dockereng/packaging/tags?page=1&name=%2Fnightly%2F).
+> [`nightly-<project>-<version>` tags](https://hub.docker.com/r/dockereng/packaging/tags?page=1&name=nightly-).
 
 ## Usage
 
