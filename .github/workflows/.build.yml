@@ -10,24 +10,40 @@ on:
 
 env:
   BUILD_CACHE_REGISTRY_SLUG: dockereng/packaging-cache
+  GHA_DEFAULT_MATRIX: minimal
 
 jobs:
+  prepare:
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.pkgs.outputs.matrix }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Create matrix
+        id: pkgs
+        run: |
+          ghamatrix=$GHA_DEFAULT_MATRIX
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ghamatrix=${{ inputs.pkgs }}
+          fi
+          pkgs=$(make gha-matrix GHA_MATRIX=$ghamatrix)
+          echo "::set-output name=matrix::$pkgs"
+      -
+        name: Show matrix
+        run: |
+          echo ${{ steps.pkgs.outputs.matrix }}
+
   build:
     runs-on: ubuntu-20.04
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        pkg:
-          - debian10
-          - debian11
-          - ubuntu1804
-          - ubuntu2004
-          - ubuntu2204
-          - centos7
-          - centos9
-          - oraclelinux7
-          - fedora37
-          - static
+        pkg: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       -
         name: Checkout
@@ -36,7 +52,8 @@ jobs:
         name: Prepare
         run: |
           # Push cache to regitry only on main (secrets not available from fork)
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          # and not on workflow_dispatch event
+          if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "BUILD_CACHE_REGISTRY_PUSH=1" >> $GITHUB_ENV
           fi
           # Limit to local platform for pkgs other than static for performance

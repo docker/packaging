@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      pkgs:
+        description: 'Packages to build (minimal, all or space separated list)'
+        default: 'minimal'
+        required: false
+        type: string
   push:
     branches:
       - 'main'

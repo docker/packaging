@@ -63,6 +63,12 @@ verify-%: pkg-%-releases
 	$(MAKE) $(foreach release,$(PKG_RELEASES),run-verify-$(release))
 
 .PHONY: run-verify-%
-run-verify-%: pkg-info-%
-	$(eval LOCAL_PLATFORM = 1) # TODO: add support for cross platform verification
-	$(call build,$*,$(DESTDIR),$(BAKE_DEFINITIONS),verify,$(PKG_PLATFORMS))
+run-verify-%: platform pkg-info-%
+	$(call build,$*,$(DESTDIR),$(BAKE_DEFINITIONS),verify,$(PLATFORM))
+
+.PHONY: platform
+platform:
+	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
+	$(shell echo 'FROM busybox\nARG BUILDPLATFORM\nRUN mkdir /out && echo "$$BUILDPLATFORM" > /out/platform' | docker buildx build --platform linux/arm/v7 -q --output "$($@_TMP_OUT)" -)
+	$(eval PLATFORM = $(shell cat $($@_TMP_OUT)/out/platform))
+	rm -rf "$($@_TMP_OUT)"

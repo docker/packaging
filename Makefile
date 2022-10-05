@@ -38,6 +38,15 @@ static-%:
 
 include common/packages.mk
 
-.PHONY: gha-release-matrix
-gha-release-matrix:
-	@echo "$(PKG_DEB_RELEASES) $(PKG_RPM_RELEASES) static" | jq -cR 'split(" ")'
+GHA_MATRIX ?= minimal
+ifeq ($(GHA_MATRIX),minimal)
+	GHA_RELEASES := debian10 debian11 ubuntu1804 ubuntu2004 ubuntu2204 centos7 centos9 oraclelinux7 fedora37 static
+else ifeq ($(GHA_MATRIX),all)
+	GHA_RELEASES := $(PKG_DEB_RELEASES) $(PKG_RPM_RELEASES) static
+else
+	GHA_RELEASES := $(GHA_MATRIX)
+endif
+
+.PHONY: gha-matrix
+gha-matrix:
+	@echo "$(GHA_RELEASES)" | jq -cR 'split(" ")'

@@ -190,6 +190,7 @@ target "verify" {
   dockerfile = "verify.Dockerfile"
   output = ["type=cacheonly"]
   contexts = {
+    common-scripts = "../../common/scripts"
     bin-folder = "./bin"
   }
 }
