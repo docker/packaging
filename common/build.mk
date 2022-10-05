@@ -69,6 +69,6 @@ run-verify-%: platform pkg-info-%
 .PHONY: platform
 platform:
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
-	$(shell echo 'FROM busybox\nARG BUILDPLATFORM\nRUN mkdir /out && echo "$$BUILDPLATFORM" > /out/platform' | docker buildx build --platform linux/arm/v7 -q --output "$($@_TMP_OUT)" -)
+	$(shell echo 'FROM busybox\nARG TARGETPLATFORM\nRUN mkdir /out && echo "$$TARGETPLATFORM" > /out/platform' | docker buildx build --platform local -q --output "$($@_TMP_OUT)" -)
 	$(eval PLATFORM = $(shell cat $($@_TMP_OUT)/out/platform))
-	rm -rf "$($@_TMP_OUT)"
+	@rm -rf "$($@_TMP_OUT)"
