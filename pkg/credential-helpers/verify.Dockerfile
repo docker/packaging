@@ -23,6 +23,7 @@ ARG PKG_BASE_IMAGE
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
 FROM scratch AS bin-folder
+FROM scratch AS common-scripts
 
 FROM ${PKG_BASE_IMAGE} AS verify-deb
 RUN apt-get update
@@ -32,7 +33,12 @@ ARG PKG_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
-  for package in $(find /build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch) -type f -name '*.deb'); do
+  dir=/build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)
+  if [ ! -d "$dir" ]; then
+    echo >&2 "warning: no packages found in $dir"
+    exit 0
+  fi
+  for package in $(find $dir -type f -name '*.deb'); do
     (
       set -x
       dpkg-deb --info $package
@@ -49,39 +55,36 @@ COPY --from=xx / /
 ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
-RUN <<EOT
-  set -e
-  case "$PKG_RELEASE" in
-    centos*)
-      yum install -y epel-release
-      ;;
-    oraclelinux*)
-      yum install -y oracle-epel-release-el7
-      ;;
-  esac
-EOT
+RUN --mount=type=bind,from=common-scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
+  verify-rpm-init $PKG_RELEASE && \
+  yum install -y device-mapper-devel
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
+  dir=/build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)
+  if [ ! -d "$dir" ]; then
+    echo >&2 "warning: no packages found in $dir"
+    exit 0
+  fi
   extraflags=""
   case "$PKG_RELEASE" in
-    centos7|centos9)
-      # FIXME: required pass package not available on centos 7 and centos 9
+    # required pass package not available
+    centos7|centos9|oraclelinux9)
       extraflags="--skip-broken"
       ;;
   esac
-  for f in $(find /build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch) -type f -name '*.rpm'); do
+  for package in $(find $dir -type f -name '*.rpm'); do
     (
       set -x
-      rpm -qilp $f
-      yum install -y $extraflags $f
+      rpm -qilp $package
+      yum install -y $extraflags $package
     )
   done
   set -x
   docker-credential-secretservice version
   case "$PKG_RELEASE" in
-    # FIXME: skip pass credential helper smoke test on centos 7 and centos 9
-    centos7|centos9) ;;
+    # FIXME: skip pass credential helper smoke test for some distros
+    centos7|centos9|oraclelinux9) ;;
     *) docker-credential-pass version ;;
   esac
 EOT
@@ -94,10 +97,15 @@ ARG PKG_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
-  for f in $(find /build/static/$(xx-info os)/$(xx-info arch) -type f); do
+  dir=/build/static/$(xx-info os)/$(xx-info arch)
+  if [ ! -d "$dir" ]; then
+    echo >&2 "warning: no packages found in $dir"
+    exit 0
+  fi
+  for package in $(find $dir -type f); do
     (
       set -x
-      tar zxvf $f -C /usr/bin --strip-components=1
+      tar zxvf $package -C /usr/bin --strip-components=1
     )
   done
   set -x
