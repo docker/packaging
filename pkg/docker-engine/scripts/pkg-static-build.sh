@@ -65,9 +65,11 @@ esac
 if [ "$(xx-info os)" = "windows" ]; then
   (
     pushd ${SRCDIR}
-      BINARY_SHORT_NAME="dockerd" BINARY_FULLNAME="dockerd.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
+      # FIXME: BINARY_SHORT_NAME deprecated, remove when 22.06 branch rebased with master
+      BINARY_NAME="dockerd" BINARY_SHORT_NAME="dockerd" BINARY_FULLNAME="dockerd.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
       go generate -v "./cmd/dockerd"
-      BINARY_SHORT_NAME="docker-proxy" BINARY_FULLNAME="docker-proxy.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
+      # FIXME: BINARY_SHORT_NAME deprecated, remove when 22.06 branch rebased with master
+      BINARY_NAME="docker-proxy" BINARY_SHORT_NAME="docker-proxy" BINARY_FULLNAME="docker-proxy.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
       go generate -v "./cmd/docker-proxy"
     popd
   )
