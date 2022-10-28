@@ -40,5 +40,6 @@ jobs:
     with:
       name: compose
       env: |
+        NIGHTLY_BUILD=1
         COMPOSE_REF=v2
     secrets: inherit

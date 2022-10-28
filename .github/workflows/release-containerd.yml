@@ -50,5 +50,6 @@ jobs:
     with:
       name: containerd
       env: |
+        NIGHTLY_BUILD=1
         CONTAINERD_REF=main
     secrets: inherit

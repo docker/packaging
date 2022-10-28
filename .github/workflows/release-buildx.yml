@@ -40,5 +40,6 @@ jobs:
     with:
       name: buildx
       env: |
+        NIGHTLY_BUILD=1
         BUILDX_REF=master
     secrets: inherit

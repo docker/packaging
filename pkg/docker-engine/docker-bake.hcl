@@ -24,6 +24,11 @@ variable "DOCKER_ENGINE_REF" {
   default = "v22.06.0-beta.0"
 }
 
+# set to 1 to enforce nightly build
+variable "NIGHTLY_BUILD" {
+  default = ""
+}
+
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
   default = "golang"
@@ -117,6 +122,7 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     DOCKER_ENGINE_REPO = DOCKER_ENGINE_REPO
     DOCKER_ENGINE_REF = DOCKER_ENGINE_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -197,6 +203,7 @@ target "metadata" {
   args = {
     DOCKER_ENGINE_REPO = DOCKER_ENGINE_REPO
     DOCKER_ENGINE_REF = DOCKER_ENGINE_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
   }
   target = "metadata"
   output = ["./bin"]

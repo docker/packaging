@@ -55,9 +55,10 @@ commitShort=${commit:0:7}
 # Docker 22.06.0-dev:     version=0.0.0~YYYYMMDDHHMMSS.gitHASH, release=0
 rpmRelease=1
 
-# if we have a "-dev" suffix or a commit not pointing to a tag, this is a
-# nightly build, and we'll create a pseudo version based on commit-date and -sha.
-if [[ "$version" == *-dev ]] || [[ -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ]]; then
+# if NIGHTLY_BUILD=1, or we have a "-dev" suffix or a commit not pointing to a
+# tag, this is a nightly build, and we'll create a pseudo version based on
+# commit-date and -sha.
+if [[ "$NIGHTLY_BUILD" == "1" ]] || [[ "$version" == *-dev ]] || [[ -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ]]; then
   # based on golang's pseudo-version: https://groups.google.com/forum/#!topic/golang-dev/a5PqQuBljF4
   #
   # using a "pseudo-version" of the form v0.0.0-yyyymmddhhmmss-abcdefa,

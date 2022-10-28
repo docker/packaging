@@ -24,6 +24,11 @@ variable "BUILDX_REF" {
   default = "v0.9.1"
 }
 
+# set to 1 to enforce nightly build
+variable "NIGHTLY_BUILD" {
+  default = ""
+}
+
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
   default = "golang"
@@ -117,6 +122,7 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     BUILDX_REPO = BUILDX_REPO
     BUILDX_REF = BUILDX_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -200,6 +206,7 @@ target "metadata" {
   args = {
     BUILDX_REPO = BUILDX_REPO
     BUILDX_REF = BUILDX_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
   }
   target = "metadata"
   output = ["./bin"]
