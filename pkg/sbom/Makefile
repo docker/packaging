@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+# https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.github/workflows/release.yaml#L12
+export GO_VERSION = 1.18
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 

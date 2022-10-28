@@ -14,6 +14,9 @@
 
 include ../../common/vars.mk
 
+# https://github.com/docker/compose/blob/69651136cfc2d1d7556b386e98de56b1b1854430/Dockerfile#L18
+export GO_VERSION = 1.18.5
+
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
