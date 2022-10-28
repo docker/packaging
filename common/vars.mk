@@ -16,7 +16,7 @@ export BASEDIR ?= $(CURDIR)
 
 # go base image
 export GO_IMAGE ?= golang
-export GO_VERSION ?= 1.18.5
+export GO_VERSION ?= 1.19.2
 export GO_IMAGE_VARIANT ?= bullseye
 
 # if set, ony build matching the local platform
