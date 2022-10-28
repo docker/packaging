@@ -14,11 +14,14 @@
 
 include ../../common/vars.mk
 
-export CREDENTIAL_HELPERS_REPO := $(if $(CREDENTIAL_HELPERS_REPO),$(CREDENTIAL_HELPERS_REPO),https://github.com/docker/docker-credential-helpers.git)
-export CREDENTIAL_HELPERS_REF := $(if $(CREDENTIAL_HELPERS_REF),$(CREDENTIAL_HELPERS_REF),v0.7.0)
+# https://github.com/docker/docker-credential-helpers/blob/ac5992b5f4756fc0398a7d0c93c609e624368bde/Dockerfile#L3
+export GO_VERSION = 1.18.5
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
+
+export CREDENTIAL_HELPERS_REPO := $(if $(CREDENTIAL_HELPERS_REPO),$(CREDENTIAL_HELPERS_REPO),https://github.com/docker/docker-credential-helpers.git)
+export CREDENTIAL_HELPERS_REF := $(if $(CREDENTIAL_HELPERS_REF),$(CREDENTIAL_HELPERS_REF),v0.7.0)
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/docker-credential-helpers/blob/ac5992b5f4756fc0398a7d0c93c609e624368bde/docker-bake.hcl#L56-L66
