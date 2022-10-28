@@ -21,7 +21,7 @@ variable "SCAN_REPO" {
 
 # Sets the scan ref.
 variable "SCAN_REF" {
-  default = "v0.19.0"
+  default = "v0.21.0"
 }
 
 # Sets Go image, version and variant to use for building
