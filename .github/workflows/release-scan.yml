@@ -40,5 +40,6 @@ jobs:
     with:
       name: scan
       env: |
+        NIGHTLY_BUILD=1
         SCAN_REF=main
     secrets: inherit

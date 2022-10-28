@@ -40,5 +40,6 @@ jobs:
     with:
       name: docker-cli
       env: |
+        NIGHTLY_BUILD=1
         DOCKER_CLI_REF=master
     secrets: inherit

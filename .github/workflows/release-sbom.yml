@@ -40,5 +40,6 @@ jobs:
     with:
       name: sbom
       env: |
+        NIGHTLY_BUILD=1
         SBOM_REF=main
     secrets: inherit

@@ -60,6 +60,7 @@ RUN --mount=from=src,source=/src,target=/docker-credential-helpers \
 FROM src-base AS metadata-builder
 ARG CREDENTIAL_HELPERS_REPO
 ARG CREDENTIAL_HELPERS_REF
+ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
@@ -92,6 +93,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG CREDENTIAL_HELPERS_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -134,6 +136,7 @@ RUN <<EOT
 EOT
 WORKDIR /root/rpmbuild
 ARG CREDENTIAL_HELPERS_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -162,6 +165,7 @@ ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
 ARG CREDENTIAL_HELPERS_REF
+ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libsecret-1-dev

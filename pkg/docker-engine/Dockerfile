@@ -62,6 +62,7 @@ RUN --mount=from=src,source=/src,target=/engine \
 FROM src-base AS metadata-builder
 ARG DOCKER_ENGINE_REPO
 ARG DOCKER_ENGINE_REF
+ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
@@ -108,6 +109,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG DOCKER_ENGINE_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -161,6 +163,7 @@ RUN <<EOT
 EOT
 WORKDIR /root/rpmbuild
 ARG DOCKER_ENGINE_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -199,6 +202,7 @@ ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends cmake gcc libc6-dev lld make pkg-config
 ARG PKG_NAME
 ARG DOCKER_ENGINE_REF
+ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libbtrfs-dev libdevmapper-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config

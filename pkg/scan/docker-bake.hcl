@@ -24,6 +24,11 @@ variable "SCAN_REF" {
   default = "v0.21.0"
 }
 
+# set to 1 to enforce nightly build
+variable "NIGHTLY_BUILD" {
+  default = ""
+}
+
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
   default = "golang"
@@ -117,6 +122,7 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     SCAN_REPO = SCAN_REPO
     SCAN_REF = SCAN_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -194,6 +200,7 @@ target "metadata" {
   args = {
     SCAN_REPO = SCAN_REPO
     SCAN_REF = SCAN_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
   }
   target = "metadata"
   output = ["./bin"]

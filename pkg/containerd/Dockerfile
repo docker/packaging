@@ -82,6 +82,7 @@ ARG CONTAINERD_REPO
 ARG CONTAINERD_REF
 ARG RUNC_REPO
 ARG RUNC_REF
+ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src \
     --mount=type=bind,from=runc-src,source=/src,target=/runc-src <<EOT
@@ -126,6 +127,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG CONTAINERD_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -171,6 +173,7 @@ RUN <<EOT
 EOT
 WORKDIR /root/rpmbuild
 ARG CONTAINERD_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -202,6 +205,7 @@ ENV GO111MODULE="off"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
 ARG CONTAINERD_REF
+ARG NIGHTLY_BUILD
 ARG RUNC_REF
 WORKDIR /build
 ARG TARGETPLATFORM

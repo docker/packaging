@@ -24,6 +24,20 @@ variable "CONTAINERD_REF" {
   default = "v1.6.8"
 }
 
+# In case we want to set runc to a specific version instead of using
+# the one used by containerd
+variable "RUNC_REPO" {
+  default = "https://github.com/opencontainers/runc.git"
+}
+variable "RUNC_REF" {
+  default = ""
+}
+
+# set to 1 to enforce nightly build
+variable "NIGHTLY_BUILD" {
+  default = ""
+}
+
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
   default = "golang"
@@ -88,15 +102,6 @@ variable "PKG_RPM_RELEASE" {
   default = ""
 }
 
-# In case we want to set runc version to a specific version instead of using
-# the one used by containerd
-variable "RUNC_REPO" {
-  default = "https://github.com/opencontainers/runc.git"
-}
-variable "RUNC_REF" {
-  default = ""
-}
-
 # Defines the output folder
 variable "DESTDIR" {
   default = ""
@@ -129,6 +134,9 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     CONTAINERD_REPO = CONTAINERD_REPO
     CONTAINERD_REF = CONTAINERD_REF
+    RUNC_REPO = RUNC_REPO
+    RUNC_REF = RUNC_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -140,8 +148,6 @@ target "_common" {
     PKG_DEB_EPOCH = PKG_DEB_EPOCH
     PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
-    RUNC_REPO = RUNC_REPO
-    RUNC_REF = RUNC_REF
   }
   platforms = [
     # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
@@ -211,6 +217,7 @@ target "metadata" {
     CONTAINERD_REF = CONTAINERD_REF
     RUNC_REPO = RUNC_REPO
     RUNC_REF = RUNC_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
   }
   target = "metadata"
   output = ["./bin"]

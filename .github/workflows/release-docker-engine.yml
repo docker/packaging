@@ -40,5 +40,6 @@ jobs:
     with:
       name: docker-engine
       env: |
+        NIGHTLY_BUILD=1
         DOCKER_ENGINE_REF=master
     secrets: inherit

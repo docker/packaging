@@ -24,6 +24,11 @@ variable "CREDENTIAL_HELPERS_REF" {
   default = "v0.7.0"
 }
 
+# set to 1 to enforce nightly build
+variable "NIGHTLY_BUILD" {
+  default = ""
+}
+
 # Sets Go image, version and variant to use for building
 variable "GO_IMAGE" {
   default = "golang"
@@ -117,6 +122,7 @@ target "_common" {
     BUILDKIT_MULTI_PLATFORM = 1
     CREDENTIAL_HELPERS_REPO = CREDENTIAL_HELPERS_REPO
     CREDENTIAL_HELPERS_REF = CREDENTIAL_HELPERS_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
     GO_IMAGE = GO_IMAGE
     GO_VERSION = GO_VERSION
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT
@@ -198,6 +204,7 @@ target "metadata" {
   args = {
     CREDENTIAL_HELPERS_REPO = CREDENTIAL_HELPERS_REPO
     CREDENTIAL_HELPERS_REF = CREDENTIAL_HELPERS_REF
+    NIGHTLY_BUILD = NIGHTLY_BUILD
   }
   target = "metadata"
   output = ["./bin"]

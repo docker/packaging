@@ -57,6 +57,7 @@ RUN --mount=from=src,source=/src,target=/sbom \
 FROM src-base AS metadata-builder
 ARG SBOM_REPO
 ARG SBOM_REF
+ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
@@ -91,6 +92,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG SBOM_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -135,6 +137,7 @@ RUN <<EOT
 EOT
 WORKDIR /root/rpmbuild
 ARG SBOM_REF
+ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
 ARG PKG_SUITE
@@ -162,6 +165,7 @@ ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_NAME
 ARG SBOM_REF
+ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
