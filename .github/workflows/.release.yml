@@ -32,7 +32,7 @@ jobs:
         id: pkgs
         run: |
           pkgs=$(make gha-matrix GHA_MATRIX=all)
-          echo "::set-output name=matrix::$pkgs"
+          echo "matrix=$pkgs" >> $GITHUB_OUTPUT
       -
         name: Show matrix
         run: |

@@ -30,7 +30,7 @@ jobs:
             ghamatrix=${{ inputs.pkgs }}
           fi
           pkgs=$(make gha-matrix GHA_MATRIX=$ghamatrix)
-          echo "::set-output name=matrix::$pkgs"
+          echo "matrix=$pkgs" >> $GITHUB_OUTPUT
       -
         name: Show matrix
         run: |
