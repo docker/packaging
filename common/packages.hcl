@@ -128,6 +128,16 @@ target "_pkg-ubuntu2204" {
   }
 }
 
+target "_pkg-ubuntu2210" {
+  args = {
+    PKG_RELEASE = "ubuntu2210"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "ubuntu"
+    PKG_SUITE = "kinetic"
+    PKG_BASE_IMAGE = "ubuntu:kinetic"
+  }
+}
+
 target "_pkg-centos7" {
   args = {
     PKG_RELEASE = "centos7"
