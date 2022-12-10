@@ -14,14 +14,14 @@
 
 include ../../common/vars.mk
 
-# https://github.com/moby/moby/blob/38633e797195643580ce5c4af7c5422aad3eb7de/Dockerfile#L5
-export GO_VERSION = 1.18.3
+# https://github.com/moby/moby/blob/e57c432eff54c1eece837eaea679cff335416f4a/Dockerfile#L5
+export GO_VERSION = 1.19.3
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export DOCKER_ENGINE_REPO := $(if $(DOCKER_ENGINE_REPO),$(DOCKER_ENGINE_REPO),https://github.com/docker/docker.git)
-export DOCKER_ENGINE_REF := $(if $(DOCKER_ENGINE_REF),$(DOCKER_ENGINE_REF),v22.06.0-beta.0)
+export DOCKER_ENGINE_REF := $(if $(DOCKER_ENGINE_REF),$(DOCKER_ENGINE_REF),v23.0.0-beta.1)
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
