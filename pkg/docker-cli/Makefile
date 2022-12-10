@@ -14,14 +14,14 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/cli/blob/3e9117b7e241439e314eaf6fe944b4019fbaa941/Dockerfile#L4
-export GO_VERSION = 1.18.3
+# https://github.com/docker/cli/blob/65d3f7830d8f73aeabe649ca17386f5ae5655210/Dockerfile#L4
+export GO_VERSION = 1.19.3
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export DOCKER_CLI_REPO := $(if $(DOCKER_CLI_REPO),$(DOCKER_CLI_REPO),https://github.com/docker/cli.git)
-export DOCKER_CLI_REF := $(if $(DOCKER_CLI_REF),$(DOCKER_CLI_REF),v22.06.0-beta.0)
+export DOCKER_CLI_REF := $(if $(DOCKER_CLI_REF),$(DOCKER_CLI_REF),v23.0.0-beta.1)
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
