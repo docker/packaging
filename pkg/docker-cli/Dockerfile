@@ -17,12 +17,12 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/docker/cli/blob/65d3f7830d8f73aeabe649ca17386f5ae5655210/Dockerfile#L7
+# https://github.com/docker/cli/blob/v23.0.0-rc.1/Dockerfile#L7
 ARG GOVERSIONINFO_VERSION="v1.3.0"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.19.3"
+ARG GO_VERSION="1.19.4"
 ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
