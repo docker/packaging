@@ -21,7 +21,7 @@ DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export DOCKER_ENGINE_REPO := $(if $(DOCKER_ENGINE_REPO),$(DOCKER_ENGINE_REPO),https://github.com/docker/docker.git)
-export DOCKER_ENGINE_REF := $(if $(DOCKER_ENGINE_REF),$(DOCKER_ENGINE_REF),v23.0.0-rc.1)
+export DOCKER_ENGINE_REF := $(if $(DOCKER_ENGINE_REF),$(DOCKER_ENGINE_REF),master)
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
