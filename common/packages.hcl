@@ -168,16 +168,6 @@ target "_pkg-centos9" {
   }
 }
 
-target "_pkg-fedora35" {
-  args = {
-    PKG_RELEASE = "fedora35"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "fedora"
-    PKG_SUITE = "35"
-    PKG_BASE_IMAGE = "fedora:35"
-  }
-}
-
 target "_pkg-fedora36" {
   args = {
     PKG_RELEASE = "fedora36"
