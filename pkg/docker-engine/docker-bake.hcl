@@ -21,7 +21,7 @@ variable "DOCKER_ENGINE_REPO" {
 
 # Sets the docker engine ref.
 variable "DOCKER_ENGINE_REF" {
-  default = "v23.0.0-beta.1"
+  default = "v23.0.0-rc.1"
 }
 
 # set to 1 to enforce nightly build
@@ -34,7 +34,7 @@ variable "GO_IMAGE" {
   default = "golang"
 }
 variable "GO_VERSION" {
-  default = "1.19.3"
+  default = "1.19.4"
 }
 variable "GO_IMAGE_VARIANT" {
   default = "bullseye"
