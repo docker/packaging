@@ -17,11 +17,12 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
+# https://github.com/containerd/containerd/blob/v1.6.14/.github/workflows/ci.yml#L125
 ARG MD2MAN_VERSION="v2.0.1"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.17.13"
+ARG GO_VERSION="1.18.9"
 ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
