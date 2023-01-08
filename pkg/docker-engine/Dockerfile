@@ -17,12 +17,12 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/moby/moby/blob/e57c432eff54c1eece837eaea679cff335416f4a/Dockerfile#L189
+# https://github.com/moby/moby/blob/v23.0.0-rc.1/Dockerfile#L233
 ARG GOWINRES_VERSION="v0.3.0"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.19.3"
+ARG GO_VERSION="1.19.4"
 ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
