@@ -21,7 +21,7 @@ variable "DOCKER_ENGINE_REPO" {
 
 # Sets the docker engine ref.
 variable "DOCKER_ENGINE_REF" {
-  default = "v23.0.0-rc.1"
+  default = "master"
 }
 
 # set to 1 to enforce nightly build
