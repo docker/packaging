@@ -21,7 +21,7 @@ variable "COMPOSE_REPO" {
 
 # Sets the compose ref.
 variable "COMPOSE_REF" {
-  default = "v2.14.0"
+  default = "v2.15.1"
 }
 
 # set to 1 to enforce nightly build
@@ -34,7 +34,7 @@ variable "GO_IMAGE" {
   default = "golang"
 }
 variable "GO_VERSION" {
-  default = "1.18.5"
+  default = "1.19.4"
 }
 variable "GO_IMAGE_VARIANT" {
   default = "bullseye"

@@ -14,14 +14,14 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/compose/blob/6ed9a7928f649c59cdcc78b5884e4340b0a44a64/Dockerfile#L18
-export GO_VERSION = 1.19.3
+# https://github.com/docker/compose/blob/v2.15.1/Dockerfile#L18
+export GO_VERSION = 1.19.4
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export COMPOSE_REPO := $(if $(COMPOSE_REPO),$(COMPOSE_REPO),https://github.com/docker/compose.git)
-export COMPOSE_REF := $(if $(COMPOSE_REF),$(COMPOSE_REF),v2.14.0)
+export COMPOSE_REF := $(if $(COMPOSE_REF),$(COMPOSE_REF),v2.15.1)
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/compose/blob/e2a3fe94273b05a1428652ba248edeee4171427f/docker-bake.hcl#L95-L107
