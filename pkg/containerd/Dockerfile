@@ -17,7 +17,7 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/containerd/containerd/blob/v1.6.14/.github/workflows/ci.yml#L125
+# https://github.com/containerd/containerd/blob/v1.6.15/.github/workflows/ci.yml#L125
 ARG MD2MAN_VERSION="v2.0.1"
 
 # common args
