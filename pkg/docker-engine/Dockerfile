@@ -17,7 +17,7 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/moby/moby/blob/v23.0.0-rc.1/Dockerfile#L233
+# https://github.com/moby/moby/blob/62227e1bbaaf9b057a0a155c6222233e30d891e6/Dockerfile#L178
 ARG GOWINRES_VERSION="v0.3.0"
 
 # common args
