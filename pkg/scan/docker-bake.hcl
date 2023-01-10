@@ -21,7 +21,7 @@ variable "SCAN_REPO" {
 
 # Sets the scan ref.
 variable "SCAN_REF" {
-  default = "v0.23.0"
+  default = "main"
 }
 
 # set to 1 to enforce nightly build
