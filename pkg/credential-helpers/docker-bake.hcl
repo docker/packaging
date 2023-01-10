@@ -21,7 +21,7 @@ variable "CREDENTIAL_HELPERS_REPO" {
 
 # Sets the credential helpers ref.
 variable "CREDENTIAL_HELPERS_REF" {
-  default = "v0.7.0"
+  default = "master"
 }
 
 # set to 1 to enforce nightly build
