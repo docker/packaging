@@ -14,17 +14,17 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/scan-cli-plugin/blob/19992b1a37d4c419d70a92f3b37eabb0cbec7a11/Dockerfile#L19
+# https://github.com/docker/scan-cli-plugin/blob/6c852fac62c699033420e2b3323fd461c9a25a9f/Dockerfile#L19
 export GO_VERSION = 1.17.2
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export SCAN_REPO := $(if $(SCAN_REPO),$(SCAN_REPO),https://github.com/docker/scan-cli-plugin.git)
-export SCAN_REF := $(if $(SCAN_REF),$(SCAN_REF),v0.23.0)
+export SCAN_REF := $(if $(SCAN_REF),$(SCAN_REF),main)
 
 PKG_LIST ?= deb rpm static
-# supported platforms: https://github.com/docker/scan-cli-plugin/blob/9c797021449e3192a46ba86730d6f0e5409b6614/builder.Makefile#L62-L67
+# supported platforms: https://github.com/docker/scan-cli-plugin/blob/6c852fac62c699033420e2b3323fd461c9a25a9f/builder.Makefile#L63-L67
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
 
 .PHONY: default

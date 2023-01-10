@@ -21,7 +21,7 @@ DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export SBOM_REPO := $(if $(SBOM_REPO),$(SBOM_REPO),https://github.com/docker/sbom-cli-plugin.git)
-export SBOM_REF := $(if $(SBOM_REF),$(SBOM_REF),v0.6.1)
+export SBOM_REF := $(if $(SBOM_REF),$(SBOM_REF),main)
 
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.goreleaser.yaml#L7-L13
