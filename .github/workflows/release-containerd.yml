@@ -9,12 +9,12 @@ on:
     - cron: '0 3 * * 0' # every sunday at 3am
   workflow_dispatch:
     inputs:
-      repo:
-        description: 'Override repo'
-        required: false
-        type: string
       ref:
-        description: 'Override ref'
+        description: 'Ref (e.g. v1.6.15)'
+        required: true
+        type: string
+      repo:
+        description: 'Override default repo'
         required: false
         type: string
       runc_repo:
@@ -51,5 +51,4 @@ jobs:
       name: containerd
       env: |
         NIGHTLY_BUILD=1
-        CONTAINERD_REF=main
     secrets: inherit

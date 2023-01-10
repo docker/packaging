@@ -21,7 +21,7 @@ variable "CONTAINERD_REPO" {
 
 # Sets the containerd ref.
 variable "CONTAINERD_REF" {
-  default = "v1.6.15"
+  default = "main"
 }
 
 # In case we want to set runc to a specific version instead of using
@@ -43,7 +43,7 @@ variable "GO_IMAGE" {
   default = "golang"
 }
 variable "GO_VERSION" {
-  default = "1.18.9"
+  default = "1.19.4"
 }
 variable "GO_IMAGE_VARIANT" {
   default = "bullseye"
