@@ -21,7 +21,7 @@ variable "BUILDX_REPO" {
 
 # Sets the buildx ref.
 variable "BUILDX_REF" {
-  default = "v0.10.0"
+  default = "master"
 }
 
 # set to 1 to enforce nightly build
