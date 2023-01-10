@@ -9,12 +9,12 @@ on:
     - cron: '0 5 * * 0' # every sunday at 5am
   workflow_dispatch:
     inputs:
-      repo:
-        description: 'Override repo'
-        required: false
-        type: string
       ref:
-        description: 'Override ref'
+        description: 'Ref (e.g. v23.0.0)'
+        required: true
+        type: string
+      repo:
+        description: 'Override default repo'
         required: false
         type: string
       release:
@@ -41,5 +41,4 @@ jobs:
       name: docker-cli
       env: |
         NIGHTLY_BUILD=1
-        DOCKER_CLI_REF=master
     secrets: inherit
