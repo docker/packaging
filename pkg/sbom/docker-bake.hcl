@@ -21,7 +21,7 @@ variable "SBOM_REPO" {
 
 # Sets the sbom ref.
 variable "SBOM_REF" {
-  default = "v0.6.1"
+  default = "main"
 }
 
 # set to 1 to enforce nightly build
