@@ -14,21 +14,21 @@
 
 include ../../common/vars.mk
 
-# https://github.com/containerd/containerd/blob/v1.6.14/.github/workflows/release.yml#L9
+# https://github.com/containerd/containerd/blob/v1.6.15/.github/workflows/release.yml#L9
 export GO_VERSION = 1.18.9
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export CONTAINERD_REPO := $(if $(CONTAINERD_REPO),$(CONTAINERD_REPO),https://github.com/containerd/containerd.git)
-export CONTAINERD_REF := $(if $(CONTAINERD_REF),$(CONTAINERD_REF),v1.6.14)
+export CONTAINERD_REF := $(if $(CONTAINERD_REF),$(CONTAINERD_REF),v1.6.15)
 export RUNC_REPO := $(if $(RUNC_REPO),$(RUNC_REPO),https://github.com/opencontainers/runc.git)
 export RUNC_REF := $(if $(RUNC_REF),$(RUNC_REF),)
 
 export PKG_DEB_REVISION = 1
 
 PKG_LIST ?= deb rpm static
-# supported platforms: https://github.com/containerd/containerd/blob/v1.6.14/.github/workflows/ci.yml#L138-L156
+# supported platforms: https://github.com/containerd/containerd/blob/v1.6.15/.github/workflows/ci.yml#L138-L156
 # FIXME: can't build static binaries with containerd Makefile for darwin/amd64 darwin/arm64 windows/amd64 platforms
 # FIXME: linux/riscv64 needs ubuntu:22.04 image
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
