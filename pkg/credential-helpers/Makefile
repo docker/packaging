@@ -14,17 +14,17 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/docker-credential-helpers/blob/ac5992b5f4756fc0398a7d0c93c609e624368bde/Dockerfile#L3
+# https://github.com/docker/docker-credential-helpers/blob/master/Dockerfile#L3
 export GO_VERSION = 1.18.5
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export CREDENTIAL_HELPERS_REPO := $(if $(CREDENTIAL_HELPERS_REPO),$(CREDENTIAL_HELPERS_REPO),https://github.com/docker/docker-credential-helpers.git)
-export CREDENTIAL_HELPERS_REF := $(if $(CREDENTIAL_HELPERS_REF),$(CREDENTIAL_HELPERS_REF),v0.7.0)
+export CREDENTIAL_HELPERS_REF := $(if $(CREDENTIAL_HELPERS_REF),$(CREDENTIAL_HELPERS_REF),master)
 
 PKG_LIST ?= deb rpm static
-# supported platforms: https://github.com/docker/docker-credential-helpers/blob/ac5992b5f4756fc0398a7d0c93c609e624368bde/docker-bake.hcl#L56-L66
+# supported platforms: https://github.com/docker/docker-credential-helpers/blob/master/docker-bake.hcl#L56-L66
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
 

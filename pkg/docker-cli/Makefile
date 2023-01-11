@@ -14,20 +14,20 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/cli/blob/v23.0.0-rc.1/Dockerfile#L4
+# https://github.com/docker/cli/blob/master/Dockerfile#L4
 export GO_VERSION = 1.19.4
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export DOCKER_CLI_REPO := $(if $(DOCKER_CLI_REPO),$(DOCKER_CLI_REPO),https://github.com/docker/cli.git)
-export DOCKER_CLI_REF := $(if $(DOCKER_CLI_REF),$(DOCKER_CLI_REF),v23.0.0-rc.1)
+export DOCKER_CLI_REF := $(if $(DOCKER_CLI_REF),$(DOCKER_CLI_REF),master)
 
 export PKG_DEB_REVISION = 3
 export PKG_RPM_RELEASE = 3
 
 PKG_LIST ?= deb rpm static
-# supported platforms: https://github.com/docker/cli/blob/3e9117b7e241439e314eaf6fe944b4019fbaa941/docker-bake.hcl#L65-L67
+# supported platforms: https://github.com/docker/cli/blob/master/docker-bake.hcl#L30-L42
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/386 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/riscv64 linux/s390x windows/amd64 windows/arm64
 

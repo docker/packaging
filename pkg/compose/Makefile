@@ -14,17 +14,17 @@
 
 include ../../common/vars.mk
 
-# https://github.com/docker/compose/blob/v2.15.1/Dockerfile#L18
+# https://github.com/docker/compose/blob/v2/Dockerfile#L18
 export GO_VERSION = 1.19.4
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export COMPOSE_REPO := $(if $(COMPOSE_REPO),$(COMPOSE_REPO),https://github.com/docker/compose.git)
-export COMPOSE_REF := $(if $(COMPOSE_REF),$(COMPOSE_REF),v2.15.1)
+export COMPOSE_REF := $(if $(COMPOSE_REF),$(COMPOSE_REF),v2)
 
 PKG_LIST ?= deb rpm static
-# supported platforms: https://github.com/docker/compose/blob/e2a3fe94273b05a1428652ba248edeee4171427f/docker-bake.hcl#L95-L107
+# supported platforms: https://github.com/docker/compose/blob/v2/docker-bake.hcl#L95-L107
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/riscv64 linux/s390x windows/amd64 windows/arm64
 

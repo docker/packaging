@@ -17,7 +17,7 @@
 ARG XX_VERSION="1.1.2"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/docker/cli/blob/v23.0.0-rc.1/Dockerfile#L7
+# https://github.com/docker/cli/blob/master/Dockerfile#L7
 ARG GOVERSIONINFO_VERSION="v1.3.0"
 
 # common args

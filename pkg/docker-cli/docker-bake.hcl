@@ -21,7 +21,7 @@ variable "DOCKER_CLI_REPO" {
 
 # Sets the docker cli ref.
 variable "DOCKER_CLI_REF" {
-  default = "v23.0.0-rc.1"
+  default = "master"
 }
 
 # set to 1 to enforce nightly build
