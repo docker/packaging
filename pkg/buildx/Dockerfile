@@ -157,7 +157,7 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git make zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
