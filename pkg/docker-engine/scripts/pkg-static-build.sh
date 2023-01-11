@@ -44,64 +44,15 @@ xx-go --wrap
 fix-cc
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
-pkg=github.com/docker/docker
-
-# FIXME: remove when cross comp fixed (https://github.com/moby/moby/pull/43529)
-buildTags="netgo osusergo static_build"
-if pkg-config 'libsystemd' 2> /dev/null; then
-  buildTags+=" journald"
-fi
-
-# -buildmode=pie is not supported on Windows arm64 and Linux mips*, ppc64be
-# https://github.com/golang/go/blob/4aa1efed4853ea067d665a952eee77c52faac774/src/cmd/internal/sys/supported.go#L125-L131
-# FIXME: remove when cross comp fixed (https://github.com/moby/moby/pull/43529)
-case "$(xx-info os)/$(xx-info arch)" in
-  windows/arm64 | linux/mips* | linux/ppc64) ;;
-  *)
-    dockerdBuildMode="-buildmode=pie"
-    ;;
-esac
-
-# compile the Windows resources into the sources
-# FIXME: remove when cross comp fixed (https://github.com/moby/moby/pull/43529)
-if [ "$(xx-info os)" = "windows" ]; then
-  (
-    pushd ${SRCDIR}
-      # FIXME: BINARY_SHORT_NAME deprecated, remove when 22.06 branch rebased with master
-      BINARY_NAME="dockerd" BINARY_SHORT_NAME="dockerd" BINARY_FULLNAME="dockerd.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
-      go generate -v "./cmd/dockerd"
-      # FIXME: BINARY_SHORT_NAME deprecated, remove when 22.06 branch rebased with master
-      BINARY_NAME="docker-proxy" BINARY_SHORT_NAME="docker-proxy" BINARY_FULLNAME="docker-proxy.exe" VERSION="${GENVER_VERSION}" GITCOMMIT="${GENVER_COMMIT}" . hack/make/.mkwinres
-      go generate -v "./cmd/docker-proxy"
-    popd
-  )
-fi
+mkdir -p ${BUILDDIR}/${PKG_NAME}
 
 (
   set -x
   pushd ${SRCDIR}
-    # FIXME: use ./hack/make.sh binary-daemon when cross comp fixed (https://github.com/moby/moby/pull/43529)
-    go build $dockerdBuildMode \
-      -trimpath \
-      -tags "$buildTags" \
-      -installsuffix netgo \
-      -ldflags "-w -extldflags -static -X ${pkg}/dockerversion.Version=${GENVER_VERSION} -X ${pkg}/dockerversion.GitCommit=${GENVER_COMMIT}" \
-      -o "${BUILDDIR}/${PKG_NAME}/dockerd${binext}" ./cmd/dockerd
+  CGO_ENABLED=1 VERSION=${GENVER_VERSION} DOCKER_GITCOMMIT=${GENVER_COMMIT} ./hack/make.sh binary
+  mv "./bundles/binary-daemon/dockerd${binext}" "./bundles/binary-daemon/docker-proxy${binext}" "${BUILDDIR}/${PKG_NAME}/"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
-)
-
-(
-  set -x
-  pushd ${SRCDIR}
-    # FIXME: use ./hack/make.sh binary-proxy when cross comp fixed (https://github.com/moby/moby/pull/43529)
-    CGO_ENABLED=0 go build \
-      -trimpath \
-      -tags "$buildTags" \
-      -installsuffix netgo \
-      -ldflags "-w -extldflags -static -X ${pkg}/dockerversion.Version=${GENVER_VERSION} -X ${pkg}/dockerversion.GitCommit=${GENVER_COMMIT}" \
-      -o "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}" ./cmd/docker-proxy
-  popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
 )
 
