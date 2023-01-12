@@ -1,0 +1,71 @@
+# This workflow runs nighly builds for each package. Jobs don't run concurrently
+# to avoid performance issues on remote builders and also having a huge queue
+# in the pipeline. That's why each job depends on each other through "needs".
+name: nightly
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: '0 1 * * 0' # every sunday at 1am
+
+env:
+  NIGHTLY_BUILD: 1
+
+jobs:
+  buildx:
+    uses: ./.github/workflows/.release.yml
+    with:
+      name: buildx
+    secrets: inherit
+
+  compose:
+    uses: ./.github/workflows/.release.yml
+    needs: buildx
+    with:
+      name: compose
+    secrets: inherit
+
+  containerd:
+    uses: ./.github/workflows/.release.yml
+    needs: compose
+    with:
+      name: containerd
+    secrets: inherit
+
+  credential-helpers:
+    uses: ./.github/workflows/.release.yml
+    needs: containerd
+    with:
+      name: credential-helpers
+    secrets: inherit
+
+  docker-cli:
+    uses: ./.github/workflows/.release.yml
+    needs: credential-helpers
+    with:
+      name: docker-cli
+    secrets: inherit
+
+  docker-engine:
+    uses: ./.github/workflows/.release.yml
+    needs: docker-cli
+    with:
+      name: docker-engine
+    secrets: inherit
+
+  sbom:
+    uses: ./.github/workflows/.release.yml
+    needs: docker-engine
+    with:
+      name: sbom
+    secrets: inherit
+
+  scan:
+    uses: ./.github/workflows/.release.yml
+    needs: sbom
+    with:
+      name: scan
+    secrets: inherit
