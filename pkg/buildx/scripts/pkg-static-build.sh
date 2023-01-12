@@ -44,16 +44,13 @@ xx-go --wrap
 fix-cc
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
-pkg=github.com/docker/buildx
+mkdir -p ${BUILDDIR}/${PKG_NAME}
 
 (
   set -x
   pushd ${SRCDIR}
-    go build \
-      -mod=vendor \
-      -trimpath \
-      -ldflags="-s -w -X ${pkg}/version.Version=${GENVER_VERSION} -X ${pkg}/version.Revision=${GENVER_COMMIT} -X ${pkg}/version.Package=${pkg}" \
-      -o "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}" ./cmd/buildx
+    VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} DESTDIR=/tmp/buildx-build make build
+    mv "/tmp/buildx-build/docker-buildx" "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
 )
