@@ -5,8 +5,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  schedule:
-    - cron: '0 1 * * 0' # every sunday at 1am
   workflow_dispatch:
     inputs:
       ref:
@@ -23,8 +21,7 @@ on:
         type: boolean
 
 jobs:
-  manual:
-    if: github.event_name == 'workflow_dispatch'
+  release:
     uses: ./.github/workflows/.release.yml
     with:
       name: buildx
@@ -32,13 +29,4 @@ jobs:
       env: |
         BUILDX_REPO=${{ inputs.repo }}
         BUILDX_REF=${{ inputs.ref }}
-    secrets: inherit
-
-  schedule:
-    if: github.event_name == 'schedule'
-    uses: ./.github/workflows/.release.yml
-    with:
-      name: buildx
-      env: |
-        NIGHTLY_BUILD=1
     secrets: inherit
