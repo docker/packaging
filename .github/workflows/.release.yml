@@ -130,54 +130,9 @@ jobs:
         run: |
           make -C pkg/${{ inputs.name }} metadata
       -
-        name: Summary
-        run: |
-          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
-            export "${l?}"
-          done
-          
-          cat > "/tmp/summary.txt" <<-EOF
-          * repo: ${REPO}
-          * ref: \`${REF}\`
-          * version: \`${VERSION}\`
-          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
-          EOF
-          
-          if [ "${{ inputs.name }}" = "containerd" ]; then
-            cat >> "/tmp/summary.txt" <<-EOF
-          * runc
-            * repo: ${RUNC_REPO}
-            * ref: \`${RUNC_REF}\`
-            * version: \`${RUNC_VERSION}\`
-            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
-          EOF
-          fi
-          
-          cat >> "/tmp/summary.txt" <<-EOF
-          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
-          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
-          EOF
-
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
-          else
-            echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          cat /tmp/summary.txt >> $GITHUB_STEP_SUMMARY
-      -
         name: List artifacts
         run: |
-          tree -nh ./pkg/${{ inputs.name }}/bin | tee /tmp/pkgs.txt
-      -
-        name: Set packages list and summary outputs
-        uses: actions/github-script@v6
-        id: release-metadata
-        with:
-          script: |
-            const fs = require('fs');
-            core.setOutput('pkgs', fs.readFileSync('/tmp/pkgs.txt', {encoding: 'utf8'}));
-            core.setOutput('summary', fs.readFileSync('/tmp/summary.txt', {encoding: 'utf8'}));
+          tree -nh ./pkg/${{ inputs.name }}/bin | tee /tmp/packages.txt
       -
         name: Docker meta
         id: meta
@@ -217,16 +172,76 @@ jobs:
           set: |
             *.output=type=image,push=${{ inputs.release || github.event_name == 'schedule' }}
       -
+        name: Prepare release
+        run: |
+          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
+            export "${l?}"
+          done
+          
+          cat > "/tmp/release-metadata.json" <<-EOF
+          ${{ steps.build.outputs.metadata }}
+          EOF
+          
+          for tag in $(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
+            echo "* \`${tag}\`" >> /tmp/tags.txt
+          done
+
+          cat > "/tmp/summary.txt" <<-EOF
+          * repo: ${REPO}
+          * ref: \`${REF}\`
+          * version: \`${VERSION}\`
+          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+          EOF
+
+          if [ "${{ inputs.name }}" = "containerd" ]; then
+            cat >> "/tmp/summary.txt" <<-EOF
+          * runc
+            * repo: ${RUNC_REPO}
+            * ref: \`${RUNC_REF}\`
+            * version: \`${RUNC_VERSION}\`
+            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+          EOF
+          fi
+
+          cat >> "/tmp/summary.txt" <<-EOF
+          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
+          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
+          EOF
+
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
+          else
+            echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          cat /tmp/summary.txt >> $GITHUB_STEP_SUMMARY
+      -
+        name: Set outputs
+        uses: actions/github-script@v6
+        id: release-metadata
+        with:
+          script: |
+            const fs = require('fs');
+            core.setOutput('tags', fs.readFileSync('/tmp/tags.txt', {encoding: 'utf8'}));
+            core.setOutput('summary', fs.readFileSync('/tmp/summary.txt', {encoding: 'utf8'}));
+      -
         name: Create release
-        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        uses: crazy-max/ghaction-github-release@v1
         if: ${{ inputs.release }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           draft: true
           tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
+          files: |
+            /tmp/packages.txt
+            ./pkg/${{ inputs.name }}/bin/metadata.env
+            /tmp/release-metadata.json
           body: |
             Image available at [https://hub.docker.com/r/${{ env.REPO_SLUG }}](https://hub.docker.com/r/${{ env.REPO_SLUG }}).
+            
+            ## Tags
+            ${{ steps.release-metadata.outputs.tags }}
             
             ## Summary
             ${{ steps.release-metadata.outputs.summary }}
@@ -236,23 +251,5 @@ jobs:
             ```console
             $ undock --wrap --rm-dist --all ${{ env.REPO_SLUG }}:${{ steps.meta.outputs.version }} ./${{ inputs.name }}/${{ env.VERSION }}
             ```
-            
-            ## Packages
-            <details>
-              <summary>Show list</summary>
-
-            ```text
-            ${{ steps.release-metadata.outputs.pkgs }}
-            ```
-            </details>
-            
-            ## Build result metadata
-            <details>
-              <summary><code>metadata.json</code></summary>
-
-            ```json
-            ${{ steps.build.outputs.metadata }}
-            ```
-            </details>
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
