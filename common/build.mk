@@ -13,10 +13,18 @@
 # limitations under the License.
 
 define bake
-	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
+	$(eval $@_TMP_OUT = $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
 	@PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$(2) docker buildx bake $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4) --print
 	PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$($@_TMP_OUT) docker buildx bake $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4)
 	mkdir -p $(2)
+	set -e; \
+		if [ "$(4)" = "pkg" ]; then \
+			for pdir in "$($@_TMP_OUT)"/*/; do \
+				attestdest=$$(find $${pdir} -type d -print | sort -n | tail -1); \
+				mv $${pdir}/sbom-build*.json $${attestdest}/sbom.json; \
+				mv $${pdir}/provenance.json $${attestdest}/provenance.json; \
+			done \
+		fi
 	find $($@_TMP_OUT) -mindepth 2 -maxdepth 2 -type d -exec cp -rf {} $(2)/ ';'
 	find $(2) -type d -empty -delete
 	rm -rf "$($@_TMP_OUT)"
@@ -68,7 +76,7 @@ run-verify-%: platform pkg-info-%
 
 .PHONY: platform
 platform:
-	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
+	$(eval $@_TMP_OUT = $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
 	$(shell echo 'FROM busybox\nARG TARGETPLATFORM\nRUN mkdir /out && echo "$$TARGETPLATFORM" > /out/platform' | docker buildx build --platform local -q --output "$($@_TMP_OUT)" -)
 	$(eval PLATFORM = $(shell cat $($@_TMP_OUT)/out/platform))
 	@rm -rf "$($@_TMP_OUT)"
