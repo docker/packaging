@@ -90,7 +90,7 @@ RUN --mount=from=bin-folder,target=/build <<EOT
     echo >&2 "warning: no packages found in $dir"
     exit 0
   fi
-  for package in $(find $dir -type f); do
+  for package in $(find $dir -type f -name '*.tgz'); do
     (
       set -x
       tar zxvf $package -C /usr/bin --strip-components=1

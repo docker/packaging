@@ -157,6 +157,10 @@ target "pkg" {
   contexts = {
     common-scripts = "../../common/scripts"
   }
+  attest = [
+    "type=sbom",
+    "type=provenance,mode=max"
+  ]
 }
 
 # Special target: https://github.com/docker/metadata-action#bake-definition

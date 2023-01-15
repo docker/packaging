@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile-upstream:1
 
 # Copyright 2022 Docker Packaging authors
 #
@@ -220,6 +220,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
+ARG BUILDKIT_SBOM_SCAN_STAGE=true
 
 FROM scratch AS pkg
 COPY --from=build-pkg /out /
