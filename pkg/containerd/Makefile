@@ -32,7 +32,7 @@ PKG_LIST ?= deb rpm static
 # FIXME: can't build static binaries with containerd Makefile for darwin/amd64 darwin/arm64 windows/amd64 platforms
 # FIXME: linux/riscv64 needs ubuntu:22.04 image
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
-PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x
+PKG_PLATFORMS ?= linux/amd64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x
 
 .PHONY: default
 default: pkg ;
