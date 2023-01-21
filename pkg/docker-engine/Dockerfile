@@ -153,14 +153,7 @@ RUN <<EOT
     exit 1
   fi
   set -x
-  case "$PKG_RELEASE" in
-    centos8|centos9|oraclelinux*)
-      $builddepCmd --define '_without_btrfs 1' -y /root/rpmbuild/SPECS/*.spec
-      ;;
-    *)
-      $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-      ;;
-  esac
+  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
 EOT
 WORKDIR /root/rpmbuild
 ARG DOCKER_ENGINE_REF
@@ -206,7 +199,7 @@ ARG DOCKER_ENGINE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libbtrfs-dev libdevmapper-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
+RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libdevmapper-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \

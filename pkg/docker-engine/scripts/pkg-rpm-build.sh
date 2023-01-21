@@ -68,7 +68,6 @@ fi
 
 case "$PKG_RELEASE" in
   centos7|centos8|centos9|oraclelinux*)
-    rpmDefine+=(--define "_without_btrfs 1")
     export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
     ;;
 esac
