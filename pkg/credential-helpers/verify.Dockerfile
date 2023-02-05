@@ -56,8 +56,7 @@ ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 RUN --mount=type=bind,from=common-scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
-  verify-rpm-init $PKG_RELEASE && \
-  yum install -y device-mapper-devel
+  verify-rpm-init $PKG_RELEASE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
@@ -69,8 +68,12 @@ RUN --mount=from=bin-folder,target=/build <<EOT
   extraflags=""
   case "$PKG_RELEASE" in
     # required pass package not available
-    centos7|centos9|oraclelinux9)
+    centos7|oraclelinux9)
       extraflags="--skip-broken"
+      ;;
+    centos9)
+      # FIXME: remove disablerepo flag when https://github.com/docker/packaging/issues/83 fixed
+      extraflags="--skip-broken --disablerepo=epel"
       ;;
   esac
   for package in $(find $dir -type f -name '*.rpm'); do
