@@ -13,94 +13,28 @@ and are published as a Docker image [on Docker Hub](https://hub.docker.com/r/doc
 
 ___
 
-* [Prerequisites](#prerequisites)
-* [Supported tags](#supported-tags)
-* [Usage](#usage)
+* [Release](#release)
+* [Build](#build)
+  * [Requirements](#requirements)
+  * [Usage](#usage)
 * [Contributing](#contributing)
 
-## Prerequisites
+## Release
 
-Before building packages, you need to have `docker` and [Buildx CLI plugin](https://docs.docker.com/build/buildx/install/)
-installed and use a compatible [Buildx driver](https://docs.docker.com/build/building/drivers/)
-to be able to build multi plaform packages:
-
-```shell
-# create docker-container builder and use it by default
-# https://docs.docker.com/build/building/drivers/docker-container/
-$ docker buildx create --driver docker-container --name mybuilder --use --bootstrap
-```
+Packages are published to [Docker Hub](https://hub.docker.com/r/dockereng/packaging)
+as non-runnable images that only contains the artifacts. You can check the [GitHub Releases](https://github.com/docker/packaging/releases)
+for the list of published Docker tags.
 
 > **Note**
 >
-> Some packages don't have cross-compilation support and therefore QEMU will
-> be used. As it can be slow, it is recommended to use a builder with native
-> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/.release.yml)
-> for more details.
+> We are also publishing nightly builds using the [`nightly-<project>-<version>` tags](https://hub.docker.com/r/dockereng/packaging/tags?page=1&name=nightly-).
 
-If you just want to build packages for the current platform, you can set
-`LOCAL_PLATFORM=1` environment variable.
-
-## Supported tags
-
-See [GitHub Releases](https://github.com/docker/packaging/releases) for the
-list of published Docker tags.
-
-> **Note**
->
-> We are also publishing nightly builds using the
-> [`nightly-<project>-<version>` tags](https://hub.docker.com/r/dockereng/packaging/tags?page=1&name=nightly-).
-
-## Usage
-
-`common` folder contains helpers that will be used by the main `Makefile` and
-also across projects in [pkg](pkg) folder like the list of supported apk, deb
-and rpm releases to produce.
-
-`Makefile` contains targets to build specific or all packages and will output
-to `./bin` folder.
-
-```shell
-# build debian packages for buildx project
-$ make deb-buildx
-# build deb and rpm packages for all projects
-$ make deb rpm
-# build deb and rpm packages for all projects (only local platform)
-$ LOCAL_PLATFORM=1 make deb rpm
-```
-
-Each [project](pkg) has also its own `Makefile`, `Dockerfile` and bake
-definition to build and push packages.
-
-```shell
-$ cd pkg/buildx/
-# build all packages
-$ make
-# build all debian packages
-$ make pkg-deb
-# build debian bullseye packages
-$ make run-pkg-debian11
-# build centos 7 packages
-$ make run-pkg-centos7
-```
-
-To create a new release of Buildx v0.9.1:
-
-```shell
-# build all packages for buildx v0.9.1 and output to ./bin folder
-$ cd pkg/buildx/ 
-$ BUILDX_REF=v0.9.1 make
-# build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
-# "release" target will use the "bin" folder as named context to create the
-# image with artifacts previously built with make.
-$ docker buildx bake --push --set *.tags=dockereng/packaging:buildx-v0.9.1 release
-```
-
-Packages are published to Docker Hub as a Docker image. You can use a tool like [Undock](https://github.com/crazy-max/undock)
+For testing purpose you can use a tool like [Undock](https://github.com/crazy-max/undock)
 to extract packages:
 
 ```shell
 # extract packages for all platforms and output to ./bin/undock folder
-$ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./buildx/v0.9.1
+$ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./bin/undock
 ```
 
 <details>
@@ -296,6 +230,78 @@ $ undock --wrap --rm-dist --all dockereng/packaging:buildx-v0.9.1 ./buildx/v0.9.
 87 directories, 97 files
 ```
 </details>
+
+## Build
+
+### Requirements
+
+* [Docker](https://docs.docker.com/engine/install/) 20.10 or newer
+* [Buildx](https://docs.docker.com/build/install-buildx/) 0.10.0 or newer
+* [GNU Make](https://www.gnu.org/software/make/)
+
+Before building packages, you need to use a compatible [Buildx driver](https://docs.docker.com/build/building/drivers/)
+to be able to build multi-plaform packages such as `docker-container`:
+
+```shell
+# create docker-container builder and use it by default
+# https://docs.docker.com/build/building/drivers/docker-container/
+$ docker buildx create --driver docker-container --name mybuilder --use --bootstrap
+```
+
+> **Note**
+>
+> Some packages don't have cross-compilation support and therefore QEMU will
+> be used. As it can be slow, it is recommended to use a builder with native
+> nodes like we do in CI. See ["Set up remote builders" step](.github/workflows/.release.yml)
+> for more details.
+
+If you just want to build packages for the current platform, you can set
+`LOCAL_PLATFORM=1` environment variable.
+
+### Usage
+
+`common` folder contains helpers that will be used by the main `Makefile` and
+also across projects in [pkg](pkg) folder like the list of supported apk, deb
+and rpm releases to produce.
+
+`Makefile` contains targets to build specific or all packages and will output
+to `./bin` folder.
+
+```shell
+# build debian packages for buildx project
+$ make deb-buildx
+# build deb and rpm packages for all projects
+$ make deb rpm
+# build deb and rpm packages for all projects (only local platform)
+$ LOCAL_PLATFORM=1 make deb rpm
+```
+
+Each [project](pkg) has also its own `Makefile`, `Dockerfile` and bake
+definition to build and push packages.
+
+```shell
+$ cd pkg/buildx/
+# build all packages
+$ make
+# build all debian packages
+$ make pkg-deb
+# build debian bullseye packages
+$ make run-pkg-debian11
+# build centos 7 packages
+$ make run-pkg-centos7
+```
+
+To create a new release of Buildx v0.9.1:
+
+```shell
+# build all packages for buildx v0.9.1 and output to ./bin folder
+$ cd pkg/buildx/ 
+$ BUILDX_REF=v0.9.1 make
+# build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
+# "release" target will use the "bin" folder as named context to create the
+# image with artifacts previously built with make.
+$ docker buildx bake --push --set *.tags=dockereng/packaging:buildx-v0.9.1 release
+```
 
 ## Contributing
 
