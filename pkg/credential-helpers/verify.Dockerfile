@@ -56,8 +56,7 @@ ARG PKG_RELEASE
 ARG PKG_DISTRO
 ARG PKG_SUITE
 RUN --mount=type=bind,from=common-scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
-  verify-rpm-init $PKG_RELEASE && \
-  yum install -y device-mapper-devel
+  verify-rpm-init $PKG_RELEASE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
