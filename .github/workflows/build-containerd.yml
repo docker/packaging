@@ -15,6 +15,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'containerd/1.6'
   pull_request:
     paths:
       - '.github/workflows/.build.yml'
