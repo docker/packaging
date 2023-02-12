@@ -108,6 +108,16 @@ target "_pkg-raspbian11" {
   }
 }
 
+target "_pkg-raspbian12" {
+  args = {
+    PKG_RELEASE = "raspbian12"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "raspbian"
+    PKG_SUITE = "bookworm"
+    PKG_BASE_IMAGE = "balenalib/rpi-raspbian:bookworm"
+  }
+}
+
 target "_pkg-ubuntu1804" {
   args = {
     PKG_RELEASE = "ubuntu1804"
