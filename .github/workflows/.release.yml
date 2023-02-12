@@ -133,6 +133,15 @@ jobs:
         run: |
           make -C pkg/${{ inputs.name }} metadata
       -
+        name: Set tag and version
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
+          else
+            echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      -
         name: List artifacts
         run: |
           tree -nh ./pkg/${{ inputs.name }}/bin | tee /tmp/packages.txt
@@ -213,12 +222,6 @@ jobs:
           * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
           EOF
 
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
-          else
-            echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           cat /tmp/summary.txt >> $GITHUB_STEP_SUMMARY
       -
         name: Set outputs
