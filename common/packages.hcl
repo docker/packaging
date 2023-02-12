@@ -78,6 +78,16 @@ target "_pkg-debian11" {
   }
 }
 
+target "_pkg-debian12" {
+  args = {
+    PKG_RELEASE = "debian12"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "debian"
+    PKG_SUITE = "bookworm"
+    PKG_BASE_IMAGE = "debian:bookworm"
+  }
+}
+
 target "_pkg-raspbian10" {
   args = {
     PKG_RELEASE = "raspbian10"
