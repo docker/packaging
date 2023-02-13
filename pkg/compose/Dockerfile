@@ -19,7 +19,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.19.4"
+ARG GO_VERSION="1.20.0"
 ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
@@ -33,6 +33,9 @@ FROM scratch AS common-scripts
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+
+# osxcross contains the MacOSX SDK for xx
+FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
@@ -158,7 +161,7 @@ FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
-  make
+  dpkg-dev clang lld llvm make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -169,11 +172,13 @@ ARG COMPOSE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
