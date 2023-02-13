@@ -129,12 +129,12 @@ jobs:
           name: ${{ inputs.name }}
           path: ./pkg/${{ inputs.name }}/bin
       -
-        name: Generate metadata
+        name: Resolve metadata
         run: |
           make -C pkg/${{ inputs.name }} metadata
-      -
-        name: Set tag and version
-        run: |
+          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
+            echo "${l?}" >> $GITHUB_ENV
+          done
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "GIT_TAG=nightly/${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
           else
@@ -188,10 +188,6 @@ jobs:
       -
         name: Prepare release
         run: |
-          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
-            export "${l?}"
-          done
-          
           cat > "/tmp/release-metadata.json" <<-EOF
           ${{ steps.build.outputs.metadata }}
           EOF
