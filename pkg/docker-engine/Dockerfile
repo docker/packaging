@@ -37,9 +37,6 @@ FROM scratch AS common-scripts
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# osxcross contains the MacOSX SDK for xx
-FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
-
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS gocross
