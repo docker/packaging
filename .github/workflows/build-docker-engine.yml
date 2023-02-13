@@ -15,7 +15,7 @@ on:
   push:
     branches:
       - 'main'
-      - 'docker/23.0'
+      - 'docker/[0-9]+.[0-9]+'
   pull_request:
     paths:
       - '.github/workflows/.build.yml'
