@@ -45,6 +45,11 @@ fix-cc
 
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 
+# https://github.com/docker/compose/pull/10249
+if [ "$(xx-info os)" = "darwin" ]; then
+  export CGO_ENABLED=1
+fi
+
 (
   set -x
   pushd ${SRCDIR}
