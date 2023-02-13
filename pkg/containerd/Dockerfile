@@ -210,7 +210,7 @@ ARG NIGHTLY_BUILD
 ARG RUNC_REF
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y libbtrfs-dev libseccomp-dev btrfs-progs gcc
+RUN xx-apt-get install -y libseccomp-dev gcc
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
