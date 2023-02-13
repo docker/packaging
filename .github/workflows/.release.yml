@@ -133,6 +133,7 @@ jobs:
         run: |
           make -C pkg/${{ inputs.name }} metadata
           for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
+            export "${l?}"
             echo "${l?}" >> $GITHUB_ENV
           done
           if [ "${{ github.event_name }}" = "schedule" ]; then
@@ -140,7 +141,6 @@ jobs:
           else
             echo "GIT_TAG=${{ inputs.name }}/$VERSION" >> $GITHUB_ENV
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
       -
         name: List artifacts
         run: |
