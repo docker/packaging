@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.1.2"
+ARG XX_VERSION="1.2.1"
 
 ARG PKG_TYPE
 ARG PKG_BASE_IMAGE
