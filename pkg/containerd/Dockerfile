@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.1.2"
+ARG XX_VERSION="1.2.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L132
