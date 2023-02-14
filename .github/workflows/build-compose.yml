@@ -16,6 +16,11 @@ on:
     branches:
       - 'main'
       - 'compose/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-compose.yml'
+      - 'common/**'
+      - 'pkg/compose/**'
   pull_request:
     paths:
       - '.github/workflows/.build.yml'

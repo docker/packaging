@@ -16,6 +16,11 @@ on:
     branches:
       - 'main'
       - 'sbom/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-sbom.yml'
+      - 'common/**'
+      - 'pkg/sbom/**'
   pull_request:
     paths:
       - '.github/workflows/.build.yml'
