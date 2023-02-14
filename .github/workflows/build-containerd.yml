@@ -16,6 +16,11 @@ on:
     branches:
       - 'main'
       - 'containerd/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-containerd.yml'
+      - 'common/**'
+      - 'pkg/containerd/**'
   pull_request:
     paths:
       - '.github/workflows/.build.yml'
