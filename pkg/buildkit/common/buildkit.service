@@ -1,0 +1,49 @@
+# Copyright 2023 Docker Packaging authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[Unit]
+Description=BuildKit
+Documentation=https://github.com/moby/buildkit
+# local-fs ensures that buildkitd is started after the /etc/fstab entries
+After=network-online.target local-fs.target buildkit.socket
+Wants=network-online.target
+Requires=buildkit.socket
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/buildkitd --addr fd://
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutStartSec=0
+RestartSec=2
+Restart=always
+
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=infinity
+
+# Comment TasksMax if your systemd version does not support it.
+# Only systemd 226 and above support this option.
+TasksMax=infinity
+
+# Set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+
+# Kill only the docker process, not all processes in the cgroup
+KillMode=process
+OOMScoreAdjust=-500
+
+[Install]
+WantedBy=multi-user.target

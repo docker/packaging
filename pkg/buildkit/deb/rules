@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with systemd
+
+# force packages to be built with xz compression, as Ubuntu 21.10 and up use
+# zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
+
+override_dh_auto_build:
+	mkdir -p /go/src/github.com/moby && \
+	ln -snf $(CURDIR)/buildkit /go/src/github.com/moby/buildkit && \
+	cd /go/src/github.com/moby/buildkit && \
+	go build \
+		-mod=vendor \
+		-trimpath \
+		-ldflags "-X github.com/moby/buildkit/version.Version=$(VERSION) -X github.com/moby/buildkit/version.Revision=$(REVISION) -X github.com/moby/buildkit/version.Package=github.com/moby/buildkit" \
+		-tags "urfave_cli_no_docs apparmor seccomp" \
+		-o "./bin/buildctl" \
+		./cmd/buildctl && \
+	go build \
+		-mod=vendor \
+		-trimpath \
+		-ldflags "-X github.com/moby/buildkit/version.Version=$(VERSION) -X github.com/moby/buildkit/version.Revision=$(REVISION) -X github.com/moby/buildkit/version.Package=github.com/moby/buildkit" \
+		-tags "urfave_cli_no_docs apparmor seccomp" \
+		-o "./bin/buildkitd" \
+		./cmd/buildkitd && \
+	mkdir -p /go/src/github.com/opencontainers && \
+	ln -snf $(CURDIR)/runc /go/src/github.com/opencontainers/runc && \
+	cd /go/src/github.com/opencontainers/runc && \
+	CGO_ENABLED=1 GO111MODULE=auto make BINDIR="$$(pwd)/bin" runc install
+
+override_dh_strip:
+	# Go has lots of problems with stripping, so just don't
+
+override_dh_systemd_start:
+	dh_systemd_start --restart-after-upgrade
+	sed -i 's/_dh_action=try-restart/_dh_action=restart/g' ./debian/buildkit.postinst.debhelper
+
+override_dh_auto_install:
+	mkdir -p debian/buildkit/usr/bin
+	install -D -m 0755 buildkit/bin/* debian/buildkit/usr/bin
+	install -D -m 0755 runc/bin/runc debian/buildkit/usr/bin/buildkit-runc
+	install -D -m 0644 /common/buildkit.service debian/buildkit/lib/systemd/system/buildkit.service
+	install -D -m 0644 /common/buildkit.socket debian/buildkit/lib/systemd/system/buildkit.socket
+	install -D -m 0644 /common/buildkitd.toml debian/buildkit/etc/buildkit/buildkitd.toml
