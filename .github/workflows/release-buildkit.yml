@@ -1,0 +1,42 @@
+name: release-buildkit
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Ref (e.g. v0.11.2)'
+        required: true
+        type: string
+      repo:
+        description: 'Override default repo'
+        required: false
+        type: string
+      runc_repo:
+        description: 'Override runc repo'
+        required: false
+        type: string
+      runc_ref:
+        description: 'Override runc ref'
+        required: false
+        type: string
+      release:
+        description: 'Push image and create release'
+        required: false
+        type: boolean
+
+jobs:
+  release:
+    uses: ./.github/workflows/.release.yml
+    with:
+      name: buildkit
+      release: ${{ inputs.release }}
+      env: |
+        BUILDKIT_REPO=${{ inputs.repo }}
+        BUILDKIT_REF=${{ inputs.ref }}
+        RUNC_REPO=${{ inputs.runc_repo }}
+        RUNC_REF=${{ inputs.runc_ref }}
+    secrets: inherit
