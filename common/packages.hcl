@@ -78,6 +78,16 @@ target "_pkg-debian11" {
   }
 }
 
+target "_pkg-debian12" {
+  args = {
+    PKG_RELEASE = "debian12"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "debian"
+    PKG_SUITE = "bookworm"
+    PKG_BASE_IMAGE = "debian:bookworm"
+  }
+}
+
 target "_pkg-raspbian10" {
   args = {
     PKG_RELEASE = "raspbian10"
@@ -95,6 +105,16 @@ target "_pkg-raspbian11" {
     PKG_DISTRO = "raspbian"
     PKG_SUITE = "bullseye"
     PKG_BASE_IMAGE = "balenalib/rpi-raspbian:bullseye"
+  }
+}
+
+target "_pkg-raspbian12" {
+  args = {
+    PKG_RELEASE = "raspbian12"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "raspbian"
+    PKG_SUITE = "bookworm"
+    PKG_BASE_IMAGE = "balenalib/rpi-raspbian:bookworm"
   }
 }
 
