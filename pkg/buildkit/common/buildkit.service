@@ -38,10 +38,10 @@ LimitNOFILE=infinity
 # Only systemd 226 and above support this option.
 TasksMax=infinity
 
-# Set delegate yes so that systemd does not reset the cgroups of docker containers
+# Set delegate yes so that systemd does not reset the cgroups of containers
 Delegate=yes
 
-# Kill only the docker process, not all processes in the cgroup
+# Kill only the buildkitd process, not all processes in the cgroup
 KillMode=process
 OOMScoreAdjust=-500
 
