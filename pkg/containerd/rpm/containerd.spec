@@ -69,16 +69,6 @@ BuildRequires: libtool-ltdl-devel
 BuildRequires: systemd
 BuildRequires: libseccomp-devel
 
-%if %{undefined rhel} || 0%{?rhel} < 8
-%if %{defined suse_version}
-# SUSE flavors
-BuildRequires: libbtrfs-devel
-%else
-# Fedora / others, and CentOS/RHEL < 8
-BuildRequires: btrfs-progs-devel
-%endif
-%endif
-
 %{?systemd_requires}
 
 %description
@@ -108,14 +98,7 @@ cd %{_topdir}/BUILD/
 %build
 cd %{_topdir}/BUILD
 GO111MODULE=auto make man
-
-BUILDTAGS=""
-%if %{defined rhel} && 0%{?rhel} >= 8
-# btrfs support was removed in CentOS/RHEL 8
-BUILDTAGS="${BUILDTAGS} no_btrfs"
-%endif
-
-GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="${BUILDTAGS}"
+GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="%{getenv:BUILDTAGS}"
 
 # Remove containerd-stress, as we're not shipping it as part of the packages
 rm -f bin/containerd-stress

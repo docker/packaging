@@ -66,6 +66,12 @@ if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
 
+case "$PKG_RELEASE" in
+  centos*|oraclelinux*)
+    export BUILDTAGS="no_btrfs $BUILDTAGS"
+    ;;
+esac
+
 set -x
 
 sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /root/rpmbuild/SOURCES/containerd.service
