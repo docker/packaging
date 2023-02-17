@@ -135,7 +135,7 @@ jobs:
           * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
           EOF
           
-          if [[ "${{ inputs.name }}" = "buildkit" ]] || [[ "${{ inputs.name }}" = "containerd" ]]; then
+          if [ "${{ inputs.name }}" = "containerd" ]; then
             cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
           * runc
             * repo: ${RUNC_REPO}
