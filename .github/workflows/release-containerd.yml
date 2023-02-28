@@ -34,7 +34,7 @@ jobs:
     with:
       name: containerd
       release: ${{ inputs.release }}
-      env: |
+      envs: |
         CONTAINERD_REPO=${{ inputs.repo }}
         CONTAINERD_REF=${{ inputs.ref }}
         RUNC_REPO=${{ inputs.runc_repo }}

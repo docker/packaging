@@ -28,7 +28,7 @@ jobs:
     needs: buildx
     with:
       name: compose
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -37,7 +37,7 @@ jobs:
     needs: compose
     with:
       name: containerd
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -46,7 +46,7 @@ jobs:
     needs: containerd
     with:
       name: credential-helpers
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -55,7 +55,7 @@ jobs:
     needs: credential-helpers
     with:
       name: docker-cli
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -64,7 +64,7 @@ jobs:
     needs: docker-cli
     with:
       name: docker-engine
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -73,7 +73,7 @@ jobs:
     needs: docker-engine
     with:
       name: sbom
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
 
@@ -82,6 +82,6 @@ jobs:
     needs: sbom
     with:
       name: scan
-      env: |
+      envs: |
         NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
     secrets: inherit
