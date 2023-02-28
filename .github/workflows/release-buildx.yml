@@ -26,7 +26,7 @@ jobs:
     with:
       name: buildx
       release: ${{ inputs.release }}
-      env: |
+      envs: |
         BUILDX_REPO=${{ inputs.repo }}
         BUILDX_REF=${{ inputs.ref }}
     secrets: inherit
