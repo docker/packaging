@@ -26,7 +26,7 @@ jobs:
     with:
       name: docker-cli
       release: ${{ inputs.release }}
-      env: |
+      envs: |
         DOCKER_CLI_REPO=${{ inputs.repo }}
         DOCKER_CLI_REF=${{ inputs.ref }}
     secrets: inherit

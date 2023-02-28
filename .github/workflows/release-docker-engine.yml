@@ -26,7 +26,7 @@ jobs:
     with:
       name: docker-engine
       release: ${{ inputs.release }}
-      env: |
+      envs: |
         DOCKER_ENGINE_REPO=${{ inputs.repo }}
         DOCKER_ENGINE_REF=${{ inputs.ref }}
     secrets: inherit

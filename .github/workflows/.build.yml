@@ -7,6 +7,9 @@ on:
       name:
         required: true
         type: string
+      envs:
+        required: false
+        type: string
 
 env:
   BUILD_CACHE_REGISTRY_SLUG: dockereng/packaging-cache
@@ -48,6 +51,12 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Environment variables
+        run: |
+          for l in "${{ inputs.envs }}"; do
+            echo "${l?}" >> $GITHUB_ENV
+          done
       -
         name: Prepare
         run: |
@@ -106,6 +115,12 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Environment variables
+        run: |
+          for l in "${{ inputs.envs }}"; do
+            echo "${l?}" >> $GITHUB_ENV
+          done
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
