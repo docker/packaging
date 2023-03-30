@@ -15,7 +15,7 @@
 include ../../common/vars.mk
 
 # https://github.com/docker/scan-cli-plugin/blob/main/Dockerfile#L19
-export GO_VERSION = 1.17.2
+export GO_VERSION = 1.19
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl

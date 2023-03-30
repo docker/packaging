@@ -19,7 +19,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.19"
+ARG GO_VERSION="1.20"
 ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
