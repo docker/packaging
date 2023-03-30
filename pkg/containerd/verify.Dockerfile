@@ -48,7 +48,6 @@ RUN --mount=from=bin-folder,target=/build <<EOT
   set -x
   runc --version
   containerd --version
-  containerd-shim-runc-v1 -v
   containerd-shim-runc-v2 -v
 EOT
 
@@ -77,7 +76,6 @@ RUN --mount=from=bin-folder,target=/build <<EOT
   set -x
   runc --version
   containerd --version
-  containerd-shim-runc-v1 -v
   containerd-shim-runc-v2 -v
 EOT
 
