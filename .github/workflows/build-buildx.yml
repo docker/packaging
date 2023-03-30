@@ -22,6 +22,9 @@ on:
       - 'common/**'
       - 'pkg/buildx/**'
   pull_request:
+    branches:
+      - 'main'
+      - 'buildx/[0-9]+.[0-9]+'
     paths:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-buildx.yml'
