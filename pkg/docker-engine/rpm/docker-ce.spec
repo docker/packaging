@@ -88,7 +88,7 @@ ver="$(engine/bundles/dynbinary-daemon/dockerd --version)"; \
 # install binaries
 install -D -p -m 0755 $(readlink -f engine/bundles/dynbinary-daemon/dockerd) ${RPM_BUILD_ROOT}%{_bindir}/dockerd
 install -D -p -m 0755 $(readlink -f engine/bundles/dynbinary-daemon/docker-proxy) ${RPM_BUILD_ROOT}%{_bindir}/docker-proxy
-install -D -p -m 0755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_bindir}/docker-init
+install -D -p -m 0755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_libexecdir}/docker/docker-init
 
 # install systemd scripts
 install -D -m 0644 engine/contrib/init/systemd/docker.service ${RPM_BUILD_ROOT}%{_unitdir}/docker.service
@@ -97,7 +97,7 @@ install -D -m 0644 engine/contrib/init/systemd/docker.socket ${RPM_BUILD_ROOT}%{
 %files
 %{_bindir}/dockerd
 %{_bindir}/docker-proxy
-%{_bindir}/docker-init
+%{_libexecdir}/docker/docker-init
 %{_unitdir}/docker.service
 %{_unitdir}/docker.socket
 
