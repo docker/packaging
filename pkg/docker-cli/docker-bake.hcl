@@ -21,7 +21,7 @@ variable "DOCKER_CLI_REPO" {
 
 # Sets the docker cli ref.
 variable "DOCKER_CLI_REF" {
-  default = "master"
+  default = "23.0"
 }
 
 # set to 1 to enforce nightly build
@@ -34,7 +34,7 @@ variable "GO_IMAGE" {
   default = "golang"
 }
 variable "GO_VERSION" {
-  default = "1.19.4"
+  default = "1.19.7"
 }
 variable "GO_IMAGE_VARIANT" {
   default = "bullseye"
