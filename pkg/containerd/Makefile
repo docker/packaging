@@ -14,8 +14,8 @@
 
 include ../../common/vars.mk
 
-# https://github.com/containerd/containerd/blob/main/.github/workflows/release.yml#L9
-export GO_VERSION = 1.19.4
+# https://github.com/containerd/containerd/blob/main/.github/workflows/release.yml#L16
+export GO_VERSION = 1.20.2
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
