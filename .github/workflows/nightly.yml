@@ -11,16 +11,13 @@ on:
   schedule:
     - cron: '0 1 * * 0' # every sunday at 1am
 
-env:
-  NIGHTLY_BUILD: 1
-
 jobs:
   buildx:
     uses: ./.github/workflows/.release.yml
     with:
       name: buildx
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   compose:
@@ -28,8 +25,8 @@ jobs:
     needs: buildx
     with:
       name: compose
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   containerd:
@@ -37,8 +34,8 @@ jobs:
     needs: compose
     with:
       name: containerd
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   credential-helpers:
@@ -46,8 +43,8 @@ jobs:
     needs: containerd
     with:
       name: credential-helpers
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   docker-cli:
@@ -55,8 +52,8 @@ jobs:
     needs: credential-helpers
     with:
       name: docker-cli
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   docker-engine:
@@ -64,8 +61,8 @@ jobs:
     needs: docker-cli
     with:
       name: docker-engine
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   sbom:
@@ -73,8 +70,8 @@ jobs:
     needs: docker-engine
     with:
       name: sbom
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
 
   scan:
@@ -82,6 +79,6 @@ jobs:
     needs: sbom
     with:
       name: scan
-      env: |
-        NIGHTLY_BUILD=${{ env.NIGHTLY_BUILD }}
+      envs: |
+        NIGHTLY_BUILD=1
     secrets: inherit
