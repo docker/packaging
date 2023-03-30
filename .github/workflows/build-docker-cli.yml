@@ -22,6 +22,9 @@ on:
       - 'common/**'
       - 'pkg/docker-cli/**'
   pull_request:
+    branches:
+      - 'main'
+      - 'docker/[0-9]+.[0-9]+'
     paths:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-docker-cli.yml'
