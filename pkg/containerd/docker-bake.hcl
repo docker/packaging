@@ -21,7 +21,7 @@ variable "CONTAINERD_REPO" {
 
 # Sets the containerd ref.
 variable "CONTAINERD_REF" {
-  default = "main"
+  default = "release/1.6"
 }
 
 # In case we want to set runc to a specific version instead of using
