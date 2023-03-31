@@ -1,3 +1,33 @@
+containerd.io (1.6.20-1) release; urgency=high
+
+  * update containerd binary to v1.6.20.
+  * update runc binary to v1.1.5, which includes fixes for CVE-2023-25809,
+    CVE-2023-27561, and CVE-2023-28642.
+
+ -- Sebastiaan van Stijn <thajeztah@docker.com>  Thu, 30 Mar 2023 23:05:08 +0000
+
+containerd.io (1.6.19-1) release; urgency=medium
+
+  * Update containerd to v1.6.19
+  * Update Golang runtime to 1.19.7
+
+ -- Sebastiaan van Stijn <thajeztah@docker.com>  Thu, 23 Mar 2023 13:58:39 +0000
+
+containerd.io (1.6.18-1) release; urgency=high
+
+  * update containerd binary to v1.6.18, which includes fixes for CVE-2023-25153
+    and CVE-2023-25173.
+  * update Golang runtime to 1.19.6, which includes fixes for CVE-2022-41722,
+    CVE-2022-41725, CVE-2022-41724, and CVE-2022-41723.
+
+ -- Sebastiaan van Stijn <thajeztah@docker.com>  Thu, 16 Feb 2023 10:34:27 +0000
+
+containerd.io (1.6.17-1) release; urgency=medium
+
+  * Update containerd to v1.6.17
+
+ -- Sebastiaan van Stijn <thajeztah@docker.com>  Thu, 16 Feb 2023 10:27:26 +0000
+
 containerd.io (1.6.16-1) release; urgency=medium
 
   * Update containerd to v1.6.16
@@ -34,6 +64,7 @@ containerd.io (1.6.11-1) release; urgency=medium
   * Update containerd to v1.6.11
   * Update Golang runtime to 1.18.9, which includes fixes for CVE-2022-41717,
     CVE-2022-41720, and CVE-2022-41720.
+
 
  -- Sebastiaan van Stijn <thajeztah@docker.com>  Tue, 06 Dec 2022 22:37:13 +0000
 
