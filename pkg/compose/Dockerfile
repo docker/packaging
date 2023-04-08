@@ -157,7 +157,32 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     OUTDIR=/out SRCDIR=/usr/local/src/compose pkg-rpm-build
 
 # static
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
+FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static-nosdk
+COPY --from=xx / /
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
+  dpkg-dev clang lld llvm make pkg-config
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
+ENV CGO_ENABLED="0"
+ARG PKG_NAME
+ARG COMPOSE_REF
+ARG NIGHTLY_BUILD
+WORKDIR /build
+ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev
+RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
+FROM builder-static-nosdk AS builder-static-linux
+FROM builder-static-nosdk AS builder-static-windows
+
+FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static-darwin
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
@@ -180,6 +205,8 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
+
+FROM builder-static-$TARGETOS AS builder-static
 
 FROM builder-${PKG_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
