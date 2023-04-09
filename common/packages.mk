@@ -41,6 +41,7 @@ pkg-static-releases:
 pkg-info-alpine314:
 	$(eval PKG_TYPE = apk)
 	$(eval PKG_DISTRO = alpine)
+	$(eval PKG_ID = 3.14)
 	$(eval PKG_SUITE = 3.14)
 	$(eval PKG_BASE_IMAGE = alpine:3.14)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/arm/v6 linux/arm/v5 linux/ppc64le linux/s390x)
@@ -49,6 +50,7 @@ pkg-info-alpine314:
 pkg-info-alpine315:
 	$(eval PKG_TYPE = apk)
 	$(eval PKG_DISTRO = alpine)
+	$(eval PKG_ID = 3.15)
 	$(eval PKG_SUITE = 3.15)
 	$(eval PKG_BASE_IMAGE = alpine:3.15)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/arm/v6 linux/arm/v5 linux/ppc64le linux/s390x)
@@ -57,6 +59,7 @@ pkg-info-alpine315:
 pkg-info-alpine316:
 	$(eval PKG_TYPE = apk)
 	$(eval PKG_DISTRO = alpine)
+	$(eval PKG_ID = 3.16)
 	$(eval PKG_SUITE = 3.16)
 	$(eval PKG_BASE_IMAGE = alpine:3.16)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/arm/v6 linux/arm/v5 linux/ppc64le linux/s390x)
@@ -65,6 +68,7 @@ pkg-info-alpine316:
 pkg-info-debian10:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = debian)
+	$(eval PKG_ID = 10)
 	$(eval PKG_SUITE = buster)
 	$(eval PKG_BASE_IMAGE = debian:buster)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7)
@@ -73,6 +77,7 @@ pkg-info-debian10:
 pkg-info-debian11:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = debian)
+	$(eval PKG_ID = 11)
 	$(eval PKG_SUITE = bullseye)
 	$(eval PKG_BASE_IMAGE = debian:bullseye)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/mips64le linux/ppc64le linux/s390x)
@@ -81,6 +86,7 @@ pkg-info-debian11:
 pkg-info-debian12:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = debian)
+	$(eval PKG_ID = 12)
 	$(eval PKG_SUITE = bookworm)
 	$(eval PKG_BASE_IMAGE = debian:bookworm)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/mips64le linux/ppc64le linux/s390x)
@@ -89,6 +95,7 @@ pkg-info-debian12:
 pkg-info-raspbian10:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = raspbian)
+	$(eval PKG_ID = 10)
 	$(eval PKG_SUITE = buster)
 	$(eval PKG_BASE_IMAGE = balenalib/rpi-raspbian:buster)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/arm/v7)
@@ -97,6 +104,7 @@ pkg-info-raspbian10:
 pkg-info-raspbian11:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = raspbian)
+	$(eval PKG_ID = 11)
 	$(eval PKG_SUITE = bullseye)
 	$(eval PKG_BASE_IMAGE = balenalib/rpi-raspbian:bullseye)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/arm/v7)
@@ -105,6 +113,7 @@ pkg-info-raspbian11:
 pkg-info-raspbian12:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = raspbian)
+	$(eval PKG_ID = 12)
 	$(eval PKG_SUITE = bookworm)
 	$(eval PKG_BASE_IMAGE = balenalib/rpi-raspbian:bookworm)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/arm/v7)
@@ -113,6 +122,7 @@ pkg-info-raspbian12:
 pkg-info-ubuntu1804:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_ID = 18.04)
 	$(eval PKG_SUITE = bionic)
 	$(eval PKG_BASE_IMAGE = ubuntu:bionic)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
@@ -121,6 +131,7 @@ pkg-info-ubuntu1804:
 pkg-info-ubuntu2004:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_ID = 20.04)
 	$(eval PKG_SUITE = focal)
 	$(eval PKG_BASE_IMAGE = ubuntu:focal)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
@@ -130,6 +141,7 @@ pkg-info-ubuntu2004:
 pkg-info-ubuntu2204:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_ID = 22.04)
 	$(eval PKG_SUITE = jammy)
 	$(eval PKG_BASE_IMAGE = ubuntu:jammy)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
@@ -139,6 +151,7 @@ pkg-info-ubuntu2204:
 pkg-info-ubuntu2210:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_ID = 22.10)
 	$(eval PKG_SUITE = kinetic)
 	$(eval PKG_BASE_IMAGE = ubuntu:kinetic)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
@@ -148,6 +161,7 @@ pkg-info-ubuntu2210:
 pkg-info-ubuntu2304:
 	$(eval PKG_TYPE = deb)
 	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_ID = 23.04)
 	$(eval PKG_SUITE = lunar)
 	$(eval PKG_BASE_IMAGE = ubuntu:lunar)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
@@ -157,6 +171,7 @@ pkg-info-ubuntu2304:
 pkg-info-centos7:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = centos)
+	$(eval PKG_ID = 7)
 	$(eval PKG_SUITE = 7)
 	$(eval PKG_BASE_IMAGE = centos:7)
 	@# FIXME: packages look broken for linux/arm/v7 on centos:7
@@ -166,6 +181,7 @@ pkg-info-centos7:
 pkg-info-centos8:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = centos)
+	$(eval PKG_ID = 8)
 	$(eval PKG_SUITE = 8)
 	$(eval PKG_BASE_IMAGE = quay.io/centos/centos:stream8)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le)
@@ -174,6 +190,7 @@ pkg-info-centos8:
 pkg-info-centos9:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = centos)
+	$(eval PKG_ID = 9)
 	$(eval PKG_SUITE = 9)
 	$(eval PKG_BASE_IMAGE = quay.io/centos/centos:stream9)
 	@# FIXME: packages look broken for linux/s390x on centos:stream9
@@ -183,6 +200,7 @@ pkg-info-centos9:
 pkg-info-fedora36:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = fedora)
+	$(eval PKG_ID = 36)
 	$(eval PKG_SUITE = 36)
 	$(eval PKG_BASE_IMAGE = fedora:36)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
@@ -191,6 +209,7 @@ pkg-info-fedora36:
 pkg-info-fedora37:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = fedora)
+	$(eval PKG_ID = 37)
 	$(eval PKG_SUITE = 37)
 	$(eval PKG_BASE_IMAGE = fedora:37)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
@@ -199,6 +218,7 @@ pkg-info-fedora37:
 pkg-info-oraclelinux7:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = oraclelinux)
+	$(eval PKG_ID = 7)
 	$(eval PKG_SUITE = 7)
 	$(eval PKG_BASE_IMAGE = oraclelinux:7)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64)
@@ -207,6 +227,7 @@ pkg-info-oraclelinux7:
 pkg-info-oraclelinux8:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = oraclelinux)
+	$(eval PKG_ID = 8)
 	$(eval PKG_SUITE = 8)
 	$(eval PKG_BASE_IMAGE = oraclelinux:8)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64)
@@ -215,6 +236,7 @@ pkg-info-oraclelinux8:
 pkg-info-oraclelinux9:
 	$(eval PKG_TYPE = rpm)
 	$(eval PKG_DISTRO = oraclelinux)
+	$(eval PKG_ID = 9)
 	$(eval PKG_SUITE = 9)
 	$(eval PKG_BASE_IMAGE = oraclelinux:9)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64)
@@ -223,6 +245,7 @@ pkg-info-oraclelinux9:
 pkg-info-static:
 	$(eval PKG_TYPE = static)
 	$(eval PKG_DISTRO = static)
+	$(eval PKG_ID =)
 	$(eval PKG_SUITE =)
 	$(eval PKG_BASE_IMAGE = debian:bullseye)
 	$(eval PKG_SUPPORTED_PLATFORMS =)

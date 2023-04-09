@@ -24,6 +24,7 @@ ARG GO_IMAGE_VARIANT="bullseye"
 ARG PKG_RELEASE="debian11"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
+ARG PKG_ID="11"
 ARG PKG_SUITE="bullseye"
 ARG PKG_BASE_IMAGE="debian:bullseye"
 
@@ -95,6 +96,7 @@ ARG SCAN_REF
 ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
+ARG PKG_ID
 ARG PKG_SUITE
 ARG PKG_PACKAGER
 ARG PKG_DEB_BUILDFLAGS
@@ -103,6 +105,7 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/root/package/scan,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
@@ -140,6 +143,7 @@ ARG SCAN_REF
 ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_DISTRO
+ARG PKG_ID
 ARG PKG_SUITE
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
