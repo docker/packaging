@@ -19,8 +19,8 @@
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
-: "${PKG_ID=}"
-: "${PKG_SUITE=}"
+: "${PKG_DISTRO_ID=}"
+: "${PKG_DISTRO_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
 
@@ -62,7 +62,7 @@ rpmDefine=(
   --define "_commit ${GENVER_COMMIT_SHORT}"
 )
 
-pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
+pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi

@@ -19,8 +19,8 @@
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
-: "${PKG_ID=}"
-: "${PKG_SUITE=}"
+: "${PKG_DISTRO_ID=}"
+: "${PKG_DISTRO_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
 
@@ -56,9 +56,9 @@ done
 xx-go --wrap
 fix-cc
 
-gen-deb-changelog "$GENVER_VERSION" "$GENVER_PKG_VERSION" "$PKG_DISTRO" "$PKG_ID" "$PKG_SUITE" "$PKG_DEB_REVISION" "$PKG_DEB_EPOCH"
+gen-deb-changelog "$GENVER_VERSION" "$GENVER_PKG_VERSION" "$PKG_DISTRO" "$PKG_DISTRO_ID" "$PKG_DISTRO_SUITE" "$PKG_DEB_REVISION" "$PKG_DEB_EPOCH"
 
-pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
+pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi
