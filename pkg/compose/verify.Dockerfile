@@ -29,6 +29,7 @@ FROM ${PKG_BASE_IMAGE} AS verify-deb
 RUN apt-get update
 COPY --from=xx / /
 ARG PKG_DISTRO
+ARG PKG_ID
 ARG PKG_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
@@ -53,6 +54,7 @@ FROM ${PKG_BASE_IMAGE} AS verify-rpm
 COPY --from=xx / /
 ARG PKG_RELEASE
 ARG PKG_DISTRO
+ARG PKG_ID
 ARG PKG_SUITE
 RUN --mount=type=bind,from=common-scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
   verify-rpm-init $PKG_RELEASE
@@ -79,6 +81,7 @@ FROM ${PKG_BASE_IMAGE} AS verify-static
 RUN apt-get update && apt-get install -y --no-install-recommends tar
 COPY --from=xx / /
 ARG PKG_DISTRO
+ARG PKG_ID
 ARG PKG_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
