@@ -17,10 +17,10 @@
 version="$1"
 pkgVersion="$2"
 pkgDistro="$3"
-pkgId="$4"
-pkgSuite="$5"
-if [[ -z "$version" ]] || [[ -z "$pkgVersion" ]] || [[ -z "$pkgDistro" ]] || [[ -z "$pkgId" ]] || [[ -z "$pkgSuite" ]]; then
-  echo "usage: ./gen-deb-changelog <version> <pkg_version> <pkg_distro> <pkg_id> <pkg_suite> [<pkg_revision> <pkg_epoch>]" >&2
+pkgDistroId="$4"
+pkgDistroSuite="$5"
+if [[ -z "$version" ]] || [[ -z "$pkgVersion" ]] || [[ -z "$pkgDistro" ]] || [[ -z "$pkgDistroId" ]] || [[ -z "$pkgDistroSuite" ]]; then
+  echo "usage: ./gen-deb-changelog <version> <pkg_version> <pkg_distro> <pkg_distro_id> <pkg_distro_suite> [<pkg_revision> <pkg_epoch>]" >&2
   exit 1
 fi
 if [ ! -d "debian" ]; then
@@ -80,7 +80,7 @@ if [[ -f "debian/changelog" ]] && [[ "${version}" != "v${pkgVersion}" ]]; then
 fi
 if [[ ! -f "debian/changelog" ]] || [[ "${version}" != "v${pkgVersion}" ]]; then
   cat > "debian/changelog" <<-EOF
-$pkgSource (${pkgEpoch}${pkgEpochSep}${pkgVersion}-${pkgRevision}~${pkgDistro}.${pkgId}~${pkgSuite}) $pkgSuite; urgency=low
+$pkgSource (${pkgEpoch}${pkgEpochSep}${pkgVersion}-${pkgRevision}~${pkgDistro}.${pkgDistroId}~${pkgDistroSuite}) $pkgDistroSuite; urgency=low
   * Version: $version
  -- $pkgMaintainer  $pkgDate
 EOF
