@@ -19,6 +19,7 @@
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
+: "${PKG_ID=}"
 : "${PKG_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
@@ -55,11 +56,7 @@ done
 xx-go --wrap
 fix-cc
 
-cat > "debian/changelog" <<-EOF
-${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low
-  * Version: ${GENVER_VERSION}
- -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
-EOF
+gen-deb-changelog "$GENVER_VERSION" "$GENVER_PKG_VERSION" "$PKG_DISTRO" "$PKG_ID" "$PKG_SUITE" "$PKG_DEB_REVISION" "$PKG_DEB_EPOCH"
 
 pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then

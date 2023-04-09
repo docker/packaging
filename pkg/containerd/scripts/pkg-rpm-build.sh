@@ -19,6 +19,7 @@
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
+: "${PKG_ID=}"
 : "${PKG_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
