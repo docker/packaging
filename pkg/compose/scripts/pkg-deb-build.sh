@@ -19,7 +19,8 @@
 : "${PKG_NAME=}"
 : "${PKG_RELEASE=}"
 : "${PKG_DISTRO=}"
-: "${PKG_SUITE=}"
+: "${PKG_DISTRO_ID=}"
+: "${PKG_DISTRO_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
 
@@ -56,12 +57,12 @@ xx-go --wrap
 fix-cc
 
 cat > "debian/changelog" <<-EOF
-${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $PKG_SUITE; urgency=low
+${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $PKG_DISTRO_SUITE; urgency=low
   * Version: ${GENVER_VERSION}
  -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
 EOF
 
-pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)"
+pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi

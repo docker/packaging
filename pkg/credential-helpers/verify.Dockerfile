@@ -29,11 +29,12 @@ FROM ${PKG_BASE_IMAGE} AS verify-deb
 RUN apt-get update
 COPY --from=xx / /
 ARG PKG_DISTRO
-ARG PKG_SUITE
+ARG PKG_DISTRO_ID
+ARG PKG_DISTRO_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
-  dir=/build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)
+  dir=/build/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)
   if [ ! -d "$dir" ]; then
     echo >&2 "warning: no packages found in $dir"
     exit 0
@@ -54,13 +55,14 @@ FROM ${PKG_BASE_IMAGE} AS verify-rpm
 COPY --from=xx / /
 ARG PKG_RELEASE
 ARG PKG_DISTRO
-ARG PKG_SUITE
+ARG PKG_DISTRO_ID
+ARG PKG_DISTRO_SUITE
 RUN --mount=type=bind,from=common-scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
   verify-rpm-init $PKG_RELEASE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
-  dir=/build/${PKG_DISTRO}/${PKG_SUITE}/$(xx-info arch)
+  dir=/build/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)
   if [ ! -d "$dir" ]; then
     echo >&2 "warning: no packages found in $dir"
     exit 0
@@ -96,7 +98,8 @@ FROM ${PKG_BASE_IMAGE} AS verify-static
 RUN apt-get update && apt-get install -y --no-install-recommends tar libsecret-1-0
 COPY --from=xx / /
 ARG PKG_DISTRO
-ARG PKG_SUITE
+ARG PKG_DISTRO_ID
+ARG PKG_DISTRO_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin-folder,target=/build <<EOT
   set -e
