@@ -21,7 +21,7 @@ DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
 
 export CONTAINERD_REPO := $(if $(CONTAINERD_REPO),$(CONTAINERD_REPO),https://github.com/containerd/containerd.git)
-export CONTAINERD_REF := $(if $(CONTAINERD_REF),$(CONTAINERD_REF),main)
+export CONTAINERD_REF := $(if $(CONTAINERD_REF),$(CONTAINERD_REF),release/1.7)
 export RUNC_REPO := $(if $(RUNC_REPO),$(RUNC_REPO),https://github.com/opencontainers/runc.git)
 export RUNC_REF := $(if $(RUNC_REF),$(RUNC_REF),)
 
