@@ -15,7 +15,7 @@
 include ../../common/vars.mk
 
 # https://github.com/docker/docker-credential-helpers/blob/master/Dockerfile#L3
-export GO_VERSION = 1.18.5
+export GO_VERSION = 1.20.4
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
