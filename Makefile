@@ -40,7 +40,7 @@ include common/packages.mk
 
 GHA_MATRIX ?= minimal
 ifeq ($(GHA_MATRIX),minimal)
-	GHA_RELEASES := debian10 debian11 debian12 ubuntu1804 ubuntu2004 ubuntu2204 ubuntu2304 centos7 centos9 oraclelinux7 fedora37 static
+	GHA_RELEASES := debian10 debian11 debian12 ubuntu1804 ubuntu2004 ubuntu2204 ubuntu2304 centos7 centos9 oraclelinux7 fedora37 fedora38 static
 else ifeq ($(GHA_MATRIX),all)
 	GHA_RELEASES := $(PKG_DEB_RELEASES) $(PKG_RPM_RELEASES) static
 else
