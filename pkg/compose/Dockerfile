@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile-upstream:1
+# syntax=docker/dockerfile:1
 
 # Copyright 2022 Docker Packaging authors
 #
