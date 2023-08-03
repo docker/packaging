@@ -77,16 +77,16 @@ jobs:
             - name: aws_graviton2
               endpoint: tcp://${{ secrets.AWS_ARM64_HOST }}:1234
               platforms: darwin/arm64,linux/arm64,linux/arm/v5,linux/arm/v6,linux/arm/v7,windows/arm64
-            - name: linuxone_s390x
-              endpoint: tcp://${{ secrets.LINUXONE_S390X_HOST }}:1234
-              platforms: linux/s390x
+#            - name: linuxone_s390x
+#              endpoint: tcp://${{ secrets.LINUXONE_S390X_HOST }}:1234
+#              platforms: linux/s390x
         env:
           BUILDER_NODE_1_AUTH_TLS_CACERT: ${{ secrets.AWS_ARM64_CACERT }}
           BUILDER_NODE_1_AUTH_TLS_CERT: ${{ secrets.AWS_ARM64_CERT }}
           BUILDER_NODE_1_AUTH_TLS_KEY: ${{ secrets.AWS_ARM64_KEY }}
-          BUILDER_NODE_2_AUTH_TLS_CACERT: ${{ secrets.LINUXONE_S390X_CACERT }}
-          BUILDER_NODE_2_AUTH_TLS_CERT: ${{ secrets.LINUXONE_S390X_CERT }}
-          BUILDER_NODE_2_AUTH_TLS_KEY: ${{ secrets.LINUXONE_S390X_KEY }}
+#          BUILDER_NODE_2_AUTH_TLS_CACERT: ${{ secrets.LINUXONE_S390X_CACERT }}
+#          BUILDER_NODE_2_AUTH_TLS_CERT: ${{ secrets.LINUXONE_S390X_CERT }}
+#          BUILDER_NODE_2_AUTH_TLS_KEY: ${{ secrets.LINUXONE_S390X_KEY }}
       -
         name: Build
         run: |
