@@ -15,6 +15,7 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.2.1"
+ARG OSXCROSS_VERSION="11.3-r7-debian"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
@@ -35,8 +36,8 @@ FROM scratch AS common-scripts
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# osxcross contains the MacOSX SDK for xx
-FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
+# osxcross contains the MacOSX cross toolchain for xx
+FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
@@ -203,7 +204,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/credential-helpers pkg-static-build
 
 FROM builder-static-$TARGETOS AS builder-static
