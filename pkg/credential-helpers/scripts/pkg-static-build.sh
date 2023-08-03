@@ -40,6 +40,10 @@ for l in $(gen-ver "${SRCDIR}"); do
   export "${l?}"
 done
 
+pushd ${SRCDIR}
+  export "MACOSX_VERSION_MIN=$(make print-MACOSX_DEPLOYMENT_TARGET)"
+popd
+
 xx-go --wrap
 fix-cc
 
