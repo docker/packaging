@@ -65,7 +65,7 @@ fi
 
 set -x
 
-chmod -x debian/compat debian/control debian/docs
+chmod -x debian/control debian/docs
 VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 mkdir -p "${pkgoutput}"
 cp /root/docker-credential-* "${pkgoutput}"/
