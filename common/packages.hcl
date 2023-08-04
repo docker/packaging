@@ -130,17 +130,6 @@ target "_pkg-raspbian12" {
   }
 }
 
-target "_pkg-ubuntu1804" {
-  args = {
-    PKG_RELEASE = "ubuntu1804"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "18.04"
-    PKG_DISTRO_SUITE = "bionic"
-    PKG_BASE_IMAGE = "ubuntu:bionic"
-  }
-}
-
 target "_pkg-ubuntu2004" {
   args = {
     PKG_RELEASE = "ubuntu2004"
