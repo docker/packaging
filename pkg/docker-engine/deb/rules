@@ -19,6 +19,12 @@ override_dh_auto_test:
 override_dh_strip:
 	# Go has lots of problems with stripping, so just don't
 
+# http://manpages.debian.org/dh_dwz
+override_dh_dwz:
+	# dh_dwz in debhelper versions less than 13 has issues with files that are missing debug symbols (once we update to debhelper-compat 13+ this can be removed)
+	@# https://packages.debian.org/debhelper
+	@# https://packages.ubuntu.com/debhelper
+
 override_dh_auto_install:
 	install -D -m 0644 /common/systemd/docker.service debian/docker-ce/lib/systemd/system/docker.service
 	install -D -m 0644 /common/systemd/docker.socket debian/docker-ce/lib/systemd/system/docker.socket
@@ -36,6 +42,10 @@ override_dh_auto_install:
 override_dh_installinit:
 	# use "docker" as our service name, not "docker-ce"
 	dh_installinit --name=docker
+
+override_dh_installsystemd:
+	# use "docker" as our service name, not "docker-ce"
+	dh_installsystemd --name=docker
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
