@@ -9,7 +9,7 @@ Standards-Version: 3.9.6
 Build-Depends: ca-certificates,
                cmake,
                dh-apparmor,
-               debhelper (>= 10~) | dh-systemd,
+               debhelper-compat (= 12),
                gcc,
                libc-dev,
                libdevmapper-dev,
