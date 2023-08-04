@@ -15,7 +15,7 @@
 #   limitations under the License.
 
 %:
-	dh $@ --with systemd
+	dh $@
 
 # GO_SRC_PATH and PKG_NAME are defined in the dockerfile
 # VERSION and REF are defined in scripts/build-deb
@@ -50,6 +50,12 @@ man: ## Create containerd man pages
 # zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
 override_dh_builddeb:
 	dh_builddeb -- -Zxz
+
+# http://manpages.debian.org/dh_dwz
+override_dh_dwz:
+	# dh_dwz in debhelper versions less than 13 has issues with files that are missing debug symbols (once we update to debhelper-compat 13+ this can be removed)
+	@# https://packages.debian.org/debhelper
+	@# https://packages.ubuntu.com/debhelper
 
 override_dh_auto_build: binaries bin/runc man
 
