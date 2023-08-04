@@ -19,6 +19,12 @@ override_dh_auto_test:
 override_dh_strip:
 	# Go has lots of problems with stripping, so just don't
 
+# http://manpages.debian.org/dh_dwz
+override_dh_dwz:
+	# dh_dwz in debhelper versions less than 13 has issues with files that are missing debug symbols (once we update to debhelper-compat 13+ this can be removed)
+	@# https://packages.debian.org/debhelper
+	@# https://packages.ubuntu.com/debhelper
+
 override_dh_auto_install:
 	install -D -m 0755 /usr/libexec/docker/cli-plugins/docker-sbom debian/docker-sbom-plugin/usr/libexec/docker/cli-plugins/docker-sbom
 
