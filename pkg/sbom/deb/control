@@ -7,7 +7,7 @@ Vcs-Browser: https://github.com/docker/sbom-cli-plugin
 Vcs-Git: git://github.com/docker/sbom-cli-plugin.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
-               debhelper (>= 10~) | dh-systemd,
+               debhelper-compat (= 12),
                make
 
 Package: docker-sbom-plugin
