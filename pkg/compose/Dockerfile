@@ -175,6 +175,12 @@ ARG PKG_NAME
 ARG COMPOSE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
+# download dependencies before "ARG TARGETPLATFORM" otherwise it will be cached
+# for each platform and that would take a lot of disk space
+RUN --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.mod \
+    --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.sum,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    go mod download -x
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
@@ -200,6 +206,12 @@ ARG PKG_NAME
 ARG COMPOSE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
+# download dependencies before "ARG TARGETPLATFORM" otherwise it will be cached
+# for each platform and that would take a lot of disk space
+RUN --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.mod \
+    --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.sum,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    go mod download -x
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
