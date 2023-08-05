@@ -34,7 +34,7 @@ variable "GO_IMAGE" {
   default = "golang"
 }
 variable "GO_VERSION" {
-  default = "1.20"
+  default = "1.20.5"
 }
 variable "GO_IMAGE_VARIANT" {
   default = "bullseye"

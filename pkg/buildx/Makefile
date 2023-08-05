@@ -15,7 +15,7 @@
 include ../../common/vars.mk
 
 # https://github.com/docker/buildx/blob/master/Dockerfile#L3
-export GO_VERSION = 1.20
+export GO_VERSION = 1.20.5
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
