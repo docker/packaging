@@ -12,73 +12,36 @@ on:
     - cron: '0 1 * * 0' # every sunday at 1am
 
 jobs:
-  buildx:
-    uses: ./.github/workflows/.release.yml
-    with:
-      name: buildx
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
+  prepare:
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.projects.outputs.matrix }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Create matrix
+        id: projects
+        run: |
+          projects=$(find ./pkg -maxdepth 1 -type d -printf '%P ' | jq -cR 'split(" ")')
+          echo "matrix=$projects" >>${GITHUB_OUTPUT}
+      -
+        name: Show matrix
+        run: |
+          echo ${{ steps.projects.outputs.matrix }}
 
-  compose:
+  build:
     uses: ./.github/workflows/.release.yml
-    needs: buildx
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        project: ${{ fromJson(needs.prepare.outputs.matrix) }}
     with:
-      name: compose
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  containerd:
-    uses: ./.github/workflows/.release.yml
-    needs: compose
-    with:
-      name: containerd
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  credential-helpers:
-    uses: ./.github/workflows/.release.yml
-    needs: containerd
-    with:
-      name: credential-helpers
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  docker-cli:
-    uses: ./.github/workflows/.release.yml
-    needs: credential-helpers
-    with:
-      name: docker-cli
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  docker-engine:
-    uses: ./.github/workflows/.release.yml
-    needs: docker-cli
-    with:
-      name: docker-engine
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  sbom:
-    uses: ./.github/workflows/.release.yml
-    needs: docker-engine
-    with:
-      name: sbom
-      envs: |
-        NIGHTLY_BUILD=1
-    secrets: inherit
-
-  scan:
-    uses: ./.github/workflows/.release.yml
-    needs: sbom
-    with:
-      name: scan
+      name: ${{ matrix.project }}
       envs: |
         NIGHTLY_BUILD=1
     secrets: inherit
