@@ -19,34 +19,42 @@ jobs:
   prepare:
     runs-on: ubuntu-20.04
     outputs:
-      matrix: ${{ steps.pkgs.outputs.matrix }}
+      pkgs: ${{ steps.set.outputs.pkgs }}
+      fail-fast: ${{ steps.set.outputs.fail-fast }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Create matrix
-        id: pkgs
+        name: Set outputs
+        id: set
         run: |
           ghamatrix=$GHA_DEFAULT_MATRIX
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             ghamatrix=${{ inputs.pkgs }}
           fi
           pkgs=$(make gha-matrix GHA_MATRIX=$ghamatrix)
-          echo "matrix=$pkgs" >> $GITHUB_OUTPUT
+          echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" != "" ]; then
+            failfast=${{ inputs.fail-fast }}
+          else
+            failfast=true
+          fi
+          echo "fail-fast=$failfast" >> $GITHUB_OUTPUT
       -
-        name: Show matrix
+        name: Show outputs
         run: |
-          echo ${{ steps.pkgs.outputs.matrix }}
+          echo pkgs=${{ steps.set.outputs.pkgs }}
+          echo fail-fast=${{ steps.set.outputs.fail-fast }}
 
   build:
     runs-on: ubuntu-20.04
     needs:
       - prepare
     strategy:
-      fail-fast: ${{ inputs.fail-fast || true }}
+      fail-fast: ${{ needs.prepare.outputs.fail-fast == 'true' }}
       matrix:
-        pkg: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        pkg: ${{ fromJson(needs.prepare.outputs.pkgs) }}
     steps:
       -
         name: Checkout
