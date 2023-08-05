@@ -96,7 +96,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash 
 RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
-    ubuntu2004|ubuntu2204|ubuntu2210|ubuntu2304)
+    ubuntu2004|ubuntu2204|ubuntu2304)
       if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
         rm -f /usr/bin/man
         dpkg-divert --quiet --remove --rename /usr/bin/man
