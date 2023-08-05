@@ -36,7 +36,7 @@ jobs:
       -
         name: Show outputs
         run: |
-          pkgs=echo ${{ steps.set.outputs.pkgs }}
+          echo pkgs=${{ steps.set.outputs.pkgs }}
 
   build:
     runs-on: ubuntu-20.04
