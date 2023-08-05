@@ -273,6 +273,28 @@ target "_pkg-oraclelinux9" {
   }
 }
 
+target "_pkg-rockylinux8" {
+  args = {
+    PKG_RELEASE = "rockylinux8"
+    PKG_TYPE = "rpm"
+    PKG_DISTRO = "rockylinux"
+    PKG_DISTRO_ID = "8"
+    PKG_DISTRO_SUITE = "8"
+    PKG_BASE_IMAGE = "rockylinux/rockylinux:8"
+  }
+}
+
+target "_pkg-rockylinux9" {
+  args = {
+    PKG_RELEASE = "rockylinux9"
+    PKG_TYPE = "rpm"
+    PKG_DISTRO = "rockylinux"
+    PKG_DISTRO_ID = "9"
+    PKG_DISTRO_SUITE = "9"
+    PKG_BASE_IMAGE = "rockylinux/rockylinux:9"
+  }
+}
+
 target "_pkg-static" {
   args = {
     PKG_RELEASE = ""
