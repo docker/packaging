@@ -53,6 +53,7 @@ jobs:
       - prepare
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
     with:
