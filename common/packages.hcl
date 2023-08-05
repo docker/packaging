@@ -152,17 +152,6 @@ target "_pkg-ubuntu2204" {
   }
 }
 
-target "_pkg-ubuntu2210" {
-  args = {
-    PKG_RELEASE = "ubuntu2210"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "22.10"
-    PKG_DISTRO_SUITE = "kinetic"
-    PKG_BASE_IMAGE = "ubuntu:kinetic"
-  }
-}
-
 target "_pkg-ubuntu2304" {
   args = {
     PKG_RELEASE = "ubuntu2304"
