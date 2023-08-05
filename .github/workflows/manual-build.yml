@@ -18,7 +18,7 @@ on:
         required: false
         type: string
       fail-fast:
-        description: 'Cancel all in-progress and queued jobs in the matrix if any job in the matrix fails'
+        description: 'Fail fast'
         required: false
         type: boolean
 
@@ -54,6 +54,7 @@ jobs:
     strategy:
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        fail-fast: false
     with:
       name: ${{ matrix.project }}
     secrets: inherit
