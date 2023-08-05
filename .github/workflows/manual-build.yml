@@ -48,12 +48,11 @@ jobs:
           echo ${{ steps.projects.outputs.matrix }}
 
   build:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     needs:
       - prepare
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
     with:
