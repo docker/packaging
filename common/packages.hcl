@@ -196,17 +196,6 @@ target "_pkg-centos9" {
   }
 }
 
-target "_pkg-fedora36" {
-  args = {
-    PKG_RELEASE = "fedora36"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "fedora"
-    PKG_DISTRO_ID = "36"
-    PKG_DISTRO_SUITE = "36"
-    PKG_BASE_IMAGE = "fedora:36"
-  }
-}
-
 target "_pkg-fedora37" {
   args = {
     PKG_RELEASE = "fedora37"
