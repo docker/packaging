@@ -16,7 +16,7 @@
 # if you add a new release
 PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
 PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2304 raspbian10 raspbian11 raspbian12
-PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora36 fedora37 fedora38 oraclelinux7 oraclelinux8 oraclelinux9
+PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora37 fedora38 oraclelinux7 oraclelinux8 oraclelinux9
 
 # PKG_SUPPORTED_PLATFORMS could be replaced by:
 # docker buildx imagetools inspect centos:7 --format "{{json .Manifest}}" | jq -r '.manifests[] | "\(.platform.os)/\(.platform.architecture)/\(.platform.variant)"' | sed 's#/null$##' | tr '\n' ',' | sed 's#,$##'
@@ -176,15 +176,6 @@ pkg-info-centos9:
 	$(eval PKG_BASE_IMAGE = quay.io/centos/centos:stream9)
 	@# FIXME: packages look broken for linux/s390x on centos:stream9
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le)
-
-.PHONY: pkg-info-fedora36
-pkg-info-fedora36:
-	$(eval PKG_TYPE = rpm)
-	$(eval PKG_DISTRO = fedora)
-	$(eval PKG_DISTRO_ID = 36)
-	$(eval PKG_DISTRO_SUITE = 36)
-	$(eval PKG_BASE_IMAGE = fedora:36)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
 
 .PHONY: pkg-info-fedora37
 pkg-info-fedora37:
