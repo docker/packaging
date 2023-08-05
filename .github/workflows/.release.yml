@@ -22,30 +22,30 @@ jobs:
   prepare:
     runs-on: ubuntu-20.04
     outputs:
-      matrix: ${{ steps.pkgs.outputs.matrix }}
+      pkgs: ${{ steps.set.outputs.pkgs }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Create matrix
-        id: pkgs
+        name: Set outputs
+        id: set
         run: |
           pkgs=$(make gha-matrix GHA_MATRIX=all)
-          echo "matrix=$pkgs" >> $GITHUB_OUTPUT
+          echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
       -
-        name: Show matrix
+        name: Show outputs
         run: |
-          echo ${{ steps.pkgs.outputs.matrix }}
+          pkgs=echo ${{ steps.set.outputs.pkgs }}
 
   build:
     runs-on: ubuntu-20.04
     needs:
       - prepare
     strategy:
-      fail-fast: ${{ inputs.fail-fast || true }}
+      fail-fast: true
       matrix:
-        pkg: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        pkg: ${{ fromJson(needs.prepare.outputs.pkgs) }}
     steps:
       -
         name: Checkout
