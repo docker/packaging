@@ -83,11 +83,11 @@ case "$pkgrelease" in
   fedora*)
     dnf install -y git rpm-build rpmlint dnf-plugins-core
     ;;
-  rockylinux8)
+  rockylinux8|almalinux8)
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
-    dnf config-manager --set-enabled devel
+    dnf config-manager --set-enabled powertools
     ;;
-  rockylinux*)
+  rockylinux*|almalinux*)
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
