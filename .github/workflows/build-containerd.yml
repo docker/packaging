@@ -12,6 +12,11 @@ on:
         default: 'minimal'
         required: false
         type: string
+      fail-fast:
+        description: 'Cancel all in-progress and queued jobs in the matrix if any job in the matrix fails'
+        default: true
+        required: false
+        type: boolean
   push:
     branches:
       - 'main'
