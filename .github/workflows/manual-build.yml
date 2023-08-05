@@ -52,6 +52,7 @@ jobs:
     needs:
       - prepare
     strategy:
+      fail-fast: false
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
         fail-fast: false
