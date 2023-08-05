@@ -43,7 +43,7 @@ jobs:
     needs:
       - prepare
     strategy:
-      fail-fast: true
+      fail-fast: ${{ inputs.fail-fast || true }}
       matrix:
         pkg: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
