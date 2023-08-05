@@ -55,7 +55,6 @@ jobs:
       fail-fast: false
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
-        fail-fast: false
     with:
       name: ${{ matrix.project }}
     secrets: inherit
