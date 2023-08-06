@@ -12,6 +12,11 @@ on:
         default: 'minimal'
         required: false
         type: string
+      fail-fast:
+        description: 'Fail fast'
+        default: true
+        required: false
+        type: boolean
   push:
     branches:
       - 'main'

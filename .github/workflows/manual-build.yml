@@ -1,15 +1,26 @@
-# This workflow runs nighly builds for each package. Jobs don't run concurrently
-# to avoid performance issues on remote builders and also having a huge queue
-# in the pipeline. That's why each job depends on each other through "needs".
-name: nightly
+name: manual-build
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
-  schedule:
-    - cron: '0 1 * * 0' # every sunday at 1am
+  workflow_dispatch:
+    inputs:
+      projects:
+        description: 'Projects to build (all or space separated list)'
+        default: 'all'
+        required: false
+        type: string
+      pkgs:
+        description: 'Packages to build (minimal, all or space separated list)'
+        default: 'minimal'
+        required: false
+        type: string
+      fail-fast:
+        description: 'Fail fast'
+        required: false
+        type: boolean
 
 jobs:
   prepare:
@@ -24,7 +35,11 @@ jobs:
         name: Create matrix
         id: projects
         run: |
-          projects=$(find ./pkg -maxdepth 1 -type d -printf '%P ')
+          if [ "${{ inputs.projects }}" = "all" ]; then
+            projects=$(find ./pkg -maxdepth 1 -type d -printf '%P ')
+          else
+            projects="${{ inputs.projects }}"
+          fi
           projects=$(echo $projects | jq -cR 'split(" ")')
           echo "matrix=$projects" >>${GITHUB_OUTPUT}
       -
@@ -33,16 +48,13 @@ jobs:
           echo ${{ steps.projects.outputs.matrix }}
 
   build:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     needs:
       - prepare
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
         project: ${{ fromJson(needs.prepare.outputs.matrix) }}
     with:
       name: ${{ matrix.project }}
-      envs: |
-        NIGHTLY_BUILD=1
     secrets: inherit

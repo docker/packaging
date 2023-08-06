@@ -2,7 +2,7 @@ Source: containerd.io
 Section: devel
 Priority: optional
 Maintainer: Containerd team <help@containerd.io>
-Build-Depends: debhelper (>= 10~) | dh-systemd,
+Build-Depends: debhelper-compat (= 12),
                pkg-config,
                libseccomp-dev
 Standards-Version: 4.1.4
