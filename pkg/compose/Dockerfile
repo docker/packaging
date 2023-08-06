@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile-upstream:1
+# syntax=docker/dockerfile:1
 
 # Copyright 2022 Docker Packaging authors
 #
@@ -127,20 +127,8 @@ RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/b
   rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  builddepCmd=""
-  if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
-  elif command -v yum-builddep &> /dev/null; then
-    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
-  else
-    echo >&2 "unable to detect package manager"
-    exit 1
-  fi
-  set -x
-  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG COMPOSE_REF
 ARG NIGHTLY_BUILD
