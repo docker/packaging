@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile-upstream:1
+# syntax=docker/dockerfile:1
 
 # Copyright 2022 Docker Packaging authors
 #
@@ -96,7 +96,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash 
 RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
-    ubuntu2004|ubuntu2204|ubuntu2210|ubuntu2304)
+    ubuntu2004|ubuntu2204|ubuntu2304)
       if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
         rm -f /usr/bin/man
         dpkg-divert --quiet --remove --rename /usr/bin/man
@@ -139,20 +139,8 @@ RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/b
   rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  builddepCmd=""
-  if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
-  elif command -v yum-builddep &> /dev/null; then
-    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
-  else
-    echo >&2 "unable to detect package manager"
-    exit 1
-  fi
-  set -x
-  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG DOCKER_CLI_REF
 ARG NIGHTLY_BUILD
@@ -188,7 +176,27 @@ ARG GOVERSIONINFO_VERSION
 RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
 
-FROM build-base-static AS builder-static
+FROM build-base-static AS builder-static-nosdk
+ARG DEBIAN_FRONTEND
+RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
+ARG PKG_NAME
+ARG DOCKER_CLI_REF
+ARG NIGHTLY_BUILD
+WORKDIR /build
+ARG TARGETPLATFORM
+RUN xx-apt-get install -y gcc libc6-dev
+RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/cli,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
+    --mount=type=tmpfs,target=/go/src/github.com/docker/cli/winresources \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/docker/cli pkg-static-build
+FROM builder-static-nosdk AS builder-static-linux
+FROM builder-static-nosdk AS builder-static-windows
+
+FROM build-base-static AS builder-static-darwin
 ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
@@ -206,6 +214,8 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
     --mount=type=tmpfs,target=/go/src/github.com/docker/cli/winresources \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/docker/cli pkg-static-build
+
+FROM builder-static-$TARGETOS AS builder-static
 
 FROM builder-${PKG_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true

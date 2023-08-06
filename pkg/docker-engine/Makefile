@@ -29,7 +29,8 @@ export PKG_RPM_RELEASE = 3
 PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/moby/moby/blob/master/docker-bake.hcl#L93-L101
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
-PKG_PLATFORMS ?= linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/s390x windows/amd64
+# FIXME: add linux/s390x when remote instance is reachable again (too slow with QEMU)
+PKG_PLATFORMS ?= linux/amd64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/arm64 windows/amd64
 
 .PHONY: default
 default: pkg ;
