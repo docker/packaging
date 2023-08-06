@@ -68,6 +68,6 @@ set -x
 
 sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /common/containerd.service
 
-chmod -x debian/compat debian/control debian/copyright debian/manpages
+chmod -x debian/control debian/copyright debian/manpages
 VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/${PKG_NAME}* "${pkgoutput}"/

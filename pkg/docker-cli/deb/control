@@ -8,7 +8,7 @@ Vcs-Git: git://github.com/docker/cli.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
                bash-completion,
-               debhelper (>= 10~) | dh-systemd,
+               debhelper-compat (= 12),
                gcc,
                libc-dev,
                make

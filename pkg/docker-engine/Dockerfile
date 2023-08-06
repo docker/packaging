@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile-upstream:1
+# syntax=docker/dockerfile:1
 
 # Copyright 2022 Docker Packaging authors
 #
@@ -95,7 +95,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash 
 RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
-    ubuntu2004|ubuntu2204|ubuntu2210|ubuntu2304)
+    ubuntu2004|ubuntu2204|ubuntu2304)
       if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
         rm -f /usr/bin/man
         dpkg-divert --quiet --remove --rename /usr/bin/man
@@ -145,7 +145,7 @@ RUN <<EOT
   set -e
   builddepCmd=""
   if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
+    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep --nobest"
   elif command -v yum-builddep &> /dev/null; then
     builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
   else

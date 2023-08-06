@@ -15,8 +15,8 @@
 # don't forget to add/update pkg-info-* rule and update packages.hcl as well
 # if you add a new release
 PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
-PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu1804 ubuntu2004 ubuntu2204 ubuntu2210 ubuntu2304 raspbian10 raspbian11 raspbian12
-PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora36 fedora37 oraclelinux7 oraclelinux8 oraclelinux9
+PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2304 raspbian10 raspbian11 raspbian12
+PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora37 fedora38 oraclelinux7 oraclelinux8 oraclelinux9
 
 # PKG_SUPPORTED_PLATFORMS could be replaced by:
 # docker buildx imagetools inspect centos:7 --format "{{json .Manifest}}" | jq -r '.manifests[] | "\(.platform.os)/\(.platform.architecture)/\(.platform.variant)"' | sed 's#/null$##' | tr '\n' ',' | sed 's#,$##'
@@ -118,15 +118,6 @@ pkg-info-raspbian12:
 	$(eval PKG_BASE_IMAGE = balenalib/rpi-raspbian:bookworm)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/arm/v7)
 
-.PHONY: pkg-info-ubuntu1804
-pkg-info-ubuntu1804:
-	$(eval PKG_TYPE = deb)
-	$(eval PKG_DISTRO = ubuntu)
-	$(eval PKG_DISTRO_ID = 18.04)
-	$(eval PKG_DISTRO_SUITE = bionic)
-	$(eval PKG_BASE_IMAGE = ubuntu:bionic)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
-
 .PHONY: pkg-info-ubuntu2004
 pkg-info-ubuntu2004:
 	$(eval PKG_TYPE = deb)
@@ -144,16 +135,6 @@ pkg-info-ubuntu2204:
 	$(eval PKG_DISTRO_ID = 22.04)
 	$(eval PKG_DISTRO_SUITE = jammy)
 	$(eval PKG_BASE_IMAGE = ubuntu:jammy)
-	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
-
-.PHONY: pkg-info-ubuntu2210
-pkg-info-ubuntu2210:
-	$(eval PKG_TYPE = deb)
-	$(eval PKG_DISTRO = ubuntu)
-	$(eval PKG_DISTRO_ID = 22.10)
-	$(eval PKG_DISTRO_SUITE = kinetic)
-	$(eval PKG_BASE_IMAGE = ubuntu:kinetic)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
 
@@ -196,15 +177,6 @@ pkg-info-centos9:
 	@# FIXME: packages look broken for linux/s390x on centos:stream9
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le)
 
-.PHONY: pkg-info-fedora36
-pkg-info-fedora36:
-	$(eval PKG_TYPE = rpm)
-	$(eval PKG_DISTRO = fedora)
-	$(eval PKG_DISTRO_ID = 36)
-	$(eval PKG_DISTRO_SUITE = 36)
-	$(eval PKG_BASE_IMAGE = fedora:36)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
-
 .PHONY: pkg-info-fedora37
 pkg-info-fedora37:
 	$(eval PKG_TYPE = rpm)
@@ -212,6 +184,15 @@ pkg-info-fedora37:
 	$(eval PKG_DISTRO_ID = 37)
 	$(eval PKG_DISTRO_SUITE = 37)
 	$(eval PKG_BASE_IMAGE = fedora:37)
+	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
+
+.PHONY: pkg-info-fedora38
+pkg-info-fedora38:
+	$(eval PKG_TYPE = rpm)
+	$(eval PKG_DISTRO = fedora)
+	$(eval PKG_DISTRO_ID = 38)
+	$(eval PKG_DISTRO_SUITE = 38)
+	$(eval PKG_BASE_IMAGE = fedora:38)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
 
 .PHONY: pkg-info-oraclelinux7

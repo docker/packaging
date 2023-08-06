@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile-upstream:1
+# syntax=docker/dockerfile:1
 
 # Copyright 2022 Docker Packaging authors
 #
@@ -131,7 +131,7 @@ RUN <<EOT
   set -e
   builddepCmd=""
   if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep"
+    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep --nobest"
   elif command -v yum-builddep &> /dev/null; then
     builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
   else

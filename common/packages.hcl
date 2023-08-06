@@ -130,17 +130,6 @@ target "_pkg-raspbian12" {
   }
 }
 
-target "_pkg-ubuntu1804" {
-  args = {
-    PKG_RELEASE = "ubuntu1804"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "18.04"
-    PKG_DISTRO_SUITE = "bionic"
-    PKG_BASE_IMAGE = "ubuntu:bionic"
-  }
-}
-
 target "_pkg-ubuntu2004" {
   args = {
     PKG_RELEASE = "ubuntu2004"
@@ -160,17 +149,6 @@ target "_pkg-ubuntu2204" {
     PKG_DISTRO_ID = "22.04"
     PKG_DISTRO_SUITE = "jammy"
     PKG_BASE_IMAGE = "ubuntu:jammy"
-  }
-}
-
-target "_pkg-ubuntu2210" {
-  args = {
-    PKG_RELEASE = "ubuntu2210"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "22.10"
-    PKG_DISTRO_SUITE = "kinetic"
-    PKG_BASE_IMAGE = "ubuntu:kinetic"
   }
 }
 
@@ -218,17 +196,6 @@ target "_pkg-centos9" {
   }
 }
 
-target "_pkg-fedora36" {
-  args = {
-    PKG_RELEASE = "fedora36"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "fedora"
-    PKG_DISTRO_ID = "36"
-    PKG_DISTRO_SUITE = "36"
-    PKG_BASE_IMAGE = "fedora:36"
-  }
-}
-
 target "_pkg-fedora37" {
   args = {
     PKG_RELEASE = "fedora37"
@@ -237,6 +204,17 @@ target "_pkg-fedora37" {
     PKG_DISTRO_ID = "37"
     PKG_DISTRO_SUITE = "37"
     PKG_BASE_IMAGE = "fedora:37"
+  }
+}
+
+target "_pkg-fedora38" {
+  args = {
+    PKG_RELEASE = "fedora38"
+    PKG_TYPE = "rpm"
+    PKG_DISTRO = "fedora"
+    PKG_DISTRO_ID = "38"
+    PKG_DISTRO_SUITE = "38"
+    PKG_BASE_IMAGE = "fedora:38"
   }
 }
 
