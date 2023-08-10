@@ -21,7 +21,7 @@ variable "COMPOSE_REPO" {
 
 # Sets the compose ref.
 variable "COMPOSE_REF" {
-  default = "v2"
+  default = "main"
 }
 
 # set to 1 to enforce nightly build
