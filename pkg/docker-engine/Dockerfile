@@ -188,7 +188,7 @@ ARG DOCKER_ENGINE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libdevmapper-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
+RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
