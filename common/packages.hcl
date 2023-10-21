@@ -163,6 +163,17 @@ target "_pkg-ubuntu2304" {
   }
 }
 
+target "_pkg-ubuntu2310" {
+  args = {
+    PKG_RELEASE = "ubuntu2310"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "ubuntu"
+    PKG_DISTRO_ID = "23.10"
+    PKG_DISTRO_SUITE = "mantic"
+    PKG_BASE_IMAGE = "ubuntu:mantic"
+  }
+}
+
 target "_pkg-centos7" {
   args = {
     PKG_RELEASE = "centos7"
