@@ -14,8 +14,8 @@
 
 include ../../common/vars.mk
 
-# https://github.com/moby/moby/blob/master/Dockerfile#L3
-export GO_VERSION = 1.20.7
+# https://github.com/moby/moby/blob/24.0/Dockerfile#L3
+export GO_VERSION = 1.20.10
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
