@@ -163,6 +163,17 @@ target "_pkg-ubuntu2304" {
   }
 }
 
+target "_pkg-ubuntu2310" {
+  args = {
+    PKG_RELEASE = "ubuntu2310"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "ubuntu"
+    PKG_DISTRO_ID = "23.10"
+    PKG_DISTRO_SUITE = "mantic"
+    PKG_BASE_IMAGE = "ubuntu:mantic"
+  }
+}
+
 target "_pkg-centos7" {
   args = {
     PKG_RELEASE = "centos7"
@@ -215,6 +226,17 @@ target "_pkg-fedora38" {
     PKG_DISTRO_ID = "38"
     PKG_DISTRO_SUITE = "38"
     PKG_BASE_IMAGE = "fedora:38"
+  }
+}
+
+target "_pkg-fedora39" {
+  args = {
+    PKG_RELEASE = "fedora39"
+    PKG_TYPE = "rpm"
+    PKG_DISTRO = "fedora"
+    PKG_DISTRO_ID = "39"
+    PKG_DISTRO_SUITE = "39"
+    PKG_BASE_IMAGE = "fedora:39"
   }
 }
 
