@@ -218,6 +218,17 @@ target "_pkg-fedora38" {
   }
 }
 
+target "_pkg-fedora39" {
+  args = {
+    PKG_RELEASE = "fedora39"
+    PKG_TYPE = "rpm"
+    PKG_DISTRO = "fedora"
+    PKG_DISTRO_ID = "39"
+    PKG_DISTRO_SUITE = "39"
+    PKG_BASE_IMAGE = "fedora:39"
+  }
+}
+
 target "_pkg-oraclelinux7" {
   args = {
     PKG_RELEASE = "oraclelinux7"
