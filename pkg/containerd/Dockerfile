@@ -44,8 +44,8 @@ FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS 
 
 # md2man
 FROM go AS go-md2man
-ARG GOPROXY="direct"
-ARG GO111MODULE="on"
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GO111MODULE="on"
 ARG MD2MAN_VERSION
 RUN go install github.com/cpuguy83/go-md2man/v2@${MD2MAN_VERSION}
 
@@ -120,6 +120,7 @@ COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
@@ -154,6 +155,7 @@ FROM ${PKG_BASE_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
 ARG PKG_RELEASE
@@ -161,20 +163,8 @@ RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/b
   rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  builddepCmd=""
-  if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep --nobest"
-  elif command -v yum-builddep &> /dev/null; then
-    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
-  else
-    echo >&2 "unable to detect package manager"
-    exit 1
-  fi
-  set -x
-  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG CONTAINERD_REF
 ARG NIGHTLY_BUILD
@@ -206,7 +196,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ENV GO111MODULE="off"
+ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
 ARG CONTAINERD_REF

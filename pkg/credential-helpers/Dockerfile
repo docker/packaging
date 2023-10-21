@@ -87,6 +87,7 @@ ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
 ARG PKG_RELEASE
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
 COPY deb /root/package/debian
@@ -118,25 +119,14 @@ COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GO111MODULE="on"
 ARG PKG_RELEASE
 RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
   rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  builddepCmd=""
-  if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep --nobest"
-  elif command -v yum-builddep &> /dev/null; then
-    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
-  else
-    echo >&2 "unable to detect package manager"
-    exit 1
-  fi
-  set -x
-  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG CREDENTIAL_HELPERS_REF
 ARG NIGHTLY_BUILD

@@ -96,7 +96,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash 
 RUN <<EOT
   set -e
   case "$PKG_RELEASE" in
-    ubuntu2004|ubuntu2204|ubuntu2304)
+    ubuntu2004|ubuntu2204|ubuntu2304|ubuntu2310)
       if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
         rm -f /usr/bin/man
         dpkg-divert --quiet --remove --rename /usr/bin/man
@@ -139,20 +139,8 @@ RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/b
   rpm-init $PKG_RELEASE
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN <<EOT
-  set -e
-  builddepCmd=""
-  if command -v dnf &> /dev/null; then
-    builddepCmd="setarch $(xx-info rhel-arch) dnf builddep --nobest"
-  elif command -v yum-builddep &> /dev/null; then
-    builddepCmd="yum-builddep --target $(xx-info rhel-arch)"
-  else
-    echo >&2 "unable to detect package manager"
-    exit 1
-  fi
-  set -x
-  $builddepCmd -y /root/rpmbuild/SPECS/*.spec
-EOT
+RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG DOCKER_CLI_REF
 ARG NIGHTLY_BUILD
