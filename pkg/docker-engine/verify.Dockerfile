@@ -26,7 +26,6 @@ FROM scratch AS bin-folder
 FROM scratch AS common-scripts
 
 FROM ${PKG_BASE_IMAGE} AS verify-deb
-RUN apt-get update && apt-get install -y --no-install-recommends libdevmapper-dev
 COPY --from=xx / /
 ARG PKG_DISTRO
 ARG PKG_DISTRO_ID

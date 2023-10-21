@@ -40,7 +40,6 @@ Requires: xz
 BuildRequires: bash
 BuildRequires: ca-certificates
 BuildRequires: cmake
-BuildRequires: device-mapper-devel
 BuildRequires: gcc
 BuildRequires: glibc-static
 BuildRequires: libarchive
