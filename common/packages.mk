@@ -15,7 +15,7 @@
 # don't forget to add/update pkg-info-* rule and update packages.hcl as well
 # if you add a new release
 PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
-PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2304 raspbian10 raspbian11 raspbian12
+PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2304 ubuntu2310 raspbian10 raspbian11 raspbian12
 PKG_RPM_RELEASES ?= centos7 centos8 centos9 fedora37 fedora38 fedora39 oraclelinux7 oraclelinux8 oraclelinux9
 
 # PKG_SUPPORTED_PLATFORMS could be replaced by:
@@ -145,6 +145,16 @@ pkg-info-ubuntu2304:
 	$(eval PKG_DISTRO_ID = 23.04)
 	$(eval PKG_DISTRO_SUITE = lunar)
 	$(eval PKG_BASE_IMAGE = ubuntu:lunar)
+	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
+	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
+
+.PHONY: pkg-info-ubuntu2310
+pkg-info-ubuntu2310:
+	$(eval PKG_TYPE = deb)
+	$(eval PKG_DISTRO = ubuntu)
+	$(eval PKG_DISTRO_ID = 23.10)
+	$(eval PKG_DISTRO_SUITE = mantic)
+	$(eval PKG_BASE_IMAGE = ubuntu:mantic)
 	@# FIXME: linux/riscv64 is not supported (golang base image does not support riscv64)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x)
 
