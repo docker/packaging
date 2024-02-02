@@ -62,13 +62,13 @@ jobs:
       -
         name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
       -
         name: Set up remote builders
         if: matrix.pkg != 'static' # do not use remote builders for static builds (cross)
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
           driver: remote
@@ -170,7 +170,7 @@ jobs:
           password: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
       -
