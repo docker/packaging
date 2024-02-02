@@ -230,7 +230,7 @@ jobs:
             core.setOutput('summary', fs.readFileSync('/tmp/summary.txt', {encoding: 'utf8'}));
       -
         name: Create release
-        uses: crazy-max/ghaction-github-release@v1
+        uses: crazy-max/ghaction-github-release@v2
         if: ${{ inputs.release }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
