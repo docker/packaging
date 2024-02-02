@@ -178,6 +178,7 @@ jobs:
         with:
           workdir: ./pkg/${{ inputs.name }}
           targets: release
+          provenance: false
           set: |
             *.output=/tmp/release
       -

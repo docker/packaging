@@ -183,6 +183,7 @@ jobs:
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: release
+          provenance: false
           set: |
             *.output=type=image,push=${{ inputs.release || github.event_name == 'schedule' }}
       -
