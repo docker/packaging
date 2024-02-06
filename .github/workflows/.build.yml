@@ -108,9 +108,9 @@ jobs:
           make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
       -
         name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}
+          name: build-pkg-${{ inputs.name }}-${{ matrix.pkg }}
           path: ./pkg/${{ inputs.name }}/bin/*
           if-no-files-found: error
           retention-days: 1
@@ -136,10 +136,11 @@ jobs:
           version: latest
       -
         name: Download binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.name }}
           path: ./pkg/${{ inputs.name }}/bin
+          pattern: build-pkg-*
+          merge-multiple: true
       -
         name: Generate metadata
         run: |

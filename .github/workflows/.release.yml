@@ -101,9 +101,9 @@ jobs:
           make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
       -
         name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}
+          name: release-pkg-${{ inputs.name }}-${{ matrix.pkg }}
           path: ./pkg/${{ inputs.name }}/bin/*
           if-no-files-found: ignore
           retention-days: 1
@@ -124,10 +124,11 @@ jobs:
           done
       -
         name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.name }}
           path: ./pkg/${{ inputs.name }}/bin
+          pattern: release-pkg-*
+          merge-multiple: true
       -
         name: Resolve metadata
         run: |
