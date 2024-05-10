@@ -20,7 +20,6 @@ Recommends: docker-buildx-plugin,
             docker-compose-plugin
 Conflicts: docker (<< 1.5~),
            docker-engine,
-           docker-engine-cs,
            docker.io,
            lxc-docker,
            lxc-docker-virtual-package
