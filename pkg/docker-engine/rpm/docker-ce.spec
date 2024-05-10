@@ -57,7 +57,6 @@ BuildRequires: which
 
 Conflicts: docker
 Conflicts: docker-io
-Conflicts: docker-engine-cs
 Conflicts: docker-ee
 
 Obsoletes: docker-ce-selinux

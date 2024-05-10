@@ -20,10 +20,7 @@ Recommends: docker-buildx-plugin,
             docker-compose-plugin
 Conflicts: docker (<< 1.5~),
            docker-engine,
-           docker-engine-cs,
-           docker.io,
-           lxc-docker,
-           lxc-docker-virtual-package
+           docker.io
 Replaces: docker-ce (<< 5:0)
 Breaks: docker-ce (<< 5:0)
 Description: Docker CLI: the open-source application container engine
