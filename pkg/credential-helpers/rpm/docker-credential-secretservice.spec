@@ -7,7 +7,7 @@ Epoch: 0
 Source0: docker-credential-helpers.tgz
 Summary: Credential helper backend which uses libsecret to keep Docker credentials safe
 Group: Tools/Docker
-License: ASL 2.0
+License: Apache-2.0
 URL: https://github.com/docker/docker-credential-helpers
 Vendor: Docker
 Packager: Docker <support@docker.com>

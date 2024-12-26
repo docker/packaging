@@ -9,7 +9,7 @@ Source1: docker.service
 Source2: docker.socket
 Summary: The open-source application container engine
 Group: Tools/Docker
-License: ASL 2.0
+License: Apache-2.0
 URL: https://www.docker.com
 Vendor: Docker
 Packager: Docker <support@docker.com>

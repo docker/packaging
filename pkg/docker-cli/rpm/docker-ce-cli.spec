@@ -7,7 +7,7 @@ Epoch: 1
 Source0: cli.tgz
 Summary: The open-source application container engine
 Group: Tools/Docker
-License: ASL 2.0
+License: Apache-2.0
 URL: https://github.com/docker/cli
 Vendor: Docker
 Packager: Docker <support@docker.com>

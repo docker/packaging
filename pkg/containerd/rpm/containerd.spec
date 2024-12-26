@@ -45,7 +45,7 @@ Conflicts: runc
 Version: %{_version}
 Release: %{_release}%{?dist}
 Summary: An industry-standard container runtime
-License: ASL 2.0
+License: Apache-2.0
 URL: https://containerd.io
 Source0: containerd.tgz
 Source1: containerd.service
