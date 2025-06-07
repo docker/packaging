@@ -175,9 +175,10 @@ jobs:
           EOF
       -
         name: Release
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v6
         with:
           workdir: ./pkg/${{ inputs.name }}
+          source: .
           targets: release
           provenance: false
           set: |
