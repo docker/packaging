@@ -71,7 +71,7 @@ RUN --mount=from=bin-folder,target=/build <<EOT
       set -x
       rpm -qilp $package
       case "$PKG_RELEASE" in
-        centos7 | oraclelinux7)
+        oraclelinux7)
           rpm --install --nodeps $package
           ;;
         *)

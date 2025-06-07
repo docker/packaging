@@ -152,17 +152,6 @@ target "_pkg-ubuntu2204" {
   }
 }
 
-target "_pkg-centos7" {
-  args = {
-    PKG_RELEASE = "centos7"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "centos"
-    PKG_DISTRO_ID = "7"
-    PKG_DISTRO_SUITE = "7"
-    PKG_BASE_IMAGE = "centos:7"
-  }
-}
-
 target "_pkg-centos8" {
   args = {
     PKG_RELEASE = "centos8"

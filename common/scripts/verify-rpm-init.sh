@@ -24,9 +24,6 @@ fi
 set -e
 
 case "$pkgrelease" in
-  centos7)
-    yum install -y findutils epel-release
-    ;;
   centos8)
     [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
