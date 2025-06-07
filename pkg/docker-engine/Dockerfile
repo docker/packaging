@@ -17,19 +17,19 @@
 ARG XX_VERSION="1.6.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/moby/moby/blob/master/Dockerfile#L178
-ARG GOWINRES_VERSION="v0.3.0"
+# https://github.com/moby/moby/blob/master/Dockerfile#L157
+ARG GOWINRES_VERSION="v0.3.1"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.21.3"
-ARG GO_IMAGE_VARIANT="bullseye"
-ARG PKG_RELEASE="debian11"
+ARG GO_VERSION="1.24.4"
+ARG GO_IMAGE_VARIANT="bookworm"
+ARG PKG_RELEASE="debian12"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_ID="11"
-ARG PKG_DISTRO_SUITE="bullseye"
-ARG PKG_BASE_IMAGE="debian:bullseye"
+ARG PKG_DISTRO_ID="12"
+ARG PKG_DISTRO_SUITE="bookworm"
+ARG PKG_BASE_IMAGE="debian:bookworm"
 
 # stage used as named context that mounts common/scripts
 # see pkg target in docker-bake.hcl
