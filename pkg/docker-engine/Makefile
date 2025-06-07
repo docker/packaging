@@ -37,7 +37,7 @@ default: pkg ;
 
 .PHONY: metadata
 metadata:
-	docker buildx bake metadata
+	docker buildx bake --allow=fs=* metadata
 
 include ../../common/packages.mk
 include ../../common/build.mk

@@ -300,7 +300,7 @@ $ BUILDX_REF=v0.9.1 make
 # build and push image to dockereng/packaging:buildx-v0.9.1 using bake.
 # "release" target will use the "bin" folder as named context to create the
 # image with artifacts previously built with make.
-$ docker buildx bake --push --set *.tags=dockereng/packaging:buildx-v0.9.1 release
+$ docker buildx bake --allow=fs=* --push --set *.tags=dockereng/packaging:buildx-v0.9.1 release
 ```
 
 ## Contributing

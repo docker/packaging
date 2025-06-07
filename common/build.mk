@@ -14,8 +14,8 @@
 
 define bake
 	$(eval $@_TMP_OUT = $(shell mktemp -d -t docker-packaging.XXXXXXXXXX))
-	@PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$(2) docker buildx bake $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4) --print
-	PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$($@_TMP_OUT) docker buildx bake $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4)
+	@PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$(2) docker buildx bake --allow=fs=* $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4) --print
+	PKG_RELEASE=$(1) PKG_TYPE=$(PKG_TYPE) DESTDIR=$($@_TMP_OUT) docker buildx bake --allow=fs=* $(foreach platform,$(5),--set "*.platform=$(platform)") $(3) $(4)
 	mkdir -p $(2)
 	set -e; \
 		if [ "$(4)" = "pkg" ]; then \
