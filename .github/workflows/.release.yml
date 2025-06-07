@@ -20,7 +20,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       pkgs: ${{ steps.set.outputs.pkgs }}
     steps:
@@ -39,7 +39,7 @@ jobs:
           echo pkgs=${{ steps.set.outputs.pkgs }}
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs:
       - prepare
     strategy:
@@ -109,7 +109,7 @@ jobs:
           retention-days: 1
 
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs:
       - build
     steps:
