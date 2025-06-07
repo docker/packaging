@@ -148,8 +148,8 @@ target "_common" {
   ]
 }
 
-# $ PKG_RELEASE=debian11 docker buildx bake pkg
-# $ docker buildx bake --set *.platform=linux/amd64 --set *.output=./bin pkg
+# $ PKG_RELEASE=debian11 docker buildx bake --allow=fs=* pkg
+# $ docker buildx bake --allow=fs=* --set *.platform=linux/amd64 --set *.output=./bin pkg
 target "pkg" {
   inherits = ["_common"]
   target = "pkg"
