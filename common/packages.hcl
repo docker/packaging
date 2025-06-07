@@ -152,17 +152,6 @@ target "_pkg-ubuntu2204" {
   }
 }
 
-target "_pkg-centos8" {
-  args = {
-    PKG_RELEASE = "centos8"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "centos"
-    PKG_DISTRO_ID = "8"
-    PKG_DISTRO_SUITE = "8"
-    PKG_BASE_IMAGE = "quay.io/centos/centos:stream8"
-  }
-}
-
 target "_pkg-centos9" {
   args = {
     PKG_RELEASE = "centos9"

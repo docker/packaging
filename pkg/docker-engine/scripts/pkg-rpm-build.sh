@@ -68,7 +68,7 @@ if [ -n "$(xx-info variant)" ]; then
 fi
 
 case "$PKG_RELEASE" in
-  centos8|centos9|oraclelinux*)
+  centos9|oraclelinux*)
     export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
     ;;
 esac

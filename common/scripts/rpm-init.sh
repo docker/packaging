@@ -35,12 +35,6 @@ EOF
 }
 
 case "$pkgrelease" in
-  centos8)
-    [ -f /etc/yum.repos.d/CentOS-Stream-Sources.repo ] && sed -i 's/altarch/centos/g' /etc/yum.repos.d/CentOS-Stream-Sources.repo
-    [ -f /etc/yum.repos.d/CentOS-Stream-PowerTools.repo ] && sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
-    rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
-    ;;
   centos9)
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
