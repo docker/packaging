@@ -19,14 +19,14 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.21.1"
-ARG GO_IMAGE_VARIANT="bullseye"
-ARG PKG_RELEASE="debian11"
+ARG GO_VERSION="1.23.8"
+ARG GO_IMAGE_VARIANT="bookworm"
+ARG PKG_RELEASE="debian12"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_SUITE="bullseye"
-ARG PKG_DISTRO_ID="11"
-ARG PKG_BASE_IMAGE="debian:bullseye"
+ARG PKG_DISTRO_SUITE="bookworm"
+ARG PKG_DISTRO_ID="12"
+ARG PKG_BASE_IMAGE="debian:bookworm"
 
 # stage used as named context that mounts common/scripts
 # see pkg target in docker-bake.hcl
