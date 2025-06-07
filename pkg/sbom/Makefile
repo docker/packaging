@@ -16,6 +16,7 @@ include ../../common/vars.mk
 
 # https://github.com/docker/sbom-cli-plugin/blob/main/.github/workflows/release.yaml#L12
 export GO_VERSION = 1.18
+export GO_IMAGE_VARIANT = bullseye
 
 DESTDIR ?= $(BASEDIR)/bin
 BAKE_DEFINITIONS ?= -f docker-bake.hcl -f ../../common/packages.hcl
