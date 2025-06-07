@@ -29,10 +29,6 @@ case "$pkgrelease" in
     dnf install -y findutils dnf-plugins-core epel-release epel-next-release
     dnf config-manager --set-enabled crb
     ;;
-  oraclelinux7)
-    yum install -y findutils oraclelinux-release-el7 oracle-epel-release-el7
-    yum-config-manager --enable ol7_addons ol7_latest ol7_optional_latest
-    ;;
   oraclelinux8)
     dnf install -y findutils dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
     dnf config-manager --enable ol8_addons ol8_codeready_builder

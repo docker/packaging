@@ -70,14 +70,7 @@ RUN --mount=from=bin-folder,target=/build <<EOT
     (
       set -x
       rpm -qilp $package
-      case "$PKG_RELEASE" in
-        oraclelinux7)
-          rpm --install --nodeps $package
-          ;;
-        *)
-          yum install -y $package
-          ;;
-      esac
+      yum install -y $package
     )
   done
   set -x

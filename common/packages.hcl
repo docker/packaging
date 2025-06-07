@@ -196,17 +196,6 @@ target "_pkg-fedora39" {
   }
 }
 
-target "_pkg-oraclelinux7" {
-  args = {
-    PKG_RELEASE = "oraclelinux7"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "oraclelinux"
-    PKG_DISTRO_ID = "7"
-    PKG_DISTRO_SUITE = "7"
-    PKG_BASE_IMAGE = "oraclelinux:7"
-  }
-}
-
 target "_pkg-oraclelinux8" {
   args = {
     PKG_RELEASE = "oraclelinux8"

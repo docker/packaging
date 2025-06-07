@@ -16,7 +16,7 @@
 # if you add a new release
 PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
 PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 raspbian10 raspbian11 raspbian12
-PKG_RPM_RELEASES ?= centos9 fedora37 fedora38 fedora39 oraclelinux7 oraclelinux8 oraclelinux9
+PKG_RPM_RELEASES ?= centos9 fedora37 fedora38 fedora39 oraclelinux8 oraclelinux9
 
 # PKG_SUPPORTED_PLATFORMS could be replaced by:
 # docker buildx imagetools inspect centos:7 --format "{{json .Manifest}}" | jq -r '.manifests[] | "\(.platform.os)/\(.platform.architecture)/\(.platform.variant)"' | sed 's#/null$##' | tr '\n' ',' | sed 's#,$##'
@@ -174,15 +174,6 @@ pkg-info-fedora39:
 	$(eval PKG_DISTRO_SUITE = 39)
 	$(eval PKG_BASE_IMAGE = fedora:39)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64 linux/ppc64le linux/s390x)
-
-.PHONY: pkg-info-oraclelinux7
-pkg-info-oraclelinux7:
-	$(eval PKG_TYPE = rpm)
-	$(eval PKG_DISTRO = oraclelinux)
-	$(eval PKG_DISTRO_ID = 7)
-	$(eval PKG_DISTRO_SUITE = 7)
-	$(eval PKG_BASE_IMAGE = oraclelinux:7)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/amd64 linux/arm64)
 
 .PHONY: pkg-info-oraclelinux8
 pkg-info-oraclelinux8:
