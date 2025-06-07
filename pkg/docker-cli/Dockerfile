@@ -17,19 +17,19 @@
 ARG XX_VERSION="1.6.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/docker/cli/blob/master/Dockerfile#L7
-ARG GOVERSIONINFO_VERSION="v1.3.0"
+# https://github.com/docker/cli/blob/master/Dockerfile#L9
+ARG GOVERSIONINFO_VERSION="v1.4.1"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.21.3"
-ARG GO_IMAGE_VARIANT="bullseye"
-ARG PKG_RELEASE="debian11"
+ARG GO_VERSION="1.24.3"
+ARG GO_IMAGE_VARIANT="bookworm"
+ARG PKG_RELEASE="debian12"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_ID="11"
-ARG PKG_DISTRO_SUITE="bullseye"
-ARG PKG_BASE_IMAGE="debian:bullseye"
+ARG PKG_DISTRO_ID="12"
+ARG PKG_DISTRO_SUITE="bookworm"
+ARG PKG_BASE_IMAGE="debian:bookworm"
 
 # stage used as named context that mounts common/scripts
 # see pkg target in docker-bake.hcl
