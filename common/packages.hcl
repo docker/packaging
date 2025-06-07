@@ -152,17 +152,6 @@ target "_pkg-ubuntu2204" {
   }
 }
 
-target "_pkg-ubuntu2304" {
-  args = {
-    PKG_RELEASE = "ubuntu2304"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "23.04"
-    PKG_DISTRO_SUITE = "lunar"
-    PKG_BASE_IMAGE = "ubuntu:lunar"
-  }
-}
-
 target "_pkg-centos7" {
   args = {
     PKG_RELEASE = "centos7"
