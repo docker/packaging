@@ -59,7 +59,11 @@ WORKDIR /src
 ARG CONTAINERD_REPO
 RUN git init . && git remote add origin "${CONTAINERD_REPO}"
 ARG CONTAINERD_REF
-RUN git fetch origin "${CONTAINERD_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+RUN  <<EOT
+  set -ex
+  git fetch origin "${CONTAINERD_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+  git checkout -q FETCH_HEAD
+EOT
 
 FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/containerd \
@@ -71,13 +75,24 @@ ARG RUNC_REPO
 ARG RUNC_REF
 RUN git init . && git remote add origin "${RUNC_REPO}"
 RUN --mount=from=src,source=/src,target=/containerd <<EOT
+  set -e
   [ -z "$RUNC_REF" ] && RUNC_REF=$(cat /containerd/script/setup/runc-version)
+  set -x
   git fetch origin "$RUNC_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 EOT
 
 FROM src-base AS runc-src-tgz
 RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
+
+FROM src-base AS libseccomp-src
+WORKDIR /src
+RUN --mount=from=runc-src,source=/src,target=/runc <<EOT
+  set -e
+  LIBSECCOMP_VERSION=$(grep '^ARG LIBSECCOMP_VERSION=' /runc/Dockerfile | cut -d'=' -f2)
+  set -x
+  curl -sSL "https://github.com/seccomp/libseccomp/releases/download/v${LIBSECCOMP_VERSION}/libseccomp-${LIBSECCOMP_VERSION}.tar.gz" | tar -xz --strip-components=1
+EOT
 
 # metadata
 FROM src-base AS metadata-builder
@@ -194,8 +209,8 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
-  dpkg-dev git make pkg-config
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git gperf zip tar \
+  dpkg-dev clang make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -208,14 +223,15 @@ ARG NIGHTLY_BUILD
 ARG RUNC_REF
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y libseccomp-dev gcc
+RUN xx-apt-get install -y gcc
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
+    --mount=type=bind,from=libseccomp-src,source=/src,target=/usr/local/src/libseccomp,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc pkg-static-build
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc LIBSECCOMP_SRCDIR=/usr/local/src/libseccomp pkg-static-build
 
 FROM builder-${PKG_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true

@@ -30,7 +30,7 @@ variable "RUNC_REPO" {
   default = "https://github.com/opencontainers/runc.git"
 }
 variable "RUNC_REF" {
-  default = ""
+  default = null
 }
 
 # set to 1 to enforce nightly build
