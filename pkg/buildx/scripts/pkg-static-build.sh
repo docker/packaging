@@ -49,7 +49,7 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} DESTDIR=/tmp/buildx-build make build
+    VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} DESTDIR=/tmp/buildx-build ./hack/build
     mv "/tmp/buildx-build/docker-buildx" "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
