@@ -86,6 +86,17 @@ target "_pkg-debian12" {
   }
 }
 
+target "_pkg-debian13" {
+  args = {
+    PKG_RELEASE = "debian13"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "debian"
+    PKG_DISTRO_ID = "13"
+    PKG_DISTRO_SUITE = "trixie"
+    PKG_BASE_IMAGE = "debian:trixie"
+  }
+}
+
 target "_pkg-raspbian11" {
   args = {
     PKG_RELEASE = "raspbian11"
