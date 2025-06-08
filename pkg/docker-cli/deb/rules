@@ -10,7 +10,7 @@ override_dh_auto_build:
 	ln -snf $(CURDIR)/cli /go/src/github.com/docker/cli && \
 	cd /go/src/github.com/docker/cli && \
 	VERSION=$(VERSION) GITCOMMIT=$(REVISION) LDFLAGS='' GO_LINKMODE=dynamic ./scripts/build/binary && \
-	DISABLE_WARN_OUTSIDE_CONTAINER=1 LDFLAGS='' make manpages
+	DISABLE_WARN_OUTSIDE_CONTAINER=1 LDFLAGS='' make manpages shell-completion
 
 override_dh_auto_test:
 	ver="$$(cli/build/docker --version)"; \
@@ -26,8 +26,8 @@ override_dh_dwz:
 	@# https://packages.ubuntu.com/debhelper
 
 override_dh_auto_install:
-	install -D -m 0644 cli/contrib/completion/fish/docker.fish debian/docker-ce-cli/usr/share/fish/vendor_completions.d/docker.fish
-	install -D -m 0644 cli/contrib/completion/zsh/_docker debian/docker-ce-cli/usr/share/zsh/vendor-completions/_docker
+	install -D -m 0644 cli/build/completion/fish/docker.fish debian/docker-ce-cli/usr/share/fish/vendor_completions.d/docker.fish
+	install -D -m 0644 cli/build/completion/zsh/_docker debian/docker-ce-cli/usr/share/zsh/vendor-completions/_docker
 	install -D -m 0755 cli/build/docker debian/docker-ce-cli/usr/bin/docker
 
 override_dh_installinit:
