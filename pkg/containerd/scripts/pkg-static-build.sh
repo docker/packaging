@@ -23,6 +23,7 @@
 : "${OUTDIR=/out}"
 
 : "${RUNC_SRCDIR=/work/runc-src}"
+: "${LIBSECCOMP_SRCDIR=/work/libseccomp-src}"
 
 set -e
 
@@ -61,6 +62,15 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2"
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd"
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/ctr"
+)
+
+(
+  set -x
+  pushd ${LIBSECCOMP_SRCDIR}
+    ./configure --host=$(xx-clang --print-target-triple) --enable-static --disable-shared
+    make install
+    make clean
+  popd
 )
 
 (
