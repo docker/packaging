@@ -287,8 +287,8 @@ $ make
 $ make pkg-deb
 # build debian bullseye packages
 $ make run-pkg-debian11
-# build centos 7 packages
-$ make run-pkg-centos7
+# build centos 9 packages
+$ make run-pkg-centos9
 ```
 
 To create a new release of Buildx v0.9.1:

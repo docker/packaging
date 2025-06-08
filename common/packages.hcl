@@ -152,50 +152,6 @@ target "_pkg-ubuntu2204" {
   }
 }
 
-target "_pkg-ubuntu2304" {
-  args = {
-    PKG_RELEASE = "ubuntu2304"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "23.04"
-    PKG_DISTRO_SUITE = "lunar"
-    PKG_BASE_IMAGE = "ubuntu:lunar"
-  }
-}
-
-target "_pkg-ubuntu2310" {
-  args = {
-    PKG_RELEASE = "ubuntu2310"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "23.10"
-    PKG_DISTRO_SUITE = "mantic"
-    PKG_BASE_IMAGE = "ubuntu:mantic"
-  }
-}
-
-target "_pkg-centos7" {
-  args = {
-    PKG_RELEASE = "centos7"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "centos"
-    PKG_DISTRO_ID = "7"
-    PKG_DISTRO_SUITE = "7"
-    PKG_BASE_IMAGE = "centos:7"
-  }
-}
-
-target "_pkg-centos8" {
-  args = {
-    PKG_RELEASE = "centos8"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "centos"
-    PKG_DISTRO_ID = "8"
-    PKG_DISTRO_SUITE = "8"
-    PKG_BASE_IMAGE = "quay.io/centos/centos:stream8"
-  }
-}
-
 target "_pkg-centos9" {
   args = {
     PKG_RELEASE = "centos9"
@@ -237,17 +193,6 @@ target "_pkg-fedora39" {
     PKG_DISTRO_ID = "39"
     PKG_DISTRO_SUITE = "39"
     PKG_BASE_IMAGE = "fedora:39"
-  }
-}
-
-target "_pkg-oraclelinux7" {
-  args = {
-    PKG_RELEASE = "oraclelinux7"
-    PKG_TYPE = "rpm"
-    PKG_DISTRO = "oraclelinux"
-    PKG_DISTRO_ID = "7"
-    PKG_DISTRO_SUITE = "7"
-    PKG_BASE_IMAGE = "oraclelinux:7"
   }
 }
 
