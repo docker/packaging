@@ -86,6 +86,7 @@ COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS apparmor seccomp selinux
@@ -132,6 +133,7 @@ FROM ${PKG_BASE_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS seccomp selinux
@@ -173,6 +175,7 @@ ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV CGO_ENABLED="1"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 
 FROM build-base-static AS gowinres

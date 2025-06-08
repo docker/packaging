@@ -88,6 +88,7 @@ ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ARG PKG_RELEASE
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
@@ -120,6 +121,7 @@ COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ARG PKG_RELEASE
 RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
@@ -156,6 +158,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
@@ -181,6 +184,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
