@@ -185,7 +185,7 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get install -y --no-install-recommends cmake gcc libc6-dev lld make pkg-config
+RUN apt-get install -y --no-install-recommends clang cmake gcc libc6-dev lld llvm make pkg-config
 ARG PKG_NAME
 ARG DOCKER_ENGINE_REF
 ARG NIGHTLY_BUILD

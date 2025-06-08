@@ -43,6 +43,12 @@ done
 xx-go --wrap
 fix-cc
 
+# prefer ld for cross-compiling arm64
+# https://github.com/moby/moby/commit/f676dab8dc58c9eaa83b260c631a92d95a7a0b10
+if [  "$(xx-info arch)" = "arm64" ]; then
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
+fi
+
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 mkdir -p ${BUILDDIR}/${PKG_NAME}
 
