@@ -185,13 +185,13 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 
 FROM build-base-static AS builder-static
 ARG DEBIAN_FRONTEND
-RUN apt-get install -y --no-install-recommends cmake gcc libc6-dev lld make pkg-config
+RUN apt-get install -y --no-install-recommends clang cmake gcc libc6-dev lld llvm make pkg-config
 ARG PKG_NAME
 ARG DOCKER_ENGINE_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libltdl-dev libseccomp-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
+RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libltdl-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \

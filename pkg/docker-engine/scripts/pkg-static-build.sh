@@ -43,17 +43,28 @@ done
 xx-go --wrap
 fix-cc
 
+# prefer ld for cross-compiling arm64
+# https://github.com/moby/moby/commit/f676dab8dc58c9eaa83b260c631a92d95a7a0b10
+if [  "$(xx-info arch)" = "arm64" ]; then
+  XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
+fi
+
 binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 mkdir -p ${BUILDDIR}/${PKG_NAME}
 
 (
   set -x
   pushd ${SRCDIR}
-  CGO_ENABLED=1 VERSION=${GENVER_VERSION} DOCKER_GITCOMMIT=${GENVER_COMMIT} ./hack/make.sh binary
-  mv "./bundles/binary-daemon/dockerd${binext}" "./bundles/binary-daemon/docker-proxy${binext}" "${BUILDDIR}/${PKG_NAME}/"
+    CGO_ENABLED=1 VERSION=${GENVER_VERSION} DOCKER_GITCOMMIT=${GENVER_COMMIT} ./hack/make.sh binary
+    mv "./bundles/binary-daemon/dockerd${binext}" "${BUILDDIR}/${PKG_NAME}/"
+    if [ "$(xx-info os)" != "windows" ]; then
+      mv "./bundles/binary-daemon/docker-proxy${binext}" "${BUILDDIR}/${PKG_NAME}/"
+    fi
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
+  if [ "$(xx-info os)" != "windows" ]; then
+    xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
+  fi
 )
 
 # TODO: build tini for windows

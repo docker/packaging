@@ -13,8 +13,6 @@ Build-Depends: ca-certificates,
                gcc,
                libc-dev,
                libltdl-dev,
-               libseccomp-dev,
-               libseccomp2,
                libsystemd-dev,
                libtool,
                make,
@@ -25,7 +23,6 @@ Architecture: linux-any
 Depends: containerd.io (>= 1.6.4),
          docker-ce-cli,
          iptables,
-         libseccomp2 (>= 2.3.0),
          ${shlibs:Depends}
 Recommends: apparmor,
             ca-certificates,
@@ -35,11 +32,12 @@ Recommends: apparmor,
             pigz,
             procps,
             xz-utils
-Suggests: aufs-tools [amd64], cgroupfs-mount | cgroup-lite
+Suggests: cgroupfs-mount | cgroup-lite
 Conflicts: docker (<< 1.5~),
            docker-engine,
            docker.io
-Replaces: docker-engine
+Replaces: docker-engine,
+          docker-ce-cli (<< 5:28.0.0)
 Description: Docker: the open-source application container engine
  Docker is a product for you to build, ship and run any application as a
  lightweight container
