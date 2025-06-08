@@ -169,7 +169,7 @@ WORKDIR /build
 # download dependencies before "ARG TARGETPLATFORM" otherwise it will be cached
 # for each platform and that would take a lot of disk space
 RUN --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.mod \
-    --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.sum,rw \
+    --mount=type=bind,from=src,source=/src/go.sum,target=/build/go.sum,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     go mod download -x
 ARG TARGETPLATFORM
@@ -201,7 +201,7 @@ WORKDIR /build
 # download dependencies before "ARG TARGETPLATFORM" otherwise it will be cached
 # for each platform and that would take a lot of disk space
 RUN --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.mod \
-    --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.sum,rw \
+    --mount=type=bind,from=src,source=/src/go.sum,target=/build/go.sum,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     go mod download -x
 ARG TARGETPLATFORM
