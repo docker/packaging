@@ -17,7 +17,7 @@ Packager: Docker <support@docker.com>
 Requires: /usr/sbin/groupadd
 Requires: docker-ce-cli
 Recommends: docker-ce-rootless-extras
-Requires: container-selinux >= 2:2.74
+Requires: container-selinux
 Requires: systemd
 Requires: iptables
 %if %{undefined rhel} || 0%{?rhel} < 9
@@ -34,13 +34,11 @@ BuildRequires: cmake
 BuildRequires: gcc
 BuildRequires: glibc-static
 BuildRequires: libarchive
-BuildRequires: libselinux-devel
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 BuildRequires: pkgconfig
 BuildRequires: pkgconfig(systemd)
-BuildRequires: selinux-policy-devel
 BuildRequires: systemd-devel
 BuildRequires: tar
 BuildRequires: which
