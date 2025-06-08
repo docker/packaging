@@ -14,22 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.2.1"
+ARG XX_VERSION="1.6.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
-# https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L132
+# https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L111
 ARG MD2MAN_VERSION="v2.0.2"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.21.3"
-ARG GO_IMAGE_VARIANT="bullseye"
-ARG PKG_RELEASE="debian11"
+ARG GO_VERSION="1.24.3"
+ARG GO_IMAGE_VARIANT="bookworm"
+ARG PKG_RELEASE="debian12"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_ID="11"
-ARG PKG_DISTRO_SUITE="bullseye"
-ARG PKG_BASE_IMAGE="debian:bullseye"
+ARG PKG_DISTRO_ID="12"
+ARG PKG_DISTRO_SUITE="bookworm"
+ARG PKG_BASE_IMAGE="debian:bookworm"
 
 # stage used as named context that mounts common/scripts
 # see pkg target in docker-bake.hcl
@@ -45,6 +45,7 @@ FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS 
 # md2man
 FROM go AS go-md2man
 ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ARG MD2MAN_VERSION
 RUN go install github.com/cpuguy83/go-md2man/v2@${MD2MAN_VERSION}
@@ -120,6 +121,7 @@ COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
@@ -155,6 +157,7 @@ FROM ${PKG_BASE_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
@@ -196,6 +199,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME

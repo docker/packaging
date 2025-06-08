@@ -199,5 +199,5 @@ pkg-info-static:
 	$(eval PKG_DISTRO = static)
 	$(eval PKG_DISTRO_ID =)
 	$(eval PKG_DISTRO_SUITE =)
-	$(eval PKG_BASE_IMAGE = debian:bullseye)
+	$(eval PKG_BASE_IMAGE = debian:bookworm)
 	$(eval PKG_SUPPORTED_PLATFORMS =)

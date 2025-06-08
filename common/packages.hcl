@@ -225,6 +225,6 @@ target "_pkg-static" {
     PKG_DISTRO = "static"
     PKG_DISTRO_ID = ""
     PKG_DISTRO_SUITE = ""
-    PKG_BASE_IMAGE = "debian:bullseye"
+    PKG_BASE_IMAGE = "debian:bookworm"
   }
 }

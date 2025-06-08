@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.2.1"
+ARG XX_VERSION="1.6.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
@@ -84,6 +84,7 @@ ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
@@ -117,6 +118,7 @@ COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
@@ -153,6 +155,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_NAME

@@ -14,19 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.2.1"
+ARG XX_VERSION="1.6.1"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # common args
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.21.1"
-ARG GO_IMAGE_VARIANT="bullseye"
-ARG PKG_RELEASE="debian11"
+ARG GO_VERSION="1.23.8"
+ARG GO_IMAGE_VARIANT="bookworm"
+ARG PKG_RELEASE="debian12"
 ARG PKG_TYPE="deb"
 ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_SUITE="bullseye"
-ARG PKG_DISTRO_ID="11"
-ARG PKG_BASE_IMAGE="debian:bullseye"
+ARG PKG_DISTRO_SUITE="bookworm"
+ARG PKG_DISTRO_ID="12"
+ARG PKG_BASE_IMAGE="debian:bookworm"
 
 # stage used as named context that mounts common/scripts
 # see pkg target in docker-bake.hcl
@@ -87,6 +87,7 @@ ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
@@ -120,6 +121,7 @@ COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_RELEASE
@@ -157,6 +159,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_NAME
@@ -188,6 +191,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certifi
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG PKG_NAME

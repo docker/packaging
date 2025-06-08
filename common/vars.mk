@@ -16,8 +16,8 @@ export BASEDIR ?= $(CURDIR)
 
 # go base image
 export GO_IMAGE ?= golang
-export GO_VERSION ?= 1.21.3
-export GO_IMAGE_VARIANT ?= bullseye
+export GO_VERSION ?= 1.24.4
+export GO_IMAGE_VARIANT ?= bookworm
 
 # if set, ony build matching the local platform
 # e.g., LOCAL_PLATFORM=1 make deb
