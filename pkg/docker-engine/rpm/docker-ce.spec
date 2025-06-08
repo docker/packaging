@@ -78,6 +78,9 @@ TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
 VERSION=%{_origversion} DOCKER_GITCOMMIT=%{_commit} PRODUCT=docker hack/make.sh dynbinary
 popd
 
+# build man-pages
+make -C ${RPM_BUILD_DIR}/src/engine/man
+
 %check
 ver="$(engine/bundles/dynbinary-daemon/dockerd --version)"; \
     test "$ver" = "Docker version %{_origversion}, build %{_commit}" && echo "PASS: daemon version OK" || (echo "FAIL: daemon version ($ver) did not match" && exit 1)
@@ -92,6 +95,9 @@ install -D -p -m 0755 /usr/local/bin/docker-init ${RPM_BUILD_ROOT}%{_libexecdir}
 install -D -m 0644 engine/contrib/init/systemd/docker.service ${RPM_BUILD_ROOT}%{_unitdir}/docker.service
 install -D -m 0644 engine/contrib/init/systemd/docker.socket ${RPM_BUILD_ROOT}%{_unitdir}/docker.socket
 
+# install manpages
+make -C ${RPM_BUILD_DIR}/src/engine/man DESTDIR=${RPM_BUILD_ROOT} mandir=%{_mandir} install
+
 # create the config directory
 mkdir -p ${RPM_BUILD_ROOT}/etc/docker
 
@@ -101,6 +107,7 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/docker
 %{_libexecdir}/docker/docker-init
 %{_unitdir}/docker.service
 %{_unitdir}/docker.socket
+%{_mandir}/man*/*
 %dir /etc/docker
 
 %post
