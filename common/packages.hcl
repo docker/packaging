@@ -86,17 +86,6 @@ target "_pkg-debian12" {
   }
 }
 
-target "_pkg-raspbian10" {
-  args = {
-    PKG_RELEASE = "raspbian10"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "raspbian"
-    PKG_DISTRO_ID = "10"
-    PKG_DISTRO_SUITE = "buster"
-    PKG_BASE_IMAGE = "balenalib/rpi-raspbian:buster"
-  }
-}
-
 target "_pkg-raspbian11" {
   args = {
     PKG_RELEASE = "raspbian11"
