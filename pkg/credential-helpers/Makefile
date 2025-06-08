@@ -27,7 +27,7 @@ PKG_LIST ?= deb rpm static
 # supported platforms: https://github.com/docker/docker-credential-helpers/blob/master/docker-bake.hcl#L56-L66
 # FIXME: add linux/ppc64le when a remote PowerPC instance is available (too slow with QEMU)
 # FIXME: add linux/s390x when remote instance is reachable again (too slow with QEMU)
-PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/arm64 windows/amd64
+PKG_PLATFORMS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 windows/amd64
 
 .PHONY: default
 default: pkg ;
