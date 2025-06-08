@@ -64,17 +64,6 @@ target "_pkg-alpine316" {
   }
 }
 
-target "_pkg-debian10" {
-  args = {
-    PKG_RELEASE = "debian10"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "debian"
-    PKG_DISTRO_ID = "10"
-    PKG_DISTRO_SUITE = "buster"
-    PKG_BASE_IMAGE = "debian:buster"
-  }
-}
-
 target "_pkg-debian11" {
   args = {
     PKG_RELEASE = "debian11"
@@ -97,14 +86,14 @@ target "_pkg-debian12" {
   }
 }
 
-target "_pkg-raspbian10" {
+target "_pkg-debian13" {
   args = {
-    PKG_RELEASE = "raspbian10"
+    PKG_RELEASE = "debian13"
     PKG_TYPE = "deb"
-    PKG_DISTRO = "raspbian"
-    PKG_DISTRO_ID = "10"
-    PKG_DISTRO_SUITE = "buster"
-    PKG_BASE_IMAGE = "balenalib/rpi-raspbian:buster"
+    PKG_DISTRO = "debian"
+    PKG_DISTRO_ID = "13"
+    PKG_DISTRO_SUITE = "trixie"
+    PKG_BASE_IMAGE = "debian:trixie"
   }
 }
 

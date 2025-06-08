@@ -15,7 +15,7 @@
 # don't forget to add/update pkg-info-* rule and update packages.hcl as well
 # if you add a new release
 PKG_APK_RELEASES ?= alpine314 alpine315 alpine316
-PKG_DEB_RELEASES ?= debian10 debian11 debian12 ubuntu2004 ubuntu2204 raspbian10 raspbian11 raspbian12
+PKG_DEB_RELEASES ?= debian11 debian12 debian13 ubuntu2004 ubuntu2204 raspbian11 raspbian12
 PKG_RPM_RELEASES ?= centos9 fedora37 fedora38 fedora39 oraclelinux8 oraclelinux9
 
 # PKG_SUPPORTED_PLATFORMS could be replaced by:
@@ -64,15 +64,6 @@ pkg-info-alpine316:
 	$(eval PKG_BASE_IMAGE = alpine:3.16)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7 linux/arm/v6 linux/arm/v5 linux/ppc64le linux/s390x)
 
-.PHONY: pkg-info-debian10
-pkg-info-debian10:
-	$(eval PKG_TYPE = deb)
-	$(eval PKG_DISTRO = debian)
-	$(eval PKG_DISTRO_ID = 10)
-	$(eval PKG_DISTRO_SUITE = buster)
-	$(eval PKG_BASE_IMAGE = debian:buster)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v7)
-
 .PHONY: pkg-info-debian11
 pkg-info-debian11:
 	$(eval PKG_TYPE = deb)
@@ -91,14 +82,14 @@ pkg-info-debian12:
 	$(eval PKG_BASE_IMAGE = debian:bookworm)
 	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/mips64le linux/ppc64le linux/s390x)
 
-.PHONY: pkg-info-raspbian10
-pkg-info-raspbian10:
+.PHONY: pkg-info-debian13
+pkg-info-debian13:
 	$(eval PKG_TYPE = deb)
-	$(eval PKG_DISTRO = raspbian)
-	$(eval PKG_DISTRO_ID = 10)
-	$(eval PKG_DISTRO_SUITE = buster)
-	$(eval PKG_BASE_IMAGE = balenalib/rpi-raspbian:buster)
-	$(eval PKG_SUPPORTED_PLATFORMS = linux/arm/v7)
+	$(eval PKG_DISTRO = debian)
+	$(eval PKG_DISTRO_ID = 13)
+	$(eval PKG_DISTRO_SUITE = trixie)
+	$(eval PKG_BASE_IMAGE = debian:trixie)
+	$(eval PKG_SUPPORTED_PLATFORMS = linux/386 linux/amd64 linux/arm64 linux/arm/v5 linux/arm/v6 linux/arm/v7 linux/mips64le linux/ppc64le linux/riscv64 linux/s390x)
 
 .PHONY: pkg-info-raspbian11
 pkg-info-raspbian11:
