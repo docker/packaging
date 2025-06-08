@@ -64,17 +64,6 @@ target "_pkg-alpine316" {
   }
 }
 
-target "_pkg-debian10" {
-  args = {
-    PKG_RELEASE = "debian10"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "debian"
-    PKG_DISTRO_ID = "10"
-    PKG_DISTRO_SUITE = "buster"
-    PKG_BASE_IMAGE = "debian:buster"
-  }
-}
-
 target "_pkg-debian11" {
   args = {
     PKG_RELEASE = "debian11"
