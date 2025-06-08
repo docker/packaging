@@ -66,6 +66,6 @@ mkdir -p "${pkgoutput}"
 
 set -x
 
-chmod -x debian/control debian/docs
+chmod -x debian/control debian/docs debian/docker-ce.dirs
 VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT_SHORT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/
