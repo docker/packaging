@@ -119,17 +119,6 @@ target "_pkg-raspbian12" {
   }
 }
 
-target "_pkg-ubuntu2004" {
-  args = {
-    PKG_RELEASE = "ubuntu2004"
-    PKG_TYPE = "deb"
-    PKG_DISTRO = "ubuntu"
-    PKG_DISTRO_ID = "20.04"
-    PKG_DISTRO_SUITE = "focal"
-    PKG_BASE_IMAGE = "ubuntu:focal"
-  }
-}
-
 target "_pkg-ubuntu2204" {
   args = {
     PKG_RELEASE = "ubuntu2204"
@@ -138,6 +127,17 @@ target "_pkg-ubuntu2204" {
     PKG_DISTRO_ID = "22.04"
     PKG_DISTRO_SUITE = "jammy"
     PKG_BASE_IMAGE = "ubuntu:jammy"
+  }
+}
+
+target "_pkg-ubuntu2404" {
+  args = {
+    PKG_RELEASE = "ubuntu2404"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "ubuntu"
+    PKG_DISTRO_ID = "24.04"
+    PKG_DISTRO_SUITE = "noble"
+    PKG_BASE_IMAGE = "ubuntu:noble"
   }
 }
 
