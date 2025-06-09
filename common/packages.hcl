@@ -130,6 +130,17 @@ target "_pkg-ubuntu2204" {
   }
 }
 
+target "_pkg-ubuntu2404" {
+  args = {
+    PKG_RELEASE = "ubuntu2404"
+    PKG_TYPE = "deb"
+    PKG_DISTRO = "ubuntu"
+    PKG_DISTRO_ID = "24.04"
+    PKG_DISTRO_SUITE = "noble"
+    PKG_BASE_IMAGE = "ubuntu:noble"
+  }
+}
+
 target "_pkg-centos9" {
   args = {
     PKG_RELEASE = "centos9"
