@@ -503,12 +503,6 @@ target "pkg" {
   # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
   # default platform specification: https://docs.docker.com/build/customize/bake/file-definition/#built-in-variables
   platforms = LOCAL_PLATFORM != null ? [BAKE_LOCAL_PLATFORM] : distroPlatforms(distro, pkg)
-  cache-from = [
-    BUILD_CACHE_REGISTRY_SLUG != "" ? "type=registry,ref=${BUILD_CACHE_REGISTRY_SLUG}:${pkg}-${distro}" : "",
-  ]
-  cache-to = [
-    BUILD_CACHE_REGISTRY_SLUG != "" && BUILD_CACHE_REGISTRY_PUSH != "" ? "type=registry,ref=${BUILD_CACHE_REGISTRY_SLUG}:${pkg}-${distro},mode=max" : "",
-  ]
   attest = [
     "type=sbom",
     "type=provenance,mode=max"

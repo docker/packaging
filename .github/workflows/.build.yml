@@ -101,11 +101,6 @@ jobs:
           # Set platform pair for artifact upload
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
-          # Push cache to regitry only on main (secrets not available from fork)
-          # and not on workflow_dispatch event
-          if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            echo "BUILD_CACHE_REGISTRY_PUSH=1" >> $GITHUB_ENV
-          fi
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
