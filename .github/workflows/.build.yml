@@ -13,7 +13,7 @@ on:
 
 env:
   BUILD_CACHE_REGISTRY_SLUG: dockereng/packaging-cache
-  GHA_DEFAULT_MATRIX: minimal
+  DOCKER_BUILD_SUMMARY: false
 
 jobs:
   prepare:
@@ -174,49 +174,51 @@ jobs:
         name: List binaries
         run: |
           tree -nh ./bin/pkg/${{ inputs.name }}
-#      -
-#        name: Generate metadata
-#        run: |
-#          make -C pkg/${{ inputs.name }} metadata
-#      -
-#        name: Summary
-#        run: |
-#          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
-#            export "${l?}"
-#          done
-#
-#          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-#          * repo: ${REPO}
-#          * ref: \`${REF}\`
-#          * version: \`${VERSION}\`
-#          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
-#          EOF
-#
-#          if [ "${{ inputs.name }}" = "containerd" ]; then
-#            cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-#          * runc
-#            * repo: ${RUNC_REPO}
-#            * ref: \`${RUNC_REF}\`
-#            * version: \`${RUNC_VERSION}\`
-#            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
-#          EOF
-#          fi
-#
-#          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-#          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
-#          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
-#          EOF
-#      -
-#        name: Release
-#        uses: docker/bake-action@v6
-#        with:
-#          workdir: ./pkg/${{ inputs.name }}
-#          source: .
-#          targets: release
-#          provenance: false
-#          set: |
-#            *.output=/tmp/release
-#      -
-#        name: List release artifacts
-#        run: |
-#          tree /tmp/release
+      -
+        name: Generate metadata
+        uses: docker/bake-action@v6
+        with:
+          source: .
+          targets: metadata-${{ inputs.name }}
+          provenance: false
+      -
+        name: Release
+        uses: docker/bake-action@v6
+        with:
+          source: .
+          targets: release-${{ inputs.name }}
+          provenance: false
+          set: |
+            *.output=/tmp/release
+      -
+        name: List release artifacts
+        run: |
+          tree -nh /tmp/release
+      -
+        name: Summary
+        run: |
+          for l in $(cat ./bin/pkg/${{ inputs.name }}/metadata.env); do
+            export "${l?}"
+          done
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * repo: ${REPO}
+          * ref: \`${REF}\`
+          * version: \`${VERSION}\`
+          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+          EOF
+
+          if [ "${{ inputs.name }}" = "containerd" ]; then
+            cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * runc
+            * repo: ${RUNC_REPO}
+            * ref: \`${RUNC_REF}\`
+            * version: \`${RUNC_VERSION}\`
+            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+          EOF
+          fi
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+          * packages: \`$(find /tmp/release -type f | wc -l)\` files
+          * size: \`$(du -sh /tmp/release | awk '{print $1}')\`
+          EOF

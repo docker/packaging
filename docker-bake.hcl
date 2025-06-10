@@ -561,7 +561,10 @@ target "metadata" {
     scripts = "./hack/scripts"
   }
   target = "metadata"
-  output = ["./bin/metadata/${pkg}"]
+  output = ["./bin/pkg/${pkg}"]
+  args = {
+    BUILDKIT_MULTI_PLATFORM = 0
+  }
 }
 
 group "validate" {
