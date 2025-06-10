@@ -515,6 +515,24 @@ target "pkg" {
   ]
 }
 
+target "verify" {
+  name = "verify-${pkg}-${distro}"
+  description = "Verify ${pkg} package for ${distro}"
+  inherits = ["_common", "_distro-${distro}", "_pkg-${pkg}"]
+  matrix = {
+    pkg = PKGS
+    distro = DISTROS
+  }
+  context = "./pkg/${pkg}"
+  dockerfile = "verify.Dockerfile"
+  contexts = {
+    scripts = "./hack/scripts"
+    bin = "./bin/pkg/${pkg}/${distro}"
+  }
+  no-cache = true
+  output = ["type=cacheonly"]
+}
+
 # Create release image by using ./bin folder as named context. Make sure all
 # pkg targets are called before releasing
 target "release" {
@@ -529,22 +547,6 @@ target "release" {
     bin = "./bin/pkg/${pkg}"
   }
   platforms = pkgPlatforms(pkg)
-}
-
-target "verify" {
-  name = "verify-${pkg}"
-  description = "Verify ${pkg} package"
-  inherits = ["_common", "_pkg-${pkg}"]
-  matrix = {
-    pkg = PKGS
-  }
-  context = "./pkg/${pkg}"
-  dockerfile = "./pkg/${pkg}/verify.Dockerfile"
-  contexts = {
-    scripts = "./hack/scripts"
-    bin = "./bin/pkg/${pkg}"
-  }
-  output = ["type=cacheonly"]
 }
 
 target "metadata" {

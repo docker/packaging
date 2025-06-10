@@ -16,8 +16,8 @@
 
 ARG XX_VERSION="1.6.1"
 
-ARG DISTRO_TYPE
-ARG DISTRO_IMAGE
+ARG DISTRO_TYPE="deb"
+ARG DISTRO_IMAGE="debian:bookworm"
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -25,7 +25,9 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 FROM scratch AS bin
 FROM scratch AS scripts
 
-FROM ${DISTRO_IMAGE} AS verify-deb
+FROM ${DISTRO_IMAGE} AS base
+
+FROM base AS verify-deb
 RUN apt-get update
 COPY --from=xx / /
 ARG DISTRO_RELEASE
@@ -34,7 +36,11 @@ ARG DISTRO_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin,target=/build <<EOT
   set -e
-  dir=/build/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)
+  targetplatform=$(xx-info os)_$(xx-info arch)
+  if [ -n "$(xx-info variant)" ]; then
+    targetplatform="${targetplatform}_$(xx-info variant)"
+  fi
+  dir=/build/${targetplatform}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)
   if [ ! -d "$dir" ]; then
     echo >&2 "warning: no packages found in $dir"
     exit 0
@@ -51,7 +57,7 @@ RUN --mount=from=bin,target=/build <<EOT
   docker-credential-secretservice version
 EOT
 
-FROM ${DISTRO_IMAGE} AS verify-rpm
+FROM base AS verify-rpm
 COPY --from=xx / /
 ARG DISTRO_NAME
 ARG DISTRO_RELEASE
@@ -62,7 +68,11 @@ RUN --mount=type=bind,from=scripts,source=verify-rpm-init.sh,target=/usr/local/b
 ARG TARGETPLATFORM
 RUN --mount=from=bin,target=/build <<EOT
   set -e
-  dir=/build/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)
+  targetplatform=$(xx-info os)_$(xx-info arch)
+  if [ -n "$(xx-info variant)" ]; then
+    targetplatform="${targetplatform}_$(xx-info variant)"
+  fi
+  dir=/build/${targetplatform}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)
   if [ ! -d "$dir" ]; then
     echo >&2 "warning: no packages found in $dir"
     exit 0
@@ -94,7 +104,7 @@ RUN --mount=from=bin,target=/build <<EOT
   esac
 EOT
 
-FROM ${DISTRO_IMAGE} AS verify-static
+FROM base AS verify-static
 RUN apt-get update && apt-get install -y --no-install-recommends tar libsecret-1-0
 COPY --from=xx / /
 ARG DISTRO_RELEASE
@@ -103,7 +113,11 @@ ARG DISTRO_SUITE
 ARG TARGETPLATFORM
 RUN --mount=from=bin,target=/build <<EOT
   set -e
-  dir=/build/static/$(xx-info os)/$(xx-info arch)
+  targetplatform=$(xx-info os)_$(xx-info arch)
+  if [ -n "$(xx-info variant)" ]; then
+    targetplatform="${targetplatform}_$(xx-info variant)"
+  fi
+  dir=/build/${targetplatform}/static/$(xx-info os)/$(xx-info arch)
   if [ ! -d "$dir" ]; then
     echo >&2 "warning: no packages found in $dir"
     exit 0

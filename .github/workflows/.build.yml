@@ -63,14 +63,14 @@ jobs:
                     includes.push({
                       runner: platform.startsWith('linux/arm') ? 'ubuntu-24.04-arm' : 'ubuntu-24.04',
                       distro: distro,
-                      platform: platform
+                      platform: platform,
+                      // FIXME: we can't verify platforms not native to the runner as it would segfault through emulation
+                      verify: platform.startsWith('linux/386') || platform.startsWith('linux/amd64') || platform.startsWith('linux/arm64')
                     });
                   });
                 } else {
-                  includes.push({
-                    runner: 'ubuntu-24.04',
-                    distro: distro
-                  });
+                  // if no platforms are returned, this means this package does
+                  // not support a distro so we skip it.
                 }
               }
               core.info(JSON.stringify(includes, null, 2));
@@ -106,11 +106,6 @@ jobs:
           if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "BUILD_CACHE_REGISTRY_PUSH=1" >> $GITHUB_ENV
           fi
-          # Limit to local platform for pkgs other than static for performance
-          # reasons. See docker-bake.hcl for more info on filtered platforms.
-          if [ "${{ matrix.distro }}" != "static" ]; then
-            echo "LOCAL_PLATFORM=1" >> $GITHUB_ENV
-          fi
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -131,10 +126,15 @@ jobs:
         name: List artifacts
         run: |
           tree -nh ./bin/pkg/${{ inputs.name }}
-#      -
-#        name: Verify
-#        run: |
-#          make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
+      -
+        name: Verify
+        if: ${{ matrix.verify }}
+        uses: docker/bake-action@v6
+        with:
+          source: .
+          targets: verify-${{ inputs.name }}-${{ matrix.distro }}
+          set: |
+            *.platform=${{ matrix.platform }}
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v4
