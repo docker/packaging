@@ -61,12 +61,14 @@ jobs:
                 if (target.platforms && target.platforms.length > 0) {
                   target.platforms.forEach(platform => {
                     includes.push({
+                      runner: platform.startsWith('linux/arm') ? 'ubuntu-24.04-arm' : 'ubuntu-24.04',
                       distro: distro,
                       platform: platform
                     });
                   });
                 } else {
                   includes.push({
+                    runner: 'ubuntu-24.04',
                     distro: distro
                   });
                 }
@@ -76,7 +78,7 @@ jobs:
             });
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     needs:
       - prepare
     strategy:
