@@ -16,7 +16,7 @@
 
 ARG ALPINE_VERSION="3.16"
 
-FROM scratch AS bin-folder
+FROM scratch AS bin
 
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS releaser
 RUN apk add --no-cache bash
@@ -24,7 +24,7 @@ WORKDIR /out
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
-RUN --mount=from=bin-folder,source=.,target=/release <<EOT
+RUN --mount=from=bin,source=.,target=/release <<EOT
   set -e
   for f in /release/*; do
     pkgtype=$(basename $f)

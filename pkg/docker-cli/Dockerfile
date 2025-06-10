@@ -20,20 +20,24 @@ ARG DEBIAN_FRONTEND="noninteractive"
 # https://github.com/docker/cli/blob/master/Dockerfile#L9
 ARG GOVERSIONINFO_VERSION="v1.4.1"
 
-# common args
+ARG DISTRO_NAME="debian12"
+ARG DISTRO_TYPE="deb"
+ARG DISTRO_RELEASE="debian"
+ARG DISTRO_ID="12"
+ARG DISTRO_SUITE="bookworm"
+ARG DISTRO_IMAGE="debian:bookworm"
+
+ARG PKG_NAME="docker-ce-cli"
+ARG PKG_REPO="https://github.com/docker/cli.git"
+ARG PKG_REF="master"
+
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.24.3"
 ARG GO_IMAGE_VARIANT="bookworm"
-ARG PKG_RELEASE="debian12"
-ARG PKG_TYPE="deb"
-ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_ID="12"
-ARG PKG_DISTRO_SUITE="bookworm"
-ARG PKG_BASE_IMAGE="debian:bookworm"
 
-# stage used as named context that mounts common/scripts
+# stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
-FROM scratch AS common-scripts
+FROM scratch AS scripts
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -51,10 +55,10 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
 WORKDIR /src
-ARG DOCKER_CLI_REPO
-RUN git init . && git remote add origin "${DOCKER_CLI_REPO}"
-ARG DOCKER_CLI_REF
-RUN git fetch origin "${DOCKER_CLI_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+ARG PKG_REPO
+RUN git init . && git remote add origin "${PKG_REPO}"
+ARG PKG_REF
+RUN git fetch origin "${PKG_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
 FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/cli \
@@ -62,10 +66,10 @@ RUN --mount=from=src,source=/src,target=/cli \
 
 # metadata
 FROM src-base AS metadata-builder
-ARG DOCKER_CLI_REPO
-ARG DOCKER_CLI_REF
+ARG PKG_REPO
+ARG PKG_REF
 ARG NIGHTLY_BUILD
-RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
   mkdir -p /out
@@ -73,8 +77,8 @@ RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bi
     export "${l?}"
   done
   cat > "/out/metadata.env" <<-EOF
-REPO=${DOCKER_CLI_REPO%.*}
-REF=${DOCKER_CLI_REF}
+REPO=${PKG_REPO%.*}
+REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
 COMMIT=${GENVER_COMMIT}
 EOF
@@ -84,7 +88,7 @@ FROM scratch AS metadata
 COPY --from=metadata-builder /out /
 
 # deb
-FROM ${PKG_BASE_IMAGE} AS builder-deb
+FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
@@ -92,11 +96,11 @@ ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ARG PKG_RELEASE
+ARG DISTRO_NAME
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
 RUN <<EOT
   set -e
-  case "$PKG_RELEASE" in
+  case "$DISTRO_NAME" in
     ubuntu2204|ubuntu2404)
       if [ "$(dpkg-divert --truename /usr/bin/man)" = "/usr/bin/man.REAL" ]; then
         rm -f /usr/bin/man
@@ -109,61 +113,61 @@ COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
-ARG DOCKER_CLI_REF
 ARG NIGHTLY_BUILD
+ARG DISTRO_RELEASE
+ARG DISTRO_ID
+ARG DISTRO_SUITE
 ARG PKG_NAME
-ARG PKG_DISTRO
-ARG PKG_DISTRO_ID
-ARG PKG_DISTRO_SUITE
+ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/root/package/cli,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/root/package/cli pkg-deb-build
 
 # rpm
-FROM ${PKG_BASE_IMAGE} AS builder-rpm
+FROM ${DISTRO_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ARG PKG_RELEASE
-RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
-  rpm-init $PKG_RELEASE
+ARG DISTRO_NAME
+RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
+  rpm-init $DISTRO_NAME
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
   rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
-ARG DOCKER_CLI_REF
 ARG NIGHTLY_BUILD
+ARG DISTRO_RELEASE
+ARG DISTRO_ID
+ARG DISTRO_SUITE
 ARG PKG_NAME
-ARG PKG_DISTRO
-ARG PKG_DISTRO_ID
-ARG PKG_DISTRO_SUITE
+ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src-tgz,source=/out/cli.tgz,target=/root/rpmbuild/SOURCES/cli.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/cli \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/usr/local/src/cli pkg-rpm-build
 
 # static
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS build-base-static
+FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS build-base-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
@@ -183,14 +187,14 @@ FROM build-base-static AS builder-static-nosdk
 ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
-ARG DOCKER_CLI_REF
+ARG PKG_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/cli,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
@@ -203,14 +207,14 @@ FROM build-base-static AS builder-static-darwin
 ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
-ARG DOCKER_CLI_REF
+ARG PKG_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/cli,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=goversioninfo,source=/out/goversioninfo,target=/usr/bin/goversioninfo \
@@ -220,7 +224,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
 
 FROM builder-static-$TARGETOS AS builder-static
 
-FROM builder-${PKG_TYPE} AS build-pkg
+FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
 
 FROM scratch AS pkg

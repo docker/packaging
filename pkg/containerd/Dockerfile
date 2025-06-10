@@ -20,20 +20,26 @@ ARG DEBIAN_FRONTEND="noninteractive"
 # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L111
 ARG MD2MAN_VERSION="v2.0.2"
 
-# common args
+ARG RUNC_REPO="https://github.com/opencontainers/runc.git"
+
+ARG DISTRO_NAME="debian12"
+ARG DISTRO_TYPE="deb"
+ARG DISTRO_RELEASE="debian"
+ARG DISTRO_ID="12"
+ARG DISTRO_SUITE="bookworm"
+ARG DISTRO_IMAGE="debian:bookworm"
+
+ARG PKG_NAME="containerd.io"
+ARG PKG_REPO="https://github.com/containerd/containerd.git"
+ARG PKG_REF="main"
+
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.24.3"
 ARG GO_IMAGE_VARIANT="bookworm"
-ARG PKG_RELEASE="debian12"
-ARG PKG_TYPE="deb"
-ARG PKG_DISTRO="debian"
-ARG PKG_DISTRO_ID="12"
-ARG PKG_DISTRO_SUITE="bookworm"
-ARG PKG_BASE_IMAGE="debian:bookworm"
 
-# stage used as named context that mounts common/scripts
+# stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
-FROM scratch AS common-scripts
+FROM scratch AS scripts
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -56,12 +62,12 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
 WORKDIR /src
-ARG CONTAINERD_REPO
-RUN git init . && git remote add origin "${CONTAINERD_REPO}"
-ARG CONTAINERD_REF
+ARG PKG_REPO
+RUN git init . && git remote add origin "${PKG_REPO}"
+ARG PKG_REF
 RUN  <<EOT
   set -ex
-  git fetch origin "${CONTAINERD_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+  git fetch origin "${PKG_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
   git checkout -q FETCH_HEAD
 EOT
 
@@ -96,12 +102,12 @@ EOT
 
 # metadata
 FROM src-base AS metadata-builder
-ARG CONTAINERD_REPO
-ARG CONTAINERD_REF
+ARG PKG_REPO
+ARG PKG_REF
 ARG RUNC_REPO
 ARG RUNC_REF
 ARG NIGHTLY_BUILD
-RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src \
     --mount=type=bind,from=runc-src,source=/src,target=/runc-src <<EOT
   set -e
@@ -110,8 +116,8 @@ RUN --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bi
     export "${l?}"
   done
   cat > "/out/metadata.env" <<-EOF
-REPO=${CONTAINERD_REPO%.*}
-REF=${CONTAINERD_REF}
+REPO=${PKG_REPO%.*}
+REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
 COMMIT=${GENVER_COMMIT}
 EOF
@@ -131,7 +137,7 @@ FROM scratch AS metadata
 COPY --from=metadata-builder /out /
 
 # deb
-FROM ${PKG_BASE_IMAGE} AS builder-deb
+FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
@@ -140,27 +146,27 @@ ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
-ARG PKG_RELEASE
+ARG DISTRO_NAME
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git lsb-release
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
-ARG CONTAINERD_REF
 ARG NIGHTLY_BUILD
+ARG DISTRO_RELEASE
+ARG DISTRO_ID
+ARG DISTRO_SUITE
 ARG PKG_NAME
-ARG PKG_DISTRO
-ARG PKG_DISTRO_ID
-ARG PKG_DISTRO_SUITE
+ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,source=common,target=/common,rw \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
@@ -168,7 +174,7 @@ RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-deb-build
 
 # rpm
-FROM ${PKG_BASE_IMAGE} AS builder-rpm
+FROM ${DISTRO_IMAGE} AS builder-rpm
 COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -176,27 +182,27 @@ ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 COPY --from=go-md2man /go/bin/go-md2man $GOPATH/bin/go-md2man
-ARG PKG_RELEASE
-RUN --mount=type=bind,from=common-scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
-  rpm-init $PKG_RELEASE
+ARG DISTRO_NAME
+RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
+  rpm-init $DISTRO_NAME
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=bind,from=common-scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
+RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
   rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
-ARG CONTAINERD_REF
 ARG NIGHTLY_BUILD
+ARG DISTRO_RELEASE
+ARG DISTRO_ID
+ARG DISTRO_SUITE
 ARG PKG_NAME
-ARG PKG_DISTRO
-ARG PKG_DISTRO_ID
-ARG PKG_DISTRO_SUITE
+ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,source=common/containerd.toml,target=/root/rpmbuild/SOURCES/containerd.toml \
     --mount=type=bind,from=src-tgz,source=/out/containerd.tgz,target=/root/rpmbuild/SOURCES/containerd.tgz \
     --mount=type=bind,from=runc-src-tgz,source=/out/runc.tgz,target=/root/rpmbuild/SOURCES/runc.tgz \
@@ -206,7 +212,7 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
 
 # static
-FROM --platform=$BUILDPLATFORM ${PKG_BASE_IMAGE} AS builder-static
+FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git gperf zip tar \
@@ -218,22 +224,22 @@ ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
-ARG CONTAINERD_REF
+ARG PKG_REF
 ARG NIGHTLY_BUILD
 ARG RUNC_REF
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
-    --mount=type=bind,from=common-scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
-    --mount=type=bind,from=common-scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=libseccomp-src,source=/src,target=/usr/local/src/libseccomp,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc LIBSECCOMP_SRCDIR=/usr/local/src/libseccomp pkg-static-build
 
-FROM builder-${PKG_TYPE} AS build-pkg
+FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
 
 FROM scratch AS pkg

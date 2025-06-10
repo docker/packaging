@@ -12,41 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include common/vars.mk
+# Same as ones in docker-bake.hcl
+DISTROS_DEB ?= debian11 debian12 debian13 ubuntu2204 ubuntu2404 raspbian11 raspbian12
+DISTROS_RPM ?= centos9 fedora37 fedora38 fedora39 oraclelinux8 oraclelinux9
+DISTROS_STATIC ?= static
+DISTROS ?= $(DISTROS_DEB) $(DISTROS_RPM) $(DISTROS_STATIC)
 
-pkgs := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
+# Should match ones from docker-bake.hcl
+PKGS_RAW := $(notdir $(shell find "pkg/" -maxdepth 1 -type d))
+PKGS := $(foreach pkg,$(PKGS_RAW),pkg-$(pkg))
 
-.PHONY: apk deb rpm static
-apk deb rpm static:
-	$(MAKE) $(foreach pkg,$(pkgs),$@-$(pkg))
+.PHONY: clean
+clean:
+	rm -rf ./bin/*
 
-.PHONY: apk-%
-apk-%:
-	$(MAKE) -C pkg/$* pkg-apk
-
-.PHONY: deb-%
-deb-%:
-	$(MAKE) -C pkg/$* pkg-deb
-
-.PHONY: rpm-%
-rpm-%:
-	$(MAKE) -C pkg/$* pkg-rpm
-
-.PHONY: static-%
-static-%:
-	$(MAKE) -C pkg/$* pkg-static
-
-include common/packages.mk
-
-GHA_MATRIX ?= minimal
-ifeq ($(GHA_MATRIX),minimal)
-	GHA_RELEASES := debian11 debian12 debian13 ubuntu2204 ubuntu2404 centos9 oraclelinux9 fedora39 static
-else ifeq ($(GHA_MATRIX),all)
-	GHA_RELEASES := $(PKG_DEB_RELEASES) $(PKG_RPM_RELEASES) static
-else
-	GHA_RELEASES := $(GHA_MATRIX)
-endif
-
-.PHONY: gha-matrix
-gha-matrix:
-	@echo "$(GHA_RELEASES)" | jq -cR 'split(" ")'
+.PHONY: $(PKGS)
+$(PKGS):
+	@pkg=$$(echo $@ | sed 's/^pkg-//'); \
+	targets=""; \
+	for distro in $(DISTROS); do \
+		targets="$$targets pkg-$$pkg-$$distro"; \
+	done; \
+	docker buildx bake $$targets --print; \
+	docker buildx bake $$targets

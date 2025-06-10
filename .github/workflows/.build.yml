@@ -19,42 +19,70 @@ jobs:
   prepare:
     runs-on: ubuntu-24.04
     outputs:
-      pkgs: ${{ steps.set.outputs.pkgs }}
-      fail-fast: ${{ steps.set.outputs.fail-fast }}
+      includes: ${{ steps.matrix.outputs.includes }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Set outputs
-        id: set
-        run: |
-          ghamatrix=$GHA_DEFAULT_MATRIX
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ghamatrix=${{ inputs.pkgs }}
-          fi
-          pkgs=$(make gha-matrix GHA_MATRIX=$ghamatrix)
-          echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
-          if [ "${{ inputs.fail-fast }}" != "" ]; then
-            failfast=${{ inputs.fail-fast }}
-          else
-            failfast=true
-          fi
-          echo "fail-fast=$failfast" >> $GITHUB_OUTPUT
-      -
-        name: Show outputs
-        run: |
-          echo pkgs=${{ steps.set.outputs.pkgs }}
-          echo fail-fast=${{ steps.set.outputs.fail-fast }}
+        name: Matrix
+        id: matrix
+        uses: actions/github-script@v7
+        env:
+          INPUT_NAME: ${{ inputs.name }}
+        with:
+          script: |
+            const inpName = core.getInput('name');
+            
+            let def = {};
+            await core.group(`Parsing definition`, async () => {
+              const resPrint = await exec.getExecOutput('docker', ['buildx', 'bake', 'pkg', '--print'], {
+                ignoreReturnCode: true
+              });
+              if (resPrint.stderr.length > 0 && resPrint.exitCode != 0) {
+                throw new Error(res.stderr);
+              }
+              def = JSON.parse(resPrint.stdout.trim());
+            });
+            
+            await core.group(`Generating matrix`, async () => {
+              const includes = [];
+              for (const targetName of Object.keys(def.target)) {
+                if (!targetName.startsWith(`pkg-${inpName}`)) {
+                  continue;
+                }
+                const match = targetName.match(/^pkg-(.+)-([^-]+)$/);
+                if (!match) {
+                  throw new Error(`Invalid target name: ${targetName}`);
+                }
+                const pkgName = match[1];
+                const distro = match[2];
+                const target = def.target[targetName];
+                if (target.platforms && target.platforms.length > 0) {
+                  target.platforms.forEach(platform => {
+                    includes.push({
+                      distro: distro,
+                      platform: platform
+                    });
+                  });
+                } else {
+                  includes.push({
+                    distro: distro
+                  });
+                }
+              }
+              core.info(JSON.stringify(includes, null, 2));
+              core.setOutput('includes', JSON.stringify(includes));
+            });
 
   build:
     runs-on: ubuntu-24.04
     needs:
       - prepare
     strategy:
-      fail-fast: ${{ needs.prepare.outputs.fail-fast == 'true' }}
+      fail-fast: false
       matrix:
-        pkg: ${{ fromJson(needs.prepare.outputs.pkgs) }}
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
     steps:
       -
         name: Checkout
@@ -68,24 +96,19 @@ jobs:
       -
         name: Prepare
         run: |
+          # Set platform pair for artifact upload
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
           # Push cache to regitry only on main (secrets not available from fork)
           # and not on workflow_dispatch event
           if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "BUILD_CACHE_REGISTRY_PUSH=1" >> $GITHUB_ENV
           fi
           # Limit to local platform for pkgs other than static for performance
-          # reasons. See common/vars.mk and common/build.mk for more info on
-          # filtered platforms
-          if [ "${{ matrix.pkg }}" != "static" ]; then
+          # reasons. See docker-bake.hcl for more info on filtered platforms.
+          if [ "${{ matrix.distro }}" != "static" ]; then
             echo "LOCAL_PLATFORM=1" >> $GITHUB_ENV
           fi
-      -
-        name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERPUBLICBOT_USERNAME }}
-          password: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -96,22 +119,26 @@ jobs:
           version: latest
       -
         name: Build
-        run: |
-          make -C pkg/${{ inputs.name }} run-pkg-${{ matrix.pkg }}
+        uses: docker/bake-action@v6
+        with:
+          source: .
+          targets: pkg-${{ inputs.name }}-${{ matrix.distro }}
+          set: |
+            *.platform=${{ matrix.platform }}
       -
         name: List artifacts
         run: |
-          tree -nh ./pkg/${{ inputs.name }}/bin
-      -
-        name: Verify
-        run: |
-          make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
+          tree -nh ./bin/pkg/${{ inputs.name }}
+#      -
+#        name: Verify
+#        run: |
+#          make -C pkg/${{ inputs.name }} run-verify-${{ matrix.pkg }}
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-pkg-${{ inputs.name }}-${{ matrix.pkg }}
-          path: ./pkg/${{ inputs.name }}/bin/*
+          name: build-pkg-${{ inputs.name }}-${{ matrix.distro }}-${{ env.PLATFORM_PAIR }}
+          path: ./bin/pkg/${{ inputs.name }}/*
           if-no-files-found: error
           retention-days: 1
 
@@ -138,52 +165,56 @@ jobs:
         name: Download binaries
         uses: actions/download-artifact@v4
         with:
-          path: ./pkg/${{ inputs.name }}/bin
+          path: ./bin/pkg/${{ inputs.name }}
           pattern: build-pkg-*
           merge-multiple: true
       -
-        name: Generate metadata
+        name: List binaries
         run: |
-          make -C pkg/${{ inputs.name }} metadata
-      -
-        name: Summary
-        run: |
-          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
-            export "${l?}"
-          done
-          
-          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-          * repo: ${REPO}
-          * ref: \`${REF}\`
-          * version: \`${VERSION}\`
-          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
-          EOF
-          
-          if [ "${{ inputs.name }}" = "containerd" ]; then
-            cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-          * runc
-            * repo: ${RUNC_REPO}
-            * ref: \`${RUNC_REF}\`
-            * version: \`${RUNC_VERSION}\`
-            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
-          EOF
-          fi
-          
-          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
-          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
-          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
-          EOF
-      -
-        name: Release
-        uses: docker/bake-action@v6
-        with:
-          workdir: ./pkg/${{ inputs.name }}
-          source: .
-          targets: release
-          provenance: false
-          set: |
-            *.output=/tmp/release
-      -
-        name: List release artifacts
-        run: |
-          tree /tmp/release
+          tree -nh ./bin/pkg/${{ inputs.name }}
+#      -
+#        name: Generate metadata
+#        run: |
+#          make -C pkg/${{ inputs.name }} metadata
+#      -
+#        name: Summary
+#        run: |
+#          for l in $(cat ./pkg/${{ inputs.name }}/bin/metadata.env); do
+#            export "${l?}"
+#          done
+#
+#          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+#          * repo: ${REPO}
+#          * ref: \`${REF}\`
+#          * version: \`${VERSION}\`
+#          * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+#          EOF
+#
+#          if [ "${{ inputs.name }}" = "containerd" ]; then
+#            cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+#          * runc
+#            * repo: ${RUNC_REPO}
+#            * ref: \`${RUNC_REF}\`
+#            * version: \`${RUNC_VERSION}\`
+#            * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+#          EOF
+#          fi
+#
+#          cat >> "$GITHUB_STEP_SUMMARY" <<-EOF
+#          * packages: \`$(find ./pkg/${{ inputs.name }}/bin -type f | wc -l)\` files
+#          * size: \`$(du -sh ./pkg/${{ inputs.name }}/bin | awk '{print $1}')\`
+#          EOF
+#      -
+#        name: Release
+#        uses: docker/bake-action@v6
+#        with:
+#          workdir: ./pkg/${{ inputs.name }}
+#          source: .
+#          targets: release
+#          provenance: false
+#          set: |
+#            *.output=/tmp/release
+#      -
+#        name: List release artifacts
+#        run: |
+#          tree /tmp/release
