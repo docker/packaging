@@ -1,6 +1,4 @@
-# This workflow runs nighly builds for each package. Jobs don't run concurrently
-# to avoid performance issues on remote builders and also having a huge queue
-# in the pipeline. That's why each job depends on each other through "needs".
+# This workflow runs nighly builds for each package.
 name: nightly
 
 concurrency:
@@ -10,7 +8,7 @@ concurrency:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * 0' # every sunday at 1am
+    - cron: '0 1 * * 0'
 
 env:
   DISABLED_PACKAGES: scan,sbom
@@ -19,34 +17,34 @@ jobs:
   prepare:
     runs-on: ubuntu-24.04
     outputs:
-      matrix: ${{ steps.projects.outputs.matrix }}
+      matrix: ${{ steps.pkgs.outputs.matrix }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
       -
         name: Create matrix
-        id: projects
+        id: pkgs
         run: |
-          projects=$(find ./pkg -maxdepth 1 -type d -printf '%P ')
-          projects=$(echo $projects | jq -cR --arg exclude "${{ env.DISABLED_PACKAGES }}" 'split(" ") | map(select(. | IN($exclude | split(",")) | not))')
-          echo "matrix=$projects" >>${GITHUB_OUTPUT}
+          pkgs=$(find ./pkg -maxdepth 1 -type d -printf '%P ')
+          pkgs=$(echo $pkgs | jq -cR --arg exclude "${{ env.DISABLED_PACKAGES }}" 'split(" ") | map(select(. | IN($exclude | split(",")) | not))')
+          echo "matrix=$pkgs" >> ${GITHUB_OUTPUT}
       -
         name: Show matrix
         run: |
-          echo ${{ steps.projects.outputs.matrix }}
+          echo ${{ steps.pkgs.outputs.matrix }}
 
   build:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     needs:
       - prepare
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
-        project: ${{ fromJson(needs.prepare.outputs.matrix) }}
+        pkg: ${{ fromJson(needs.prepare.outputs.matrix) }}
     with:
-      name: ${{ matrix.project }}
+      name: ${{ matrix.pkg }}
+      push: true
       envs: |
         NIGHTLY_BUILD=1
     secrets: inherit

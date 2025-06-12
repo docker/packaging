@@ -22,11 +22,12 @@ on:
 
 jobs:
   release:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     with:
       name: docker-engine
       release: ${{ inputs.release }}
+      push: ${{ inputs.release }}
       envs: |
-        DOCKER_ENGINE_REPO=${{ inputs.repo }}
-        DOCKER_ENGINE_REF=${{ inputs.ref }}
+        PKG_REPO=${{ inputs.repo }}
+        PKG_REF=${{ inputs.ref }}
     secrets: inherit

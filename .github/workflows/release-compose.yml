@@ -22,11 +22,12 @@ on:
 
 jobs:
   release:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     with:
       name: compose
       release: ${{ inputs.release }}
+      push: ${{ inputs.release }}
       envs: |
-        COMPOSE_REPO=${{ inputs.repo }}
-        COMPOSE_REF=${{ inputs.ref }}
+        PKG_REPO=${{ inputs.repo }}
+        PKG_REF=${{ inputs.ref }}
     secrets: inherit

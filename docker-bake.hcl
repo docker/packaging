@@ -483,6 +483,11 @@ target "_common" {
   }
 }
 
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "meta-helper" {
+  tags = ["dockereng/packaging:local"]
+}
+
 group "default" {
   targets = ["validate"]
 }
@@ -532,7 +537,7 @@ target "verify" {
 target "release" {
   name = "release-${pkg}"
   description = "Release ${pkg} package"
-  inherits = ["_common", "_pkg-${pkg}"]
+  inherits = ["_common", "meta-helper", "_pkg-${pkg}"]
   matrix = {
     pkg = PKGS
   }
