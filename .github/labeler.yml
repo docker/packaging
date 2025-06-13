@@ -1,0 +1,46 @@
+area/project:
+- all:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - .github/**
+      - LICENSE
+      - README.md
+      - .dockerignore
+      - .gitignore
+    - all-globs-to-all-files: '!.github/workflows/*'
+
+area/ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**'
+
+area/pkg/buildx:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/buildx/**'
+
+area/pkg/compose:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/compose/**'
+
+area/pkg/containerd:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/containerd/**'
+
+area/pkg/credential-helpers:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/credential-helpers/**'
+
+area/pkg/docker-cli:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/docker-cli/**'
+
+area/pkg/docker-engine:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/docker-engine/**'
+
+area/pkg/sbom:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/sbom/**'
+
+area/pkg/scan:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/scan/**'

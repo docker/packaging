@@ -1,0 +1,26 @@
+name: labeler
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+on:
+  pull_request_target:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      # same as global permission
+      contents: read
+      # required for writing labels
+      pull-requests: write
+    steps:
+      -
+        name: Run
+        uses: actions/labeler@v5
+        with:
+          sync-labels: true
