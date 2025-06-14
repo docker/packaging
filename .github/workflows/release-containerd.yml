@@ -15,14 +15,6 @@ on:
         description: 'Override default repo'
         required: false
         type: string
-      runc_repo:
-        description: 'Override runc repo'
-        required: false
-        type: string
-      runc_ref:
-        description: 'Override runc ref'
-        required: false
-        type: string
       release:
         description: 'Push image and create release'
         required: false
@@ -30,13 +22,12 @@ on:
 
 jobs:
   release:
-    uses: ./.github/workflows/.release.yml
+    uses: ./.github/workflows/.build.yml
     with:
       name: containerd
       release: ${{ inputs.release }}
+      push: ${{ inputs.release }}
       envs: |
-        CONTAINERD_REPO=${{ inputs.repo }}
-        CONTAINERD_REF=${{ inputs.ref }}
-        RUNC_REPO=${{ inputs.runc_repo }}
-        RUNC_REF=${{ inputs.runc_ref }}
+        PKG_REPO=${{ inputs.repo }}
+        PKG_REF=${{ inputs.ref }}
     secrets: inherit
