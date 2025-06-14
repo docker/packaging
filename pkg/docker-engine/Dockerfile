@@ -93,8 +93,8 @@ ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ENV DOCKER_BUILDTAGS apparmor seccomp selinux
-ENV RUNC_BUILDTAGS apparmor seccomp selinux
+ENV DOCKER_BUILDTAGS="apparmor seccomp selinux"
+ENV RUNC_BUILDTAGS="apparmor seccomp selinux"
 ARG DISTRO_NAME
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
 RUN <<EOT
@@ -140,8 +140,8 @@ ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ENV DOCKER_BUILDTAGS seccomp selinux
-ENV RUNC_BUILDTAGS seccomp selinux
+ENV DOCKER_BUILDTAGS="seccomp selinux"
+ENV RUNC_BUILDTAGS="seccomp selinux"
 ARG DISTRO_NAME
 RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
   rpm-init $DISTRO_NAME
