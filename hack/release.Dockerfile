@@ -14,47 +14,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG ALPINE_VERSION="3.16"
+ARG ALPINE_VERSION="3.21"
 
-FROM scratch AS bin-folder
+FROM scratch AS bin
 
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS releaser
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash findutils
 WORKDIR /out
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
-RUN --mount=from=bin-folder,source=.,target=/release <<EOT
+RUN --mount=from=bin,source=.,target=/release <<EOT
   set -e
   for f in /release/*; do
-    pkgtype=$(basename $f)
-    if [ "$pkgtype" = "static" ]; then
-      basedir="${TARGETOS}/${TARGETARCH}"
-      if [ -n "$TARGETVARIANT" ]; then
-        basedir="${basedir}/${TARGETVARIANT}"
+    if [ ! -d "${f}" ]; then
+      continue
+    fi
+
+    # check release matches the target platform
+    basedir="${TARGETOS}_${TARGETARCH}${TARGETVARIANT:+_${TARGETVARIANT}}"
+    if [ ! -d "${f}/${basedir}" ]; then
+      continue
+    fi
+
+    # copy release files
+    for ff in ${f}/${basedir}/*; do
+      if [ ! -d "${ff}" ]; then
+        continue
       fi
-      [ ! -d "${f}/${basedir}" ] && continue
+      pdir=$(find $ff -type d -print | sort -n | tail -1)
+      relpdir="${pdir#${f}/${basedir}/}"
       (
         set -x
-        mkdir -p "/out/static/${basedir}"
-        cp "${f}/${basedir}"/* "/out/static/${basedir}/"
+        mkdir -p "/out/${relpdir}"
+        cp "${pdir}"/* "/out/${relpdir}/"
+        cp ${f}/${basedir}/sbom-build*.json "/out/${relpdir}/sbom.json"
+        cp "${f}/${basedir}/provenance.json" "/out/${relpdir}/provenance.json"
       )
-    else
-      [ "${TARGETOS}" != "linux" ] && continue
-      for ff in ${f}/*; do
-        pkgrelease=$(basename $ff)
-        basedir="${TARGETARCH}"
-        if [ -n "$TARGETVARIANT" ]; then
-          basedir="${basedir}/${TARGETVARIANT}"
-        fi
-        [ ! -d "${ff}/${basedir}" ] && continue
-        (
-          set -x
-          mkdir -p "/out/${pkgtype}/${pkgrelease}/${basedir}"
-          cp "${ff}/${basedir}"/* "/out/${pkgtype}/${pkgrelease}/${basedir}/"
-        )
-      done
-    fi
+    done
   done
   if [ -d "/out" ] && [ -f "/release/metadata.env" ]; then
     cp "/release/metadata.env" "/out/"

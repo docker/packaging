@@ -16,11 +16,12 @@
 
 : "${NIGHTLY_BUILD=}"
 
+: "${DISTRO_NAME=}"
+: "${DISTRO_RELEASE=}"
+: "${DISTRO_ID=}"
+: "${DISTRO_SUITE=}"
+
 : "${PKG_NAME=}"
-: "${PKG_RELEASE=}"
-: "${PKG_DISTRO=}"
-: "${PKG_DISTRO_ID=}"
-: "${PKG_DISTRO_SUITE=}"
 : "${PKG_PACKAGER=}"
 : "${PKG_VENDOR=}"
 
@@ -32,8 +33,8 @@
 
 set -e
 
-if [ -z "$PKG_RELEASE" ]; then
-  echo >&2 "error: PKG_RELEASE is required"
+if [ -z "$DISTRO_NAME" ]; then
+  echo >&2 "error: DISTRO_NAME is required"
   exit 1
 fi
 if [ -z "$OUTDIR" ]; then
@@ -62,7 +63,7 @@ rpmDefine=(
   --define "_commit ${GENVER_COMMIT}"
 )
 
-pkgoutput="${OUTDIR}/${PKG_DISTRO}/${PKG_DISTRO_SUITE}/$(xx-info arch)"
+pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
   pkgoutput="${pkgoutput}/$(xx-info variant)"
 fi

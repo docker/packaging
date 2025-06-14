@@ -5,18 +5,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
-    inputs:
-      pkgs:
-        description: 'Packages to build (minimal, all or space separated list)'
-        default: 'minimal'
-        required: false
-        type: string
-      fail-fast:
-        description: 'Fail fast'
-        default: true
-        required: false
-        type: boolean
   push:
     branches:
       - 'main'
@@ -24,7 +12,7 @@ on:
     paths:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-buildx.yml'
-      - 'common/**'
+      - 'hack/scripts/**'
       - 'pkg/buildx/**'
   pull_request:
     branches:
@@ -33,7 +21,7 @@ on:
     paths:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-buildx.yml'
-      - 'common/**'
+      - 'hack/scripts/**'
       - 'pkg/buildx/**'
 
 jobs:
