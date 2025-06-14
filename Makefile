@@ -14,7 +14,7 @@
 
 # Same as ones in docker-bake.hcl
 DISTROS_DEB ?= debian11 debian12 debian13 ubuntu2204 ubuntu2404 raspbian11 raspbian12
-DISTROS_RPM ?= centos9 fedora41 fedora42 oraclelinux8 oraclelinux9 rockylinux8 rockylinux9
+DISTROS_RPM ?= centos9 fedora41 fedora42 oraclelinux8 oraclelinux9 rockylinux8 rockylinux9 almalinux8 almalinux9
 DISTROS_STATIC ?= static
 DISTROS ?= $(DISTROS_DEB) $(DISTROS_RPM) $(DISTROS_STATIC)
 
