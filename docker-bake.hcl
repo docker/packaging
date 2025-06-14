@@ -28,7 +28,11 @@ variable "DISTROS" {
     "fedora38",
     "fedora39",
     "oraclelinux8",
-    "oraclelinux9"
+    "oraclelinux9",
+    "rockylinux8",
+    "rockylinux9",
+    "almalinux8",
+    "almalinux9"
   ]
 }
 
@@ -310,6 +314,50 @@ target "_distro-oraclelinux9" {
   }
 }
 
+target "_distro-rockylinux8" {
+  args = {
+    DISTRO_NAME = "rockylinux8"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "rockylinux"
+    DISTRO_ID = "8"
+    DISTRO_SUITE = "8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "rockylinux/rockylinux:8"
+  }
+}
+
+target "_distro-rockylinux9" {
+  args = {
+    DISTRO_NAME = "rockylinux9"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "rockylinux"
+    DISTRO_ID = "9"
+    DISTRO_SUITE = "9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "rockylinux/rockylinux:9"
+  }
+}
+
+target "_distro-almalinux8" {
+  args = {
+    DISTRO_NAME = "almalinux8"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "almalinux"
+    DISTRO_ID = "8"
+    DISTRO_SUITE = "8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "almalinux:8"
+  }
+}
+
+target "_distro-almalinux9" {
+  args = {
+    DISTRO_NAME = "almalinux9"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "almalinux"
+    DISTRO_ID = "9"
+    DISTRO_SUITE = "9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "almalinux:9"
+  }
+}
+
 # Returns the list of supported platforms for a given distro and package.
 # The result is the intersection of the platforms supported by the distro
 # and the platforms supported by the package. Except for static distro,
@@ -334,6 +382,10 @@ function "distroPlatforms" {
         fedora39 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         oraclelinux8 = ["linux/amd64", "linux/arm64"]
         oraclelinux9 = ["linux/amd64", "linux/arm64"]
+        rockylinux8 = ["linux/amd64", "linux/arm64"]
+        rockylinux9 = ["linux/amd64", "linux/arm64"]
+        almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        almalinux9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
       }, distro, []),
       pkgPlatforms(pkg)
     ),
