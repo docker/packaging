@@ -51,4 +51,12 @@ case "$pkgrelease" in
   fedora*)
     dnf install -y git rpm-build rpmlint dnf-plugins-core
     ;;
+  rockylinux8)
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+    dnf config-manager --set-enabled devel
+    ;;
+  rockylinux*)
+    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+    dnf config-manager --set-enabled crb
+    ;;
 esac
