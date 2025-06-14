@@ -40,4 +40,12 @@ case "$pkgrelease" in
   fedora*)
     dnf install -y findutils dnf-plugins-core
     ;;
+  rockylinux8)
+    dnf install -y findutils dnf-plugins-core epel-release
+    dnf config-manager --set-enabled devel
+    ;;
+  rockylinux*)
+    dnf install -y findutils dnf-plugins-core epel-release
+    dnf config-manager --set-enabled crb
+    ;;
 esac
