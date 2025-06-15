@@ -149,19 +149,10 @@ jobs:
 
   release:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 10
     needs:
       - build
     steps:
-      -
-        name: Free disk space
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -181,7 +172,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./bin/pkg/${{ inputs.name }}
-          pattern: build-pkg-*
+          pattern: build-pkg-${{ inputs.name }}-*
           merge-multiple: true
       -
         name: List artifacts
