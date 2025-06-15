@@ -24,6 +24,7 @@
 
 : "${RUNC_SRCDIR=/work/runc-src}"
 : "${LIBSECCOMP_SRCDIR=/work/libseccomp-src}"
+: "${RUNHCS_SRCDIR=/work/runhcs-src}"
 
 set -e
 
@@ -46,41 +47,66 @@ done
 xx-go --wrap
 fix-cc
 
+binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
+
 # FIXME: should be built using clang but needs https://github.com/opencontainers/runc/pull/3465
 export CC=$(xx-info)-gcc
 
 mkdir -p ${BUILDDIR}/${PKG_NAME}
 
+if [[ "$(xx-info os)" = "windows" ]] && [ "$(xx-info arch)" != "amd64" ]; then
+  # https://github.com/containerd/containerd/blob/2af24b5629859019a7201c59dda611d25d608e65/.github/workflows/ci.yml#L162-L165
+  export CGO_ENABLED=0
+fi
+
 (
   set -x
   pushd ${SRCDIR}
     make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/containerd
-    make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/containerd-shim-runc-v2
+    if [ "$(xx-info os)" != "windows" ]; then
+      make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/containerd-shim-runc-v2
+    fi
     make STATIC=1 VERSION="${GENVER_VERSION}" REVISION="${GENVER_COMMIT}" bin/ctr
     mv bin/* "${BUILDDIR}/${PKG_NAME}"
   popd
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2"
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd"
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/ctr"
+  if [ "$(xx-info os)" = "windows" ]; then
+    mv "${BUILDDIR}/${PKG_NAME}/containerd" "${BUILDDIR}/${PKG_NAME}/containerd.exe"
+    mv "${BUILDDIR}/${PKG_NAME}/ctr" "${BUILDDIR}/${PKG_NAME}/ctr.exe"
+  fi
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd${binext}"
+  if [ "$(xx-info os)" != "windows" ]; then
+    xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2${binext}"
+  fi
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/ctr${binext}"
 )
 
-(
-  set -x
-  pushd ${LIBSECCOMP_SRCDIR}
-    ./configure --host=$(xx-clang --print-target-triple) --enable-static --disable-shared
-    make install
-    make clean
-  popd
-)
+if [ "$(xx-info os)" = "windows" ]; then
+  (
+    set -x
+    pushd ${RUNHCS_SRCDIR}
+      GO111MODULE=on go build -mod=vendor -o "${BUILDDIR}/${PKG_NAME}/containerd-shim-runhcs-v1.exe" ./cmd/containerd-shim-runhcs-v1
+    popd
+    xx-verify --static  "${BUILDDIR}/${PKG_NAME}/containerd-shim-runhcs-v1.exe"
+  )
+else
+  (
+    set -x
+    pushd ${LIBSECCOMP_SRCDIR}
+      ./configure --host=$(xx-clang --print-target-triple) --enable-static --disable-shared
+      make install
+      make clean
+    popd
+  )
 
-(
-  set -x
-  pushd ${RUNC_SRCDIR}
-    make static
-    mv runc "${BUILDDIR}/${PKG_NAME}"
-  popd
-  xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
-)
+  (
+    set -x
+    pushd ${RUNC_SRCDIR}
+      make static
+      mv runc "${BUILDDIR}/${PKG_NAME}"
+    popd
+    xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
+  )
+fi
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
@@ -95,8 +121,13 @@ for pkgname in *; do
   (
     set -x
     cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
-    cp ${RUNC_SRCDIR}/LICENSE "$workdir/${pkgname}/runc.LICENSE"
-    cp ${RUNC_SRCDIR}/README.md "$workdir/${pkgname}/runc.README.md"
+    if [ "$(xx-info os)" = "windows" ]; then
+      cp ${RUNHCS_SRCDIR}/LICENSE "$workdir/${pkgname}/runhcs.LICENSE"
+      cp ${RUNHCS_SRCDIR}/README.md "$workdir/${pkgname}/runhcs.README.md"
+    else
+      cp ${RUNC_SRCDIR}/LICENSE "$workdir/${pkgname}/runc.LICENSE"
+      cp ${RUNC_SRCDIR}/README.md "$workdir/${pkgname}/runc.README.md"
+    fi
   )
   if [ "$(xx-info os)" = "windows" ]; then
     (
