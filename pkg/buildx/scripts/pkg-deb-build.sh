@@ -70,3 +70,4 @@ set -x
 chmod -x debian/control debian/docs
 VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/
+lintian --no-tag-display-limit --display-info --display-experimental --suppress-tags=statically-linked-binary "${pkgoutput}"/docker-*.deb
