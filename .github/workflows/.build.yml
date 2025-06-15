@@ -149,9 +149,19 @@ jobs:
 
   release:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     needs:
       - build
     steps:
+      -
+        name: Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -240,6 +250,7 @@ jobs:
           cp ./bin/pkg/${{ inputs.name }}/metadata.env /tmp/release-squashed/
           find /tmp/release -mindepth 2 -maxdepth 2 ! -name metadata.env -exec cp -r -t /tmp/release-squashed {} +
           tree -nh /tmp/release-squashed | tee /tmp/packages.txt
+          rm -rf /tmp/release-squashed
       -
         name: Prepare release
         run: |
