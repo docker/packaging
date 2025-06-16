@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG ALPINE_VERSION="3.21"
+ARG ALPINE_VERSION="3.22"
 
 FROM scratch AS bin
 
