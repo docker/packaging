@@ -14,13 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ARG ALPINE_VERSION=3.22
+ARG ADDLICENSE_VERSION=1.0.0
+
 ARG LICENSE_TYPE="apache"
 ARG LICENSE_COPYRIGHT_HOLDER="Docker Packaging authors"
-ARG LICENSE_FILES=".*\(Dockerfile\|\.go\|\.hcl\|\.mk\|\.sh\)"
+ARG LICENSE_FILES=".*\(Dockerfile\|\.go\|\.hcl\|\.sh\)"
 
-FROM ghcr.io/google/addlicense:v1.0.0 AS addlicense
+FROM ghcr.io/google/addlicense:v${ADDLICENSE_VERSION} AS addlicense
 
-FROM alpine:3.16 AS base
+FROM alpine:${ALPINE_VERSION} AS base
 WORKDIR /src
 RUN apk add --no-cache cpio findutils git
 
