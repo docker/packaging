@@ -55,7 +55,7 @@ Source3: runc.tgz
 %if %{undefined suse_version}
 # amazonlinux2 doesn't have container-selinux either
 %if "%{?dist}" != ".amzn2"
-Requires: container-selinux >= 2:2.74
+Requires: container-selinux
 %endif
 Requires: libseccomp
 %else
@@ -65,7 +65,6 @@ Requires: libseccomp2
 %endif
 BuildRequires: make
 BuildRequires: gcc
-BuildRequires: libtool-ltdl-devel
 BuildRequires: systemd
 BuildRequires: libseccomp-devel
 
