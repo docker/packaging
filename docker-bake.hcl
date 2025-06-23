@@ -24,7 +24,8 @@ variable "DISTROS" {
     "ubuntu2204",
     "ubuntu2404",
     "centos9",
-    "fedora39",
+    "fedora41",
+    "fedora42",
     "oraclelinux8",
     "oraclelinux9"
   ]
@@ -253,6 +254,28 @@ target "_distro-centos9" {
   }
 }
 
+target "_distro-fedora41" {
+  args = {
+    DISTRO_NAME = "fedora41"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "fedora"
+    DISTRO_ID = "41"
+    DISTRO_SUITE = "41"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "fedora:41"
+  }
+}
+
+target "_distro-fedora42" {
+  args = {
+    DISTRO_NAME = "fedora42"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "fedora"
+    DISTRO_ID = "42"
+    DISTRO_SUITE = "42"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "fedora:42"
+  }
+}
+
 target "_distro-oraclelinux8" {
   args = {
     DISTRO_NAME = "oraclelinux8"
@@ -294,6 +317,8 @@ function "distroPlatforms" {
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
         ubuntu2404 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         centos9 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
+        fedora41 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        fedora42 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         oraclelinux8 = ["linux/amd64", "linux/arm64"]
         oraclelinux9 = ["linux/amd64", "linux/arm64"]
       }, distro, []),
