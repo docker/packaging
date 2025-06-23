@@ -30,6 +30,8 @@ DISTROS ?= static \
 	fedora42 \
 	oraclelinux8 \
 	oraclelinux9 \
+	rhel8 \
+	rhel9 \
 	rockylinux8 \
 	rockylinux9
 

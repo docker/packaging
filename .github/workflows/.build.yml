@@ -125,6 +125,9 @@ jobs:
           targets: pkg-${{ inputs.name }}-${{ matrix.distro }}
           set: |
             *.platform=${{ matrix.platform }}
+        env:
+          RH_USER: ${{ secrets.RH_USER }}
+          RH_PASS: ${{ secrets.RH_PASS }}
       -
         name: List artifacts
         run: |
