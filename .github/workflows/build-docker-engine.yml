@@ -14,6 +14,7 @@ on:
       - '.github/workflows/build-docker-engine.yml'
       - 'hack/scripts/**'
       - 'pkg/docker-engine/**'
+      - 'docker-bake.hcl'
   pull_request:
     branches:
       - 'main'
@@ -23,6 +24,7 @@ on:
       - '.github/workflows/build-docker-engine.yml'
       - 'hack/scripts/**'
       - 'pkg/docker-engine/**'
+      - 'docker-bake.hcl'
 
 jobs:
   run:
