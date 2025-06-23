@@ -68,9 +68,9 @@ jobs:
                 if (target.platforms && target.platforms.length > 0) {
                   target.platforms.forEach(platform => {
                     includes.push({
-                      runner: platform.startsWith('linux/arm') ? 'ubuntu-24.04-arm' : 'ubuntu-24.04',
                       distro: distro,
                       platform: platform,
+                      runner: platform.startsWith('linux/arm') ? 'ubuntu-24.04-arm' : 'ubuntu-24.04',
                       // FIXME: we can't verify platforms not native to the runner as it would segfault through emulation
                       verify: platform.startsWith('linux/386') || platform.startsWith('linux/amd64') || platform.startsWith('linux/arm64')
                     });
