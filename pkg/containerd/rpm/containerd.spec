@@ -80,23 +80,23 @@ low-level storage and network attachments, etc.
 
 
 %prep
-rm -rf %{_topdir}/BUILD/
-if [ ! -d %{_topdir}/SOURCES/containerd ]; then
+rm -rf %{_builddir}
+if [ ! -d %{_sourcedir}/containerd ]; then
     # Copy over our source code from our gopath to our source directory
-    cp -rf /go/src/%{import_path} %{_topdir}/SOURCES/containerd;
+    cp -rf /go/src/%{import_path} %{_sourcedir}/containerd;
 fi
 # symlink the go source path to our build directory
-ln -s /go/src/%{import_path} %{_topdir}/BUILD
+ln -s /go/src/%{import_path} %{_builddir}
 
-if [ ! -d %{_topdir}/SOURCES/runc ]; then
+if [ ! -d %{_sourcedir}/runc ]; then
     # Copy over our source code from our gopath to our source directory
-    cp -rf /go/src/github.com/opencontainers/runc %{_topdir}/SOURCES/runc
+    cp -rf /go/src/github.com/opencontainers/runc %{_sourcedir}/runc
 fi
-cd %{_topdir}/BUILD/
+cd %{_builddir}
 
 
 %build
-cd %{_topdir}/BUILD
+cd %{_builddir}
 GO111MODULE=auto make man
 GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="%{getenv:BUILDTAGS}"
 
@@ -105,11 +105,11 @@ rm -f bin/containerd-stress
 bin/containerd --version
 bin/ctr --version
 
-GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_topdir}/BUILD/bin runc install
+GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_builddir}/bin runc install
 
 
 %install
-cd %{_topdir}/BUILD
+cd %{_builddir}
 mkdir -p %{buildroot}%{_bindir}
 install -D -m 0755 bin/* %{buildroot}%{_bindir}
 install -D -m 0644 %{S:1} %{buildroot}%{_unitdir}/containerd.service
