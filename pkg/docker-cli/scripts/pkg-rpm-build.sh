@@ -61,6 +61,7 @@ rpmDefine=(
   --define "_origversion ${GENVER_VERSION}"
   --define "_release ${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}"
   --define "_commit ${GENVER_COMMIT}"
+  --define "_rhn_enabled $( [ -f /etc/sysconfig/rhn/systemid ] && echo 1 || echo 0 )"
 )
 
 pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"
