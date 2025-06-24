@@ -46,7 +46,7 @@ mkdir -p /go/src/github.com/docker
 rm -f /go/src/github.com/docker/cli
 ln -snf ${RPM_BUILD_DIR}/src/cli /go/src/github.com/docker/cli
 pushd /go/src/github.com/docker/cli
-VERSION=%{_origversion} GITCOMMIT=%{_commit} GO_LINKMODE=dynamic ./scripts/build/binary && DISABLE_WARN_OUTSIDE_CONTAINER=1 make manpages shell-completion
+make DISABLE_WARN_OUTSIDE_CONTAINER=1 VERSION=%{_origversion} GITCOMMIT=%{_commit} dynbinary manpages shell-completion
 popd
 
 %check
