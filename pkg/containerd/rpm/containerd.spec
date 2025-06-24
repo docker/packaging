@@ -110,9 +110,9 @@ GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_buildd
 %install
 cd %{_builddir}
 mkdir -p %{buildroot}%{_bindir}
-install -D -m 0755 bin/* %{buildroot}%{_bindir}
-install -D -m 0644 %{S:1} %{buildroot}%{_unitdir}/containerd.service
-install -D -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/containerd/config.toml
+install -D -p -m 0755 bin/* %{buildroot}%{_bindir}
+install -D -p -m 0644 %{S:1} %{buildroot}%{_unitdir}/containerd.service
+install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/containerd/config.toml
 
 # install manpages, taking into account that not all sections may be present
 for i in $(seq 1 8); do

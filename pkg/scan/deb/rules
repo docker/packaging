@@ -19,7 +19,7 @@ override_dh_strip:
 	# Go has lots of problems with stripping, so just don't
 
 override_dh_auto_install:
-	install -D -m 0755 /usr/libexec/docker/cli-plugins/docker-scan debian/docker-scan-plugin/usr/libexec/docker/cli-plugins/docker-scan
+	install -D -p -m 0755 /usr/libexec/docker/cli-plugins/docker-scan debian/docker-scan-plugin/usr/libexec/docker/cli-plugins/docker-scan
 
 override_dh_installinit:
 	dh_installinit

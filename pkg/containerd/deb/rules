@@ -44,7 +44,7 @@ man: ## Create containerd man pages
 	# copy the generated man pages instead of using "make install-man" to allow
 	# dh_installman doing its magic
 	install -d man
-	install -D -m 0644 /go/src/github.com/containerd/containerd/man/* man
+	install -D -p -m 0644 /go/src/github.com/containerd/containerd/man/* man
 
 # force packages to be built with xz compression, as Ubuntu 21.10 and up use
 # zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
@@ -65,6 +65,6 @@ override_dh_systemd_start:
 
 override_dh_auto_install: binaries bin/runc man
 	mkdir -p debian/containerd.io/usr/bin
-	install -D -m 0755 bin/* debian/containerd.io/usr/bin
-	install -D -m 0644 /common/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
-	install -D -m 0644 /common/containerd.toml debian/containerd.io/etc/containerd/config.toml
+	install -D -p -m 0755 bin/* debian/containerd.io/usr/bin
+	install -D -p -m 0644 /common/containerd.service debian/containerd.io/lib/systemd/system/containerd.service
+	install -D -p -m 0644 /common/containerd.toml debian/containerd.io/etc/containerd/config.toml
