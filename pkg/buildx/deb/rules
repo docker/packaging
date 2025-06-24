@@ -10,7 +10,7 @@ override_dh_auto_build:
 	go build \
 		-mod=vendor \
 		-trimpath \
-		-ldflags "-X github.com/docker/buildx/version.Version=$(VERSION) -X github.com/docker/buildx/version.Revision=$(REVISION) -X github.com/docker/buildx/version.Package=github.com/docker/buildx" \
+		-ldflags "-w -X github.com/docker/buildx/version.Version=$(VERSION) -X github.com/docker/buildx/version.Revision=$(REVISION) -X github.com/docker/buildx/version.Package=github.com/docker/buildx" \
 		-o "/usr/libexec/docker/cli-plugins/docker-buildx" \
 		./cmd/buildx
 

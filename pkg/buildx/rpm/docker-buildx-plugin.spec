@@ -27,7 +27,7 @@ pushd ${RPM_BUILD_DIR}/src/buildx
 	go build \
 		-mod=vendor \
 		-trimpath \
-		-ldflags="-X github.com/docker/buildx/version.Version=%{_origversion} -X github.com/docker/buildx/version.Revision=%{_commit} -X github.com/docker/buildx/version.Package=github.com/docker/buildx" \
+		-ldflags="-w -X github.com/docker/buildx/version.Version=%{_origversion} -X github.com/docker/buildx/version.Revision=%{_commit} -X github.com/docker/buildx/version.Package=github.com/docker/buildx" \
 		-o "bin/docker-buildx" \
 		./cmd/buildx
 popd
