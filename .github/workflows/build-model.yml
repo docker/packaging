@@ -1,0 +1,34 @@
+name: build-model
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'model/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-model.yml'
+      - 'hack/scripts/**'
+      - 'pkg/model/**'
+      - 'docker-bake.hcl'
+  pull_request:
+    branches:
+      - 'main'
+      - 'model/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-model.yml'
+      - 'hack/scripts/**'
+      - 'pkg/model/**'
+      - 'docker-bake.hcl'
+
+jobs:
+  run:
+    uses: ./.github/workflows/.build.yml
+    with:
+      name: model
+    secrets: inherit
