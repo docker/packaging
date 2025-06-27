@@ -46,7 +46,7 @@ mkdir -p /go/src/github.com/docker
 rm -f /go/src/github.com/docker/cli
 ln -snf ${RPM_BUILD_DIR}/src/cli /go/src/github.com/docker/cli
 pushd /go/src/github.com/docker/cli
-VERSION=%{_origversion} GITCOMMIT=%{_commit} GO_LINKMODE=dynamic ./scripts/build/binary && DISABLE_WARN_OUTSIDE_CONTAINER=1 make manpages shell-completion
+make DISABLE_WARN_OUTSIDE_CONTAINER=1 VERSION=%{_origversion} GITCOMMIT=%{_commit} dynbinary manpages shell-completion
 popd
 
 %check
@@ -55,16 +55,12 @@ ver="$(cli/build/docker --version)"; \
 
 %install
 # install binary
-install -d ${RPM_BUILD_ROOT}%{_bindir}
-install -p -m 755 cli/build/docker ${RPM_BUILD_ROOT}%{_bindir}/docker
+install -D -p -m 755 cli/build/docker ${RPM_BUILD_ROOT}%{_bindir}/docker
 
 # add bash, zsh, and fish completions
-install -d ${RPM_BUILD_ROOT}%{_datadir}/bash-completion/completions
-install -d ${RPM_BUILD_ROOT}%{_datadir}/zsh/vendor-completions
-install -d ${RPM_BUILD_ROOT}%{_datadir}/fish/vendor_completions.d
-install -p -m 644 cli/build/completion/bash/docker ${RPM_BUILD_ROOT}%{_datadir}/bash-completion/completions/docker
-install -p -m 644 cli/build/completion/zsh/_docker ${RPM_BUILD_ROOT}%{_datadir}/zsh/vendor-completions/_docker
-install -p -m 644 cli/build/completion/fish/docker.fish ${RPM_BUILD_ROOT}%{_datadir}/fish/vendor_completions.d/docker.fish
+install -D -p -m 644 cli/build/completion/bash/docker ${RPM_BUILD_ROOT}%{_datadir}/bash-completion/completions/docker
+install -D -p -m 644 cli/build/completion/zsh/_docker ${RPM_BUILD_ROOT}%{_datadir}/zsh/vendor-completions/_docker
+install -D -p -m 644 cli/build/completion/fish/docker.fish ${RPM_BUILD_ROOT}%{_datadir}/fish/vendor_completions.d/docker.fish
 
 # install man-pages
 for sec in $(seq 1 9); do
@@ -77,7 +73,7 @@ done
 
 mkdir -p build-docs
 for cli_file in LICENSE MAINTAINERS NOTICE README.md; do
-    cp "cli/$cli_file" "build-docs/$cli_file"
+    install -D -p -m 644 "cli/$cli_file" "build-docs/$cli_file"
 done
 
 %files

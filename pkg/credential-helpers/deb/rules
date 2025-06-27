@@ -18,8 +18,8 @@ override_dh_dwz:
 	@# https://packages.ubuntu.com/debhelper
 
 override_dh_auto_install:
-	install -D bin/docker-credential-secretservice debian/docker-credential-secretservice/usr/bin/docker-credential-secretservice
-	install -D bin/docker-credential-pass debian/docker-credential-pass/usr/bin/docker-credential-pass
+	install -D -p -m 0755 bin/docker-credential-secretservice debian/docker-credential-secretservice/usr/bin/docker-credential-secretservice
+	install -D -p -m 0755 bin/docker-credential-pass debian/docker-credential-pass/usr/bin/docker-credential-pass
 
 override_dh_auto_test:
 	ver="$$(bin/docker-credential-secretservice version)"; \

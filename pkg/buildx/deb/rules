@@ -28,7 +28,7 @@ override_dh_dwz:
 	@# https://packages.ubuntu.com/debhelper
 
 override_dh_auto_install:
-	install -D -m 0755 /usr/libexec/docker/cli-plugins/docker-buildx debian/docker-buildx-plugin/usr/libexec/docker/cli-plugins/docker-buildx
+	install -D -p -m 0755 /usr/libexec/docker/cli-plugins/docker-buildx debian/docker-buildx-plugin/usr/libexec/docker/cli-plugins/docker-buildx
 
 override_dh_installinit:
 	dh_installinit
