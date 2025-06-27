@@ -488,7 +488,8 @@ function "pkgPlatforms" {
     # https://github.com/docker/compose/blob/main/docker-bake.hcl#L95-L107
     compose = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L145-L165
-    containerd = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+    # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L135-L137
+    containerd = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64", "windows/arm/v7"]
     # https://github.com/docker/docker-credential-helpers/blob/master/docker-bake.hcl#L56-L66
     credential-helpers = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64"]
     # https://github.com/docker/cli/blob/master/docker-bake.hcl#L30-L42
