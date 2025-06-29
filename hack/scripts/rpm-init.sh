@@ -59,4 +59,15 @@ case "$pkgrelease" in
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
+  rhel*)
+    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    rm -f /etc/rhsm-host
+    if [ -z "$RH_USER" ] || [ -z "$RH_PASS" ]; then
+      echo "Either RH_USER or RH_PASS is not set. Running build without subscription."
+    else
+      subscription-manager register --username="${RH_USER}" --password="${RH_PASS}"
+      subscription-manager repos --enable "codeready-builder-for-rhel-$(xx-info os-version | cut -d. -f1)-$(xx-info rhel-arch)-rpms"
+      # dnf config-manager --set-enabled codeready-builder-for-rhel-$(xx-info os-version | cut -d. -f1)-$(xx-info rhel-arch)-rpms
+    fi
+    ;;
 esac

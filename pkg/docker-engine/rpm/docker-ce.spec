@@ -35,7 +35,10 @@ BuildRequires: gcc
 BuildRequires: glibc-static
 BuildRequires: libarchive
 BuildRequires: libtool
+%if ! 0%{?rhel} || (0%{?rhel} && 0%{?_rhn_enabled})
+# libtool-ltdl-devel only available through a Red Hat subscription
 BuildRequires: libtool-ltdl-devel
+%endif
 BuildRequires: make
 BuildRequires: pkgconfig
 BuildRequires: pkgconfig(systemd)

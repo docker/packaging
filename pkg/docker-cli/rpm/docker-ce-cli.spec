@@ -19,7 +19,10 @@ Recommends: docker-buildx-plugin
 Recommends: docker-compose-plugin
 
 BuildRequires: gcc
+%if ! 0%{?rhel} || (0%{?rhel} && 0%{?_rhn_enabled})
+# libtool-ltdl-devel only available through a Red Hat subscription
 BuildRequires: libtool-ltdl-devel
+%endif
 BuildRequires: make
 
 Conflicts: docker

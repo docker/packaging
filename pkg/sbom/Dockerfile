@@ -127,11 +127,13 @@ ENV GO111MODULE="on"
 ENV CGO_ENABLED="0"
 ARG DISTRO_NAME
 RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
-  rpm-init $DISTRO_NAME
+    --mount=type=secret,id=RH_USER,env=RH_USER \
+    --mount=type=secret,id=RH_PASS,env=RH_PASS \
+    rpm-init $DISTRO_NAME
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
 RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
-  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
+    rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
