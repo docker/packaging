@@ -73,8 +73,8 @@ $ LOCAL_PLATFORM=1 docker buildx bake pkg
 To create a new release for a package:
 
 ```shell
-# build all packages for buildx v0.24.0 and output to ./bin folder
-$ PKG_REF=v0.24.0 make pkg-buildx
+# build all distros for buildx v0.24.0 and output to ./bin folder
+$ PKG_REF=v0.24.0 docker buildx bake pkg-buildx-*
 # build and push image to dockereng/packaging:buildx-v0.24.0. "release" target
 # will use the "bin" folder as named context to create the image with artifacts
 # previously built.
