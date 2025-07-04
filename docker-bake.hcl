@@ -48,6 +48,7 @@ variable "PKGS" {
     "credential-helpers",
     "docker-cli",
     "docker-engine",
+    "model",
     "sbom",
     "scan"
   ]
@@ -489,6 +490,17 @@ target "_pkg-docker-engine" {
   }
 }
 
+target "_pkg-model" {
+  args = {
+    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-model-plugin"
+    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/model-cli.git"
+    PKG_REF = PKG_REF != null ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/docker/model-cli/blob/main/Dockerfile#L3
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+  }
+}
+
 target "_pkg-sbom" {
   args = {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-sbom-plugin"
@@ -527,6 +539,8 @@ function "pkgPlatforms" {
     docker-cli = ["darwin/amd64", "darwin/arm64", "linux/386", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/moby/moby/blob/master/docker-bake.hcl#L93-L101
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/model-cli/blob/main/Makefile#L36-L40
+    model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/sbom-cli-plugin/blob/main/.goreleaser.yaml#L7-L13
     sbom = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/scan-cli-plugin/blob/main/builder.Makefile#L63-L67
