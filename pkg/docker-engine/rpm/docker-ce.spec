@@ -35,7 +35,6 @@ BuildRequires: gcc
 BuildRequires: glibc-static
 BuildRequires: libarchive
 BuildRequires: libtool
-BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 BuildRequires: pkgconfig
 BuildRequires: pkgconfig(systemd)
