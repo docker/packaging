@@ -19,7 +19,6 @@ Recommends: docker-buildx-plugin
 Recommends: docker-compose-plugin
 
 BuildRequires: gcc
-BuildRequires: libtool-ltdl-devel
 BuildRequires: make
 
 Conflicts: docker
