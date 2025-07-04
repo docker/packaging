@@ -32,6 +32,8 @@ variable "DISTROS" {
     "fedora42",
     "oraclelinux8",
     "oraclelinux9",
+    "rhel8",
+    "rhel9",
     "rockylinux8",
     "rockylinux9"
   ]
@@ -326,6 +328,28 @@ target "_distro-oraclelinux9" {
   }
 }
 
+target "_distro-rhel8" {
+  args = {
+    DISTRO_NAME = "rhel8"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "rhel"
+    DISTRO_ID = "8"
+    DISTRO_SUITE = "8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "registry.access.redhat.com/ubi8/ubi"
+  }
+}
+
+target "_distro-rhel9" {
+  args = {
+    DISTRO_NAME = "rhel9"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "rhel"
+    DISTRO_ID = "9"
+    DISTRO_SUITE = "9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "registry.access.redhat.com/ubi9/ubi"
+  }
+}
+
 target "_distro-rockylinux8" {
   args = {
     DISTRO_NAME = "rockylinux8"
@@ -375,6 +399,8 @@ function "distroPlatforms" {
         fedora42 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         oraclelinux8 = ["linux/amd64", "linux/arm64"]
         oraclelinux9 = ["linux/amd64", "linux/arm64"]
+        rhel8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        rhel9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         rockylinux8 = ["linux/amd64", "linux/arm64"]
         rockylinux9 = ["linux/amd64", "linux/arm64"]
       }, distro, []),
@@ -385,6 +411,12 @@ function "distroPlatforms" {
     # FIXME: add linux/s390x when a remote LinuxONE instance is reachable again (too slow with QEMU)
     ["linux/ppc64le", "linux/riscv64", "linux/s390x"]
   )
+}
+
+# Returns the list of secrets to use for a given distro.
+function "distroSecrets" {
+  params = [distro]
+  result = length(regexall("^rhel", distro)) > 0 ? ["type=env,id=RH_USER,env=RH_USER", "type=env,id=RH_PASS,env=RH_PASS"] : []
 }
 
 #
@@ -551,6 +583,7 @@ target "pkg" {
   # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
   # default platform specification: https://docs.docker.com/build/customize/bake/file-definition/#built-in-variables
   platforms = LOCAL_PLATFORM != null ? [BAKE_LOCAL_PLATFORM] : distroPlatforms(distro, pkg)
+  secret = distroSecrets(distro)
   attest = [
     "type=sbom",
     "type=provenance,mode=max"
