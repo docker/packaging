@@ -428,7 +428,7 @@ target "_pkg-buildx" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-buildx-plugin"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/buildx.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/docker/buildx/blob/master/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -439,7 +439,7 @@ target "_pkg-compose" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-compose-plugin"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/compose.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.8" # https://github.com/docker/compose/blob/main/Dockerfile#L18
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.8" # https://github.com/docker/compose/blob/c626befee1596abcc74578cb10dd96ae1667f76f/Dockerfile#L18
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -450,7 +450,7 @@ target "_pkg-containerd" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "containerd.io"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/containerd/containerd.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/containerd/containerd/blob/main/.github/workflows/release.yml#L16
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/containerd/containerd/blob/5a8ab17048d99821fc72b9fe32e32d7a51ae075d/.github/workflows/release.yml#L16
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -461,7 +461,7 @@ target "_pkg-credential-helpers" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-credential-helpers"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/docker-credential-helpers.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.6" # https://github.com/docker/docker-credential-helpers/blob/master/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.6" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -472,7 +472,7 @@ target "_pkg-docker-cli" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-ce-cli"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/cli.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/docker/cli/blob/master/Dockerfile#L7
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/Dockerfile#L7
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -483,7 +483,7 @@ target "_pkg-docker-engine" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-ce"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/docker.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/moby/moby/blob/master/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -494,7 +494,7 @@ target "_pkg-sbom" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-sbom-plugin"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/sbom-cli-plugin.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.18" # https://github.com/docker/sbom-cli-plugin/blob/main/.github/workflows/release.yaml#L12
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.18" # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.github/workflows/release.yaml#L12
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bullseye"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -505,7 +505,7 @@ target "_pkg-scan" {
     PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-scan-plugin"
     PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/scan-cli-plugin.git"
     PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.19.10" # https://github.com/docker/scan-cli-plugin/blob/main/Dockerfile#L19
+    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.19.10" # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/Dockerfile#L19
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bullseye"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
   }
@@ -515,21 +515,21 @@ target "_pkg-scan" {
 function "pkgPlatforms" {
   params = [pkg]
   result = lookup({
-    # https://github.com/docker/buildx/blob/master/docker-bake.hcl#L110-L122
+    # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/docker-bake.hcl#L156-L174
     buildx = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/compose/blob/main/docker-bake.hcl#L95-L107
+    # https://github.com/docker/compose/blob/c626befee1596abcc74578cb10dd96ae1667f76f/docker-bake.hcl#L112-L124
     compose = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
-    # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L145-L165
+    # https://github.com/containerd/containerd/blob/5a8ab17048d99821fc72b9fe32e32d7a51ae075d/.github/workflows/ci.yml#L145-L165
     containerd = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x"]
-    # https://github.com/docker/docker-credential-helpers/blob/master/docker-bake.hcl#L56-L66
+    # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/docker-bake.hcl#L56-L66
     credential-helpers = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64"]
-    # https://github.com/docker/cli/blob/master/docker-bake.hcl#L30-L42
+    # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/docker-bake.hcl#L30-L42
     docker-cli = ["darwin/amd64", "darwin/arm64", "linux/386", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
-    # https://github.com/moby/moby/blob/master/docker-bake.hcl#L93-L101
+    # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/docker-bake.hcl#L82-L91
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/sbom-cli-plugin/blob/main/.goreleaser.yaml#L7-L13
+    # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.goreleaser.yaml#L7-L13
     sbom = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/scan-cli-plugin/blob/main/builder.Makefile#L63-L67
+    # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/builder.Makefile#L25-L29
     scan = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64"]
   }, pkg, [])
 }
