@@ -21,6 +21,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 ARG MD2MAN_VERSION="v2.0.2"
 
 ARG RUNC_REPO="https://github.com/opencontainers/runc.git"
+ARG RUNHCS_REPO="https://github.com/Microsoft/hcsshim.git"
 
 ARG DISTRO_NAME="debian12"
 ARG DISTRO_TYPE="deb"
@@ -91,6 +92,18 @@ FROM src-base AS runc-src-tgz
 RUN --mount=from=runc-src,source=/src,target=/runc \
     mkdir /out && tar -C / -zcf /out/runc.tgz --exclude .git runc
 
+FROM src-base AS runhcs-src
+WORKDIR /src
+ARG RUNHCS_REPO
+ARG RUNHCS_REF
+RUN git init . && git remote add origin "${RUNHCS_REPO}"
+RUN --mount=from=src,source=/src,target=/containerd <<EOT
+  set -e
+  [ -z "$RUNHCS_REF" ] && RUNHCS_REF=$(cat /containerd/script/setup/runhcs-version)
+  set -x
+  git fetch origin "$RUNHCS_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+EOT
+
 FROM src-base AS libseccomp-src
 WORKDIR /src
 RUN --mount=from=runc-src,source=/src,target=/runc <<EOT
@@ -106,10 +119,13 @@ ARG PKG_REPO
 ARG PKG_REF
 ARG RUNC_REPO
 ARG RUNC_REF
+ARG RUNHCS_REPO
+ARG RUNHCS_REF
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src \
-    --mount=type=bind,from=runc-src,source=/src,target=/runc-src <<EOT
+    --mount=type=bind,from=runc-src,source=/src,target=/runc-src \
+    --mount=type=bind,from=runhcs-src,source=/src,target=/runhcs-src <<EOT
   set -e
   mkdir -p /out
   for l in $(gen-ver "/src"); do
@@ -130,6 +146,16 @@ RUNC_REPO=${RUNC_REPO%.*}
 RUNC_REF=${RUNC_REF}
 RUNC_VERSION=${GENVER_VERSION}
 RUNC_COMMIT=${GENVER_COMMIT}
+EOF
+  [ -z "$RUNHCS_REF" ] && RUNHCS_REF=$(cat /src/script/setup/runhcs-version)
+  for l in $(gen-ver "/runhcs-src"); do
+    export "${l?}"
+  done
+  cat >> "/out/metadata.env" <<-EOF
+RUNHCS_REPO=${RUNHCS_REPO%.*}
+RUNHCS_REF=${RUNHCS_REF}
+RUNHCS_VERSION=${GENVER_VERSION}
+RUNHCS_COMMIT=${GENVER_COMMIT}
 EOF
 EOT
 
@@ -237,9 +263,10 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
+    --mount=type=bind,from=runhcs-src,source=/src,target=/go/src/github.com/Microsoft/hcsshim,rw \
     --mount=type=bind,from=libseccomp-src,source=/src,target=/usr/local/src/libseccomp,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc LIBSECCOMP_SRCDIR=/usr/local/src/libseccomp pkg-static-build
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/go/src/github.com/containerd/containerd RUNC_SRCDIR=/go/src/github.com/opencontainers/runc RUNHCS_SRCDIR=/go/src/github.com/Microsoft/hcsshim LIBSECCOMP_SRCDIR=/usr/local/src/libseccomp pkg-static-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
