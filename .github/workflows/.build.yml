@@ -270,6 +270,11 @@ jobs:
             * ref: \`${RUNC_REF}\`
             * version: \`${RUNC_VERSION}\`
             * commit: [\`${RUNC_COMMIT}\`](${RUNC_REPO}/commit/${RUNC_COMMIT})
+          * runhcs
+            * repo: ${RUNHCS_REPO}
+            * ref: \`${RUNHCS_REF}\`
+            * version: \`${RUNHCS_VERSION}\`
+            * commit: [\`${RUNHCS_COMMIT}\`](${RUNHCS_REPO}/commit/${RUNHCS_COMMIT})
           EOF
           fi
           
