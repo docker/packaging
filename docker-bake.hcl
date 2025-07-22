@@ -170,7 +170,7 @@ target "_distro-static" {
     DISTRO_RELEASE = "static"
     DISTRO_ID = ""
     DISTRO_SUITE = ""
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "debian:bookworm"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bookworm"
   }
 }
 
@@ -181,7 +181,7 @@ target "_distro-debian11" {
     DISTRO_RELEASE = "debian"
     DISTRO_ID = "11"
     DISTRO_SUITE = "bullseye"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "debian:bullseye"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bullseye"
   }
 }
 
@@ -192,7 +192,7 @@ target "_distro-debian12" {
     DISTRO_RELEASE = "debian"
     DISTRO_ID = "12"
     DISTRO_SUITE = "bookworm"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "debian:bookworm"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bookworm"
   }
 }
 
@@ -203,7 +203,7 @@ target "_distro-debian13" {
     DISTRO_RELEASE = "debian"
     DISTRO_ID = "13"
     DISTRO_SUITE = "trixie"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "debian:trixie"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:trixie"
   }
 }
 
@@ -214,7 +214,7 @@ target "_distro-raspbian11" {
     DISTRO_RELEASE = "raspbian"
     DISTRO_ID = "11"
     DISTRO_SUITE = "bullseye"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bullseye"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bullseye"
   }
 }
 
@@ -225,7 +225,7 @@ target "_distro-raspbian12" {
     DISTRO_RELEASE = "raspbian"
     DISTRO_ID = "12"
     DISTRO_SUITE = "bookworm"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bookworm"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bookworm"
   }
 }
 
@@ -236,7 +236,7 @@ target "_distro-ubuntu2204" {
     DISTRO_RELEASE = "ubuntu"
     DISTRO_ID = "22.04"
     DISTRO_SUITE = "jammy"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "ubuntu:jammy"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:jammy"
   }
 }
 
@@ -247,7 +247,7 @@ target "_distro-ubuntu2404" {
     DISTRO_RELEASE = "ubuntu"
     DISTRO_ID = "24.04"
     DISTRO_SUITE = "noble"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "ubuntu:noble"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:noble"
   }
 }
 
@@ -258,7 +258,7 @@ target "_distro-almalinux8" {
     DISTRO_RELEASE = "almalinux"
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "almalinux:8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "almalinux:8"
   }
 }
 
@@ -269,7 +269,7 @@ target "_distro-almalinux9" {
     DISTRO_RELEASE = "almalinux"
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "almalinux:9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "almalinux:9"
   }
 }
 
@@ -280,7 +280,7 @@ target "_distro-centos9" {
     DISTRO_RELEASE = "centos"
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "quay.io/centos/centos:stream9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "quay.io/centos/centos:stream9"
   }
 }
 
@@ -291,7 +291,7 @@ target "_distro-fedora41" {
     DISTRO_RELEASE = "fedora"
     DISTRO_ID = "41"
     DISTRO_SUITE = "41"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "fedora:41"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "fedora:41"
   }
 }
 
@@ -302,7 +302,7 @@ target "_distro-fedora42" {
     DISTRO_RELEASE = "fedora"
     DISTRO_ID = "42"
     DISTRO_SUITE = "42"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "fedora:42"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "fedora:42"
   }
 }
 
@@ -313,7 +313,7 @@ target "_distro-oraclelinux8" {
     DISTRO_RELEASE = "oraclelinux"
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "oraclelinux:8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "oraclelinux:8"
   }
 }
 
@@ -324,7 +324,7 @@ target "_distro-oraclelinux9" {
     DISTRO_RELEASE = "oraclelinux"
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "oraclelinux:9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "oraclelinux:9"
   }
 }
 
@@ -335,7 +335,7 @@ target "_distro-rhel8" {
     DISTRO_RELEASE = "rhel"
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "registry.access.redhat.com/ubi8/ubi"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi8/ubi"
   }
 }
 
@@ -346,7 +346,7 @@ target "_distro-rhel9" {
     DISTRO_RELEASE = "rhel"
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "registry.access.redhat.com/ubi9/ubi"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi9/ubi"
   }
 }
 
@@ -357,7 +357,7 @@ target "_distro-rockylinux8" {
     DISTRO_RELEASE = "rockylinux"
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "rockylinux/rockylinux:8"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "rockylinux/rockylinux:8"
   }
 }
 
@@ -368,7 +368,7 @@ target "_distro-rockylinux9" {
     DISTRO_RELEASE = "rockylinux"
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
-    DISTRO_IMAGE = DISTRO_IMAGE != null ? DISTRO_IMAGE : "rockylinux/rockylinux:9"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "rockylinux/rockylinux:9"
   }
 }
 
@@ -425,89 +425,89 @@ function "distroSecrets" {
 
 target "_pkg-buildx" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-buildx-plugin"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/buildx.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-buildx-plugin"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/buildx.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.4" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-compose" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-compose-plugin"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/compose.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.8" # https://github.com/docker/compose/blob/c626befee1596abcc74578cb10dd96ae1667f76f/Dockerfile#L18
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-compose-plugin"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/compose.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.8" # https://github.com/docker/compose/blob/c626befee1596abcc74578cb10dd96ae1667f76f/Dockerfile#L18
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-containerd" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "containerd.io"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/containerd/containerd.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/containerd/containerd/blob/5a8ab17048d99821fc72b9fe32e32d7a51ae075d/.github/workflows/release.yml#L16
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "containerd.io"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/containerd/containerd.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.3" # https://github.com/containerd/containerd/blob/5a8ab17048d99821fc72b9fe32e32d7a51ae075d/.github/workflows/release.yml#L16
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-credential-helpers" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-credential-helpers"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/docker-credential-helpers.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.23.6" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-credential-helpers"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker-credential-helpers.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.6" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-docker-cli" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-ce-cli"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/cli.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.3" # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/Dockerfile#L7
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce-cli"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/cli.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.3" # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/Dockerfile#L7
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-docker-engine" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-ce"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/docker.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.24.4" # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/Dockerfile#L3
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.4" # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/Dockerfile#L3
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-sbom" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-sbom-plugin"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/sbom-cli-plugin.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.18" # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.github/workflows/release.yaml#L12
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bullseye"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-sbom-plugin"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/sbom-cli-plugin.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.18" # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.github/workflows/release.yaml#L12
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bullseye"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 
 target "_pkg-scan" {
   args = {
-    PKG_NAME = PKG_NAME != null ? PKG_NAME : "docker-scan-plugin"
-    PKG_REPO = PKG_REPO != null ? PKG_REPO : "https://github.com/docker/scan-cli-plugin.git"
-    PKG_REF = PKG_REF != null ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null ? GO_VERSION : "1.19.10" # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/Dockerfile#L19
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null ? GO_IMAGE_VARIANT : "bullseye"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null ? PKG_DEB_EPOCH : "5"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-scan-plugin"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/scan-cli-plugin.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.19.10" # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/Dockerfile#L19
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bullseye"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
 }
 

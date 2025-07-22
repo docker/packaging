@@ -85,7 +85,8 @@ RUN --mount=from=src,source=/src,target=/containerd <<EOT
   set -e
   [ -z "$RUNC_REF" ] && RUNC_REF=$(cat /containerd/script/setup/runc-version)
   set -x
-  git fetch origin "$RUNC_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+  git fetch origin "$RUNC_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+  git checkout -q FETCH_HEAD
 EOT
 
 FROM src-base AS runc-src-tgz
@@ -101,7 +102,8 @@ RUN --mount=from=src,source=/src,target=/containerd <<EOT
   set -e
   [ -z "$RUNHCS_REF" ] && RUNHCS_REF=$(cat /containerd/script/setup/runhcs-version)
   set -x
-  git fetch origin "$RUNHCS_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+  git fetch origin "$RUNHCS_REF" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+  git checkout -q FETCH_HEAD
 EOT
 
 FROM src-base AS libseccomp-src
