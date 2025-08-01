@@ -1,0 +1,20 @@
+Source: docker-model-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/model-cli
+Vcs-Git: git://github.com/docker/model-cli.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               debhelper-compat (= 12),
+               make
+
+Package: docker-model-plugin
+Priority: optional
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Docker Model Runner plugin for the Docker CLI.
+ .
+ This plugin provides the 'docker model' subcommand.
+Homepage: https://docs.docker.com/model-runner/
