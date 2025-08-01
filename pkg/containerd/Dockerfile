@@ -62,15 +62,9 @@ FROM --platform=$BUILDPLATFORM alpine AS src-base
 RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
-WORKDIR /src
 ARG PKG_REPO
-RUN git init . && git remote add origin "${PKG_REPO}"
 ARG PKG_REF
-RUN  <<EOT
-  set -ex
-  git fetch origin "${PKG_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
-  git checkout -q FETCH_HEAD
-EOT
+ADD --keep-git-dir=true "${PKG_REPO}#${PKG_REF}" /src
 
 FROM src-base AS src-tgz
 RUN --mount=from=src,source=/src,target=/containerd \
