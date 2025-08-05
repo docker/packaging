@@ -91,7 +91,6 @@ ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
-ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS="apparmor seccomp selinux"
 ENV RUNC_BUILDTAGS="apparmor seccomp selinux"
@@ -124,6 +123,7 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
@@ -138,7 +138,6 @@ COPY --from=xx / /
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
-ENV GO111MODULE="off"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV DOCKER_BUILDTAGS="seccomp selinux"
 ENV RUNC_BUILDTAGS="seccomp selinux"
@@ -163,6 +162,7 @@ ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,source=common/systemd/docker.service,target=/root/rpmbuild/SOURCES/docker.service \
@@ -182,7 +182,6 @@ ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV CGO_ENABLED="1"
 ENV GOTOOLCHAIN="local"
-ENV GO111MODULE="off"
 
 FROM build-base-static AS gowinres
 ARG GOWINRES_VERSION
@@ -199,6 +198,7 @@ WORKDIR /build
 ARG TARGETPLATFORM
 RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/docker,rw \

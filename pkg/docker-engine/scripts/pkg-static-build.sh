@@ -40,6 +40,8 @@ for l in $(gen-ver "${SRCDIR}"); do
   export "${l?}"
 done
 
+export GO111MODULE=$(check-gomod)
+
 xx-go --wrap
 fix-cc
 
