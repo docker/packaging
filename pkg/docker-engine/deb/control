@@ -19,7 +19,7 @@ Build-Depends: ca-certificates,
 
 Package: docker-ce
 Architecture: linux-any
-Depends: containerd.io (>= 1.6.4),
+Depends: containerd.io (>= 1.7.27),
          docker-ce-cli,
          iptables,
          ${shlibs:Depends}
