@@ -172,7 +172,7 @@ jobs:
           version: latest
       -
         name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./bin/pkg/${{ inputs.name }}
           pattern: build-pkg-${{ inputs.name }}-*
