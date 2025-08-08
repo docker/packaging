@@ -462,7 +462,7 @@ target "_pkg-credential-helpers" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-credential-helpers"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker-credential-helpers.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.6" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.12" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
