@@ -21,6 +21,7 @@ if [ -z "$srcdir" ]; then
 fi
 
 version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
+version=${version#v}
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
 
@@ -71,8 +72,8 @@ if [[ "$NIGHTLY_BUILD" == "1" ]] || [[ "$version" == *-dev ]] || [[ -z "$(git -C
   gitUnix="$(git --git-dir "${srcdir}/.git" log -1 --pretty='%ct')"
   gitDate="$(TZ=UTC date -u --date "@$gitUnix" +'%Y%m%d%H%M%S')"
   # generated version is now something like 'v0.0.0-20180719213702-cd5e2db'
-  version="v0.0.0-${gitDate}-${commitShort}" # (using hyphens)
-  pkgVersion="v0.0.0~${gitDate}.${commitShort}"  # (using tilde and periods)
+  version="0.0.0-${gitDate}-${commitShort}" # (using hyphens)
+  pkgVersion="0.0.0~${gitDate}.${commitShort}"  # (using tilde and periods)
   rpmRelease=0
 fi
 
