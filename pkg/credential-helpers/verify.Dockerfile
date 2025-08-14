@@ -80,12 +80,8 @@ RUN --mount=from=bin,target=/build <<EOT
   extraflags=""
   case "$DISTRO_NAME" in
     # required pass package not available
-    oraclelinux9|rhel*)
+    oraclelinux9|centos9|rhel*)
       extraflags="--skip-broken"
-      ;;
-    centos9)
-      # FIXME: remove disablerepo flag when https://github.com/docker/packaging/issues/83 fixed
-      extraflags="--skip-broken --disablerepo=epel"
       ;;
   esac
   for package in $(find $dir -type f -name '*.rpm'); do
