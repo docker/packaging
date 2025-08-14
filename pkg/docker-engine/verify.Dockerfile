@@ -62,8 +62,7 @@ ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
 RUN --mount=type=bind,from=scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
-  verify-rpm-init $DISTRO_NAME && \
-  yum install -y device-mapper-devel
+  verify-rpm-init $DISTRO_NAME
 ARG TARGETPLATFORM
 RUN --mount=from=bin,target=/build <<EOT
   set -e

@@ -80,7 +80,7 @@ RUN --mount=from=bin,target=/build <<EOT
   extraflags=""
   case "$DISTRO_NAME" in
     # required pass package not available
-    oraclelinux9|centos9|rhel*)
+    oraclelinux9|centos9|centos10|rhel*)
       extraflags="--skip-broken"
       ;;
   esac
@@ -95,7 +95,7 @@ RUN --mount=from=bin,target=/build <<EOT
   docker-credential-secretservice version
   case "$DISTRO_NAME" in
     # FIXME: skip pass credential helper smoke test for some distros
-    centos9|oraclelinux9|rhel*) ;;
+    centos9|centos10|oraclelinux9|rhel*) ;;
     *) docker-credential-pass version ;;
   esac
 EOT

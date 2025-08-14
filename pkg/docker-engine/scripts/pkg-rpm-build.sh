@@ -71,7 +71,7 @@ if [ -n "$(xx-info variant)" ]; then
 fi
 
 case "$DISTRO_NAME" in
-  centos9|oraclelinux*)
+  centos9|centos10|oraclelinux*)
     export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
     ;;
 esac
