@@ -40,6 +40,10 @@ case "$pkgrelease" in
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
     dnf config-manager --set-enabled crb
     ;;
+  centos10)
+    dnf install -y git rpm-build dnf-plugins-core
+    dnf config-manager --set-enabled crb
+    ;;
   oraclelinux8)
     dnf install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
     dnf config-manager --enable ol8_addons ol8_codeready_builder

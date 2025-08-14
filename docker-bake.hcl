@@ -28,6 +28,7 @@ variable "DISTROS" {
     "almalinux8",
     "almalinux9",
     "centos9",
+    "centos10",
     "fedora41",
     "fedora42",
     "oraclelinux8",
@@ -285,6 +286,17 @@ target "_distro-centos9" {
   }
 }
 
+target "_distro-centos10" {
+  args = {
+    DISTRO_NAME = "centos10"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "centos"
+    DISTRO_ID = "10"
+    DISTRO_SUITE = "10"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "quay.io/centos/centos:stream10"
+  }
+}
+
 target "_distro-fedora41" {
   args = {
     DISTRO_NAME = "fedora41"
@@ -396,6 +408,7 @@ function "distroPlatforms" {
         almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         almalinux9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         centos9 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
+        centos10 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
         fedora41 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         fedora42 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         oraclelinux8 = ["linux/amd64", "linux/arm64"]
