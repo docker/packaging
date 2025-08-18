@@ -27,18 +27,21 @@ variable "DISTROS" {
     "ubuntu2410",
     "ubuntu2504",
 
-    "almalinux8",
-    "almalinux9",
     "centos9",
     "centos10",
     "fedora41",
     "fedora42",
-    "oraclelinux8",
-    "oraclelinux9",
     "rhel8",
     "rhel9",
-    "rockylinux8",
-    "rockylinux9"
+
+    # TODO: These were disabled to match the old packaging supported distros.
+    # Do we want to support them?
+    # "almalinux8",
+    # "almalinux9",
+    # "oraclelinux8",
+    # "oraclelinux9",
+    # "rockylinux8",
+    # "rockylinux9"
   ]
 }
 
@@ -431,18 +434,21 @@ function "distroPlatforms" {
         ubuntu2410 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2504 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
 
-        almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
-        almalinux9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         centos9 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
         centos10 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
         fedora41 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         fedora42 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
-        oraclelinux8 = ["linux/amd64", "linux/arm64"]
-        oraclelinux9 = ["linux/amd64", "linux/arm64"]
         rhel8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         rhel9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
-        rockylinux8 = ["linux/amd64", "linux/arm64"]
-        rockylinux9 = ["linux/amd64", "linux/arm64"]
+
+        # TODO: These were disabled to match the old packaging supported distros.
+        # Do we want to support them?
+        # almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        # almalinux9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        # oraclelinux8 = ["linux/amd64", "linux/arm64"]
+        # oraclelinux9 = ["linux/amd64", "linux/arm64"]
+        # rockylinux8 = ["linux/amd64", "linux/arm64"]
+        # rockylinux9 = ["linux/amd64", "linux/arm64"]
       }, distro, []),
       pkgPlatforms(pkg)
     ),
