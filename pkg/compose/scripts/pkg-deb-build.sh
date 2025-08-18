@@ -54,14 +54,10 @@ for l in $(gen-ver "${SRCDIR}"); do
   export "${l?}"
 done
 
+gen-deb-changelog "$GENVER_VERSION" "$GENVER_PKG_VERSION" "$DISTRO_RELEASE" "$DISTRO_ID" "$DISTRO_SUITE" "$PKG_DEB_REVISION" "$PKG_DEB_EPOCH"
+
 xx-go --wrap
 fix-cc
-
-cat > "debian/changelog" <<-EOF
-${PKG_NAME} (${PKG_DEB_EPOCH}$([ -n "$PKG_DEB_EPOCH" ] && echo ":")${GENVER_PKG_VERSION}-${PKG_DEB_REVISION}) $DISTRO_SUITE; urgency=low
-  * Version: ${GENVER_VERSION}
- -- $(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)  $(date --rfc-2822)
-EOF
 
 pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
