@@ -10,12 +10,9 @@ on:
       envs:
         required: false
         type: string
-      push:
-        required: false
-        type: boolean
       release:
         required: false
-        type: boolean
+        type: string
 
 env:
   REPO_SLUG: dockereng/packaging
@@ -37,9 +34,15 @@ jobs:
         uses: actions/github-script@v7
         env:
           INPUT_NAME: ${{ inputs.name }}
+          INPUT_RELEASE: ${{ inputs.release }}
         with:
           script: |
             const inpName = core.getInput('name');
+            const inpRelease = core.getInput('release');
+            
+            if (inpRelease !== '' && !['pushonly', 'draft', 'prerelease', 'release'].includes(inpRelease)) {
+              throw new Error(`Invalid release type: ${inpRelease}`);
+            }
             
             let def = {};
             await core.group(`Parsing definition`, async () => {
@@ -105,8 +108,8 @@ jobs:
           done
       -
         name: Prepare
+        # Set platform pair for artifact upload
         run: |
-          # Set platform pair for artifact upload
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
       -
@@ -219,7 +222,7 @@ jobs:
       -
         name: Login to Docker Hub
         uses: docker/login-action@v3
-        if: ${{ inputs.push || inputs.release || github.event_name == 'schedule' }}
+        if: ${{ inputs.release || github.event_name == 'schedule' }}
         with:
           username: ${{ secrets.DOCKERPUBLICBOT_USERNAME }}
           password: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
@@ -235,7 +238,7 @@ jobs:
           targets: release-${{ inputs.name }}
           provenance: false
           set: |
-            *.output=type=image,push=${{ inputs.push || inputs.release || github.event_name == 'schedule' }}
+            *.output=type=image,push=${{ inputs.release || github.event_name == 'schedule' }}
             *.output=/tmp/release
       -
         name: List release artifacts
@@ -296,10 +299,11 @@ jobs:
       -
         name: Create release
         uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8  # v2.3.2
-        if: ${{ inputs.release }}
+        if: ${{ inputs.release && inputs.release != 'pushonly' }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
-          draft: true
+          draft: ${{ inputs.release == 'draft' }}
+          prerelease: ${{ inputs.release == 'prerelease' }}
           tag_name: ${{ env.GIT_TAG }}-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
           files: |
