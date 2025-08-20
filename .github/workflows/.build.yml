@@ -47,7 +47,7 @@ jobs:
                 ignoreReturnCode: true
               });
               if (resPrint.stderr.length > 0 && resPrint.exitCode != 0) {
-                throw new Error(res.stderr);
+                throw new Error(resPrint.stderr);
               }
               def = JSON.parse(resPrint.stdout.trim());
             });
