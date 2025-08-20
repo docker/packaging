@@ -175,6 +175,7 @@ target "_distro-static" {
     DISTRO_ID = ""
     DISTRO_SUITE = ""
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bookworm"
+    TEST_ONLY = "0"
   }
 }
 
@@ -186,6 +187,7 @@ target "_distro-debian11" {
     DISTRO_ID = "11"
     DISTRO_SUITE = "bullseye"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bullseye"
+    TEST_ONLY = "0"
   }
 }
 
@@ -197,6 +199,7 @@ target "_distro-debian12" {
     DISTRO_ID = "12"
     DISTRO_SUITE = "bookworm"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bookworm"
+    TEST_ONLY = "0"
   }
 }
 
@@ -208,6 +211,7 @@ target "_distro-debian13" {
     DISTRO_ID = "13"
     DISTRO_SUITE = "trixie"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:trixie"
+    TEST_ONLY = "0"
   }
 }
 
@@ -219,6 +223,7 @@ target "_distro-raspbian11" {
     DISTRO_ID = "11"
     DISTRO_SUITE = "bullseye"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bullseye"
+    TEST_ONLY = "0"
   }
 }
 
@@ -230,6 +235,7 @@ target "_distro-raspbian12" {
     DISTRO_ID = "12"
     DISTRO_SUITE = "bookworm"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bookworm"
+    TEST_ONLY = "0"
   }
 }
 
@@ -241,6 +247,7 @@ target "_distro-ubuntu2204" {
     DISTRO_ID = "22.04"
     DISTRO_SUITE = "jammy"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:jammy"
+    TEST_ONLY = "0"
   }
 }
 
@@ -252,6 +259,7 @@ target "_distro-ubuntu2404" {
     DISTRO_ID = "24.04"
     DISTRO_SUITE = "noble"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:noble"
+    TEST_ONLY = "0"
   }
 }
 
@@ -263,6 +271,7 @@ target "_distro-ubuntu2410" {
     DISTRO_ID = "24.10"
     DISTRO_SUITE = "oracular"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:oracular"
+    TEST_ONLY = "0"
   }
 }
 
@@ -274,6 +283,7 @@ target "_distro-ubuntu2504" {
     DISTRO_ID = "25.04"
     DISTRO_SUITE = "plucky"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:plucky"
+    TEST_ONLY = "0"
   }
 }
 
@@ -285,6 +295,7 @@ target "_distro-almalinux8" {
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "almalinux:8"
+    TEST_ONLY = "1"
   }
 }
 
@@ -296,6 +307,7 @@ target "_distro-almalinux9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "almalinux:9"
+    TEST_ONLY = "1"
   }
 }
 
@@ -307,6 +319,7 @@ target "_distro-centos9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "quay.io/centos/centos:stream9"
+    TEST_ONLY = "0"
   }
 }
 
@@ -318,6 +331,7 @@ target "_distro-centos10" {
     DISTRO_ID = "10"
     DISTRO_SUITE = "10"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "quay.io/centos/centos:stream10"
+    TEST_ONLY = "0"
   }
 }
 
@@ -329,6 +343,7 @@ target "_distro-fedora41" {
     DISTRO_ID = "41"
     DISTRO_SUITE = "41"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "fedora:41"
+    TEST_ONLY = "0"
   }
 }
 
@@ -340,6 +355,7 @@ target "_distro-fedora42" {
     DISTRO_ID = "42"
     DISTRO_SUITE = "42"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "fedora:42"
+    TEST_ONLY = "0"
   }
 }
 
@@ -351,6 +367,7 @@ target "_distro-oraclelinux8" {
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "oraclelinux:8"
+    TEST_ONLY = "1"
   }
 }
 
@@ -362,6 +379,7 @@ target "_distro-oraclelinux9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "oraclelinux:9"
+    TEST_ONLY = "1"
   }
 }
 
@@ -373,6 +391,7 @@ target "_distro-rhel8" {
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi8/ubi"
+    TEST_ONLY = "0"
   }
 }
 
@@ -384,6 +403,7 @@ target "_distro-rhel9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi9/ubi"
+    TEST_ONLY = "0"
   }
 }
 
@@ -395,6 +415,7 @@ target "_distro-rockylinux8" {
     DISTRO_ID = "8"
     DISTRO_SUITE = "8"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "rockylinux/rockylinux:8"
+    TEST_ONLY = "1"
   }
 }
 
@@ -406,6 +427,7 @@ target "_distro-rockylinux9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "rockylinux/rockylinux:9"
+    TEST_ONLY = "1"
   }
 }
 
