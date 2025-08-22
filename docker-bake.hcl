@@ -602,7 +602,7 @@ function "pkgPlatforms" {
     # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/docker-bake.hcl#L82-L91
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Makefile#L36-L40
-    model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.goreleaser.yaml#L7-L13
     sbom = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/builder.Makefile#L25-L29
