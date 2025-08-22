@@ -16,9 +16,15 @@ on:
         required: false
         type: string
       release:
-        description: 'Push image and create release'
+        description: 'Release type'
         required: false
-        type: boolean
+        default: 'prerelease'
+        type: choice
+        options:
+          - pushonly
+          - draft
+          - prerelease
+          - release
 
 jobs:
   release:
@@ -26,7 +32,6 @@ jobs:
     with:
       name: containerd
       release: ${{ inputs.release }}
-      push: ${{ inputs.release }}
       envs: |
         PKG_REPO=${{ inputs.repo }}
         PKG_REF=${{ inputs.ref }}
