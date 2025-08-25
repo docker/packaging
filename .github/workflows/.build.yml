@@ -238,7 +238,7 @@ jobs:
           targets: release-${{ inputs.name }}
           provenance: false
           set: |
-            *.output=type=image,push=${{ inputs.release || github.event_name == 'schedule' }}
+            *.output=type=image,push=${{ inputs.release != '' || github.event_name == 'schedule' }}
             *.output=/tmp/release
       -
         name: List release artifacts
