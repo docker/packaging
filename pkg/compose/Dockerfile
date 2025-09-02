@@ -27,6 +27,7 @@ ARG DISTRO_IMAGE="debian:bookworm"
 ARG PKG_NAME="docker-compose-plugin"
 ARG PKG_REPO="https://github.com/docker/compose.git"
 ARG PKG_REF="main"
+ARG PKG_VERSION
 
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.23.12"
