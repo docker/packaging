@@ -62,6 +62,7 @@ RUN --mount=from=src,source=/src,target=/buildx \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_VERSION
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
@@ -107,6 +108,7 @@ ARG PKG_PACKAGER
 ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
+ARG PKG_VERSION
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
@@ -144,6 +146,7 @@ ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
+ARG PKG_VERSION
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
@@ -167,6 +170,7 @@ ENV CGO_ENABLED="0"
 ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_REF
+ARG PKG_VERSION
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \

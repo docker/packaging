@@ -20,9 +20,14 @@ if [ -z "$srcdir" ]; then
   exit 1
 fi
 
-version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
+
+if [ -n "$PKG_VERSION" ]; then
+  version="$PKG_VERSION"
+else
+  version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
+fi
 
 # rpm "Release:" field ($rpmRelease) is used to set the "_release" macro, which
 # is an incremental number for builds of the same release (Version: / #rpmVersion).
@@ -55,25 +60,27 @@ commitShort=${commit:0:7}
 # Docker 22.06.0-dev:     version=0.0.0~YYYYMMDDHHMMSS.gitHASH, release=0
 rpmRelease=1
 
-# if NIGHTLY_BUILD=1, or we have a "-dev" suffix or a commit not pointing to a
-# tag, this is a nightly build, and we'll create a pseudo version based on
-# commit-date and -sha.
-if [[ "$NIGHTLY_BUILD" == "1" ]] || [[ "$version" == *-dev ]] || [[ -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ]]; then
-  # based on golang's pseudo-version: https://groups.google.com/forum/#!topic/golang-dev/a5PqQuBljF4
-  #
-  # using a "pseudo-version" of the form v0.0.0-yyyymmddhhmmss-abcdefa,
-  # where the time is the commit time in UTC and the final suffix is the prefix
-  # of the commit hash. The time portion ensures that two pseudo-versions can
-  # be compared to determine which happened later, the commit hash identifes
-  # the underlying commit, and the v0.0.0- prefix identifies the pseudo-version
-  # as a pre-release before version v0.0.0, so that the go command prefers any
-  # tagged release over any pseudo-version.
-  gitUnix="$(git --git-dir "${srcdir}/.git" log -1 --pretty='%ct')"
-  gitDate="$(TZ=UTC date -u --date "@$gitUnix" +'%Y%m%d%H%M%S')"
-  # generated version is now something like 'v0.0.0-20180719213702-cd5e2db'
-  version="v0.0.0-${gitDate}-${commitShort}" # (using hyphens)
-  pkgVersion="v0.0.0~${gitDate}.${commitShort}"  # (using tilde and periods)
-  rpmRelease=0
+if [ -z "$PKG_VERSION" ]; then
+  # if NIGHTLY_BUILD=1, or we have a "-dev" suffix or a commit not pointing to a
+  # tag, this is a nightly build, and we'll create a pseudo version based on
+  # commit-date and -sha.
+  if [[ "$NIGHTLY_BUILD" == "1" ]] || [[ "$version" == *-dev ]] || [[ -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ]]; then
+    # based on golang's pseudo-version: https://groups.google.com/forum/#!topic/golang-dev/a5PqQuBljF4
+    #
+    # using a "pseudo-version" of the form v0.0.0-yyyymmddhhmmss-abcdefa,
+    # where the time is the commit time in UTC and the final suffix is the prefix
+    # of the commit hash. The time portion ensures that two pseudo-versions can
+    # be compared to determine which happened later, the commit hash identifes
+    # the underlying commit, and the v0.0.0- prefix identifies the pseudo-version
+    # as a pre-release before version v0.0.0, so that the go command prefers any
+    # tagged release over any pseudo-version.
+    gitUnix="$(git --git-dir "${srcdir}/.git" log -1 --pretty='%ct')"
+    gitDate="$(TZ=UTC date -u --date "@$gitUnix" +'%Y%m%d%H%M%S')"
+    # generated version is now something like 'v0.0.0-20180719213702-cd5e2db'
+    version="v0.0.0-${gitDate}-${commitShort}" # (using hyphens)
+    pkgVersion="v0.0.0~${gitDate}.${commitShort}"  # (using tilde and periods)
+    rpmRelease=0
+  fi
 fi
 
 # deb and rpm packages require a tilde (~) instead of a hyphen (-) as separator
