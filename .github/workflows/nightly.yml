@@ -23,8 +23,6 @@ jobs:
         name: Matrix
         id: matrix
         uses: actions/github-script@v7
-        env:
-          DISABLED_PACKAGES: scan,sbom
         with:
           script: |
             const fs = require('fs');
