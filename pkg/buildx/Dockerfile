@@ -29,7 +29,7 @@ ARG PKG_REPO="https://github.com/docker/buildx.git"
 ARG PKG_REF="master"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.24.6"
+ARG GO_VERSION="1.24.7"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 # stage used as named context that mounts hack/scripts
