@@ -41,10 +41,3 @@ area/pkg/model:
   - changed-files:
     - any-glob-to-any-file: 'pkg/model/**'
 
-area/pkg/sbom:
-  - changed-files:
-    - any-glob-to-any-file: 'pkg/sbom/**'
-
-area/pkg/scan:
-  - changed-files:
-    - any-glob-to-any-file: 'pkg/scan/**'

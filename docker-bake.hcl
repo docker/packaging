@@ -52,8 +52,6 @@ variable "PKGS" {
     "docker-cli",
     "docker-engine",
     "model",
-    "sbom",
-    "scan"
   ]
 }
 
@@ -562,28 +560,6 @@ target "_pkg-model" {
   }
 }
 
-target "_pkg-sbom" {
-  args = {
-    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-sbom-plugin"
-    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/sbom-cli-plugin.git"
-    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.18" # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.github/workflows/release.yaml#L12
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bullseye"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
-  }
-}
-
-target "_pkg-scan" {
-  args = {
-    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-scan-plugin"
-    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/scan-cli-plugin.git"
-    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.19.10" # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/Dockerfile#L19
-    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bullseye"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
-  }
-}
-
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -603,10 +579,6 @@ function "pkgPlatforms" {
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Makefile#L36-L40
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/sbom-cli-plugin/blob/b17d47dc0b20061e7924e835716caef3c6cc6a46/.goreleaser.yaml#L7-L13
-    sbom = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/scan-cli-plugin/blob/cd76c00e79763dcb411d976971ea5b03180a4943/builder.Makefile#L25-L29
-    scan = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64"]
   }, pkg, [])
 }
 
