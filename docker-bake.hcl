@@ -53,6 +53,7 @@ variable "PKGS" {
     "docker-cli",
     "docker-engine",
     "model",
+    "cagent"
   ]
 }
 
@@ -141,7 +142,7 @@ variable "GO_IMAGE" {
 }
 variable "GO_VERSION" {
   description = "Go version to use for building packages."
-  default = "1.24.7"
+  default = null
 }
 variable "GO_IMAGE_VARIANT" {
   description = "Go image variant to use for building packages."
@@ -449,7 +450,7 @@ target "_distro-rockylinux9" {
 # doing cross-compilation.
 function "distroPlatforms" {
   params = [distro, pkg]
-  result = distro == "static" ? pkgPlatforms(pkg) : setsubtract(
+  result = distro == "static" ? staticPkgPlatforms(pkg) : setsubtract(
     setintersection(
       lookup({
         static = pkgPlatforms(pkg)
@@ -574,6 +575,17 @@ target "_pkg-model" {
   }
 }
 
+target "_pkg-cagent" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "cagent"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/vvoland/cagent.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.1" # https://github.com/docker/cagent/blob/e469eea8648c09bf475143f3fcd9658b632e319b/Dockerfile#L9
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+  }
+}
+
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -593,7 +605,16 @@ function "pkgPlatforms" {
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Makefile#L36-L40
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/cagent/blob/0538a5915160991e39c38d5f446d0507b59a8369/Taskfile.yml#L65
+    # + https://github.com/docker/cagent/issues/85
+    cagent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
   }, pkg, [])
+}
+
+# Returns the list of supported platforms for static packages for a given package.
+function "staticPkgPlatforms" {
+  params = [pkg]
+  result = pkg == "cagent" ? [] : pkgPlatforms(pkg)
 }
 
 #
