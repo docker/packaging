@@ -1,0 +1,16 @@
+Source: cagent
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/cagent
+Vcs-Git: git://github.com/docker/cagent.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               debhelper-compat (= 12)
+
+Package: cagent
+Priority: optional
+Architecture: linux-any
+Description: TODO
+Homepage: https://github.com/docker/cagent

@@ -54,6 +54,7 @@ variable "PKGS" {
     "docker-cli",
     "docker-engine",
     "model",
+    "cagent"
   ]
 }
 
@@ -462,7 +463,7 @@ target "_distro-rockylinux9" {
 # doing cross-compilation.
 function "distroPlatforms" {
   params = [distro, pkg]
-  result = distro == "static" ? pkgPlatforms(pkg) : setsubtract(
+  result = distro == "static" ? staticPkgPlatforms(pkg) : setsubtract(
     setintersection(
       lookup({
         static = pkgPlatforms(pkg)
@@ -588,6 +589,17 @@ target "_pkg-model" {
   }
 }
 
+target "_pkg-cagent" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "cagent"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/vvoland/cagent.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.1" # https://github.com/docker/cagent/blob/e469eea8648c09bf475143f3fcd9658b632e319b/Dockerfile#L9
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+  }
+}
+
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -607,7 +619,16 @@ function "pkgPlatforms" {
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/cagent/blob/0538a5915160991e39c38d5f446d0507b59a8369/Taskfile.yml#L65
+    # + https://github.com/docker/cagent/issues/85
+    cagent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
   }, pkg, [])
+}
+
+# Returns the list of supported platforms for static packages for a given package.
+function "staticPkgPlatforms" {
+  params = [pkg]
+  result = pkg == "cagent" ? [] : pkgPlatforms(pkg)
 }
 
 #

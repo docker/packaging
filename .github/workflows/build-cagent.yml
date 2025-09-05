@@ -1,0 +1,34 @@
+name: build-cagent
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'cagent/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-cagent.yml'
+      - 'hack/scripts/**'
+      - 'pkg/cagent/**'
+      - 'docker-bake.hcl'
+  pull_request:
+    branches:
+      - 'main'
+      - 'cagent/[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/.build.yml'
+      - '.github/workflows/build-cagent.yml'
+      - 'hack/scripts/**'
+      - 'pkg/cagent/**'
+      - 'docker-bake.hcl'
+
+jobs:
+  run:
+    uses: ./.github/workflows/.build.yml
+    with:
+      name: cagent
+    secrets: inherit
