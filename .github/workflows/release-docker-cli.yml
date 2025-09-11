@@ -11,6 +11,10 @@ on:
         description: 'Ref (e.g. v23.0.0)'
         required: true
         type: string
+      version:
+        description: 'Override default version'
+        required: false
+        type: string
       repo:
         description: 'Override default repo'
         required: false
@@ -33,6 +37,7 @@ jobs:
       name: docker-cli
       release: ${{ inputs.release }}
       envs: |
+        PKG_VERSION=${{ inputs.version }}
         PKG_REPO=${{ inputs.repo }}
         PKG_REF=${{ inputs.ref }}
     secrets: inherit

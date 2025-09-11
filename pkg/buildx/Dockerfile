@@ -62,6 +62,7 @@ RUN --mount=from=src,source=/src,target=/buildx \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_VERSION
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT

@@ -30,6 +30,7 @@ ARG DISTRO_IMAGE="debian:bookworm"
 ARG PKG_NAME="docker-ce-cli"
 ARG PKG_REPO="https://github.com/docker/cli.git"
 ARG PKG_REF="master"
+ARG PKG_VERSION
 
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.24.7"

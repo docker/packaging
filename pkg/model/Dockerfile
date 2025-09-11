@@ -27,6 +27,7 @@ ARG DISTRO_IMAGE="debian:bookworm"
 ARG PKG_NAME="docker-model-plugin"
 ARG PKG_REPO="https://github.com/docker/model-cli.git"
 ARG PKG_REF="main"
+ARG PKG_VERSION
 
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.24.7"
@@ -62,6 +63,7 @@ RUN --mount=from=src,source=/src,target=/model \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_VERSION
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
