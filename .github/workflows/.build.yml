@@ -234,11 +234,12 @@ jobs:
           source: .
           files: |
             ./docker-bake.hcl
-            ${{ steps.meta.outputs.bake-file }}
+            ${{ steps.meta.outputs.bake-file-tags }}
+            ${{ steps.meta.outputs.bake-file-annotations }}
           targets: release-${{ inputs.name }}
           provenance: false
           set: |
-            *.output=type=image,push=${{ inputs.release != '' || github.event_name == 'schedule' }}
+            *.output=type=image,oci-mediatypes=true,push=${{ inputs.release != '' || github.event_name == 'schedule' }}
             *.output=/tmp/release
       -
         name: List release artifacts
