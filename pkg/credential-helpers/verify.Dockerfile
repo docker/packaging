@@ -15,6 +15,7 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.6.1"
+ARG PKG_VERSION
 
 ARG DISTRO_TYPE="deb"
 ARG DISTRO_IMAGE="debian:bookworm"
@@ -34,6 +35,7 @@ ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
 ARG TARGETPLATFORM
+ARG PKG_VERSION
 RUN --mount=from=bin,target=/build <<EOT
   set -e
   targetplatform=$(xx-info os)_$(xx-info arch)
@@ -53,8 +55,22 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  docker-credential-pass version
-  docker-credential-secretservice version
+  pass_version=$(docker-credential-pass version)
+  secretservice_version=$(docker-credential-secretservice version)
+  echo "Detected docker-credential-pass version: $pass_version"
+  echo "Detected docker-credential-secretservice version: $secretservice_version"
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$pass_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-pass version mismatch! Expected: $expected_version, Got: $pass_version"
+      exit 1
+    fi
+    if [ "$secretservice_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-secretservice version mismatch! Expected: $expected_version, Got: $secretservice_version"
+      exit 1
+    fi
+    echo "SUCCESS: Credential helpers version verification passed"
+  fi
 EOT
 
 FROM base AS verify-rpm
@@ -63,6 +79,7 @@ ARG DISTRO_NAME
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
+ARG PKG_VERSION
 RUN --mount=type=bind,from=scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
   verify-rpm-init $DISTRO_NAME
 ARG TARGETPLATFORM
@@ -92,12 +109,30 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  docker-credential-secretservice version
+  secretservice_version=$(docker-credential-secretservice version)
+  echo "Detected docker-credential-secretservice version: $secretservice_version"
   case "$DISTRO_NAME" in
     # FIXME: skip pass credential helper smoke test for some distros
-    centos9|centos10|oraclelinux9|rhel*) ;;
-    *) docker-credential-pass version ;;
+    centos9|centos10|oraclelinux9|rhel*) 
+      pass_version=""
+      ;;
+    *) 
+      pass_version=$(docker-credential-pass version)
+      echo "Detected docker-credential-pass version: $pass_version"
+      ;;
   esac
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$secretservice_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-secretservice version mismatch! Expected: $expected_version, Got: $secretservice_version"
+      exit 1
+    fi
+    if [ -n "$pass_version" ] && [ "$pass_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-pass version mismatch! Expected: $expected_version, Got: $pass_version"
+      exit 1
+    fi
+    echo "SUCCESS: Credential helpers version verification passed"
+  fi
 EOT
 
 FROM base AS verify-static
@@ -107,6 +142,7 @@ ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
 ARG TARGETPLATFORM
+ARG PKG_VERSION
 RUN --mount=from=bin,target=/build <<EOT
   set -e
   targetplatform=$(xx-info os)_$(xx-info arch)
@@ -125,8 +161,22 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  docker-credential-pass version
-  docker-credential-secretservice version
+  pass_version=$(docker-credential-pass version)
+  secretservice_version=$(docker-credential-secretservice version)
+  echo "Detected docker-credential-pass version: $pass_version"
+  echo "Detected docker-credential-secretservice version: $secretservice_version"
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$pass_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-pass version mismatch! Expected: $expected_version, Got: $pass_version"
+      exit 1
+    fi
+    if [ "$secretservice_version" != "$expected_version" ]; then
+      echo "ERROR: docker-credential-secretservice version mismatch! Expected: $expected_version, Got: $secretservice_version"
+      exit 1
+    fi
+    echo "SUCCESS: Credential helpers version verification passed"
+  fi
 EOT
 
 FROM verify-${DISTRO_TYPE}

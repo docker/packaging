@@ -15,6 +15,7 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.6.1"
+ARG PKG_VERSION
 
 ARG DISTRO_TYPE="deb"
 ARG DISTRO_IMAGE="debian:bookworm"
@@ -33,6 +34,7 @@ ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
 ARG TARGETPLATFORM
+ARG PKG_VERSION
 RUN --mount=from=bin,target=/build <<EOT
   set -e
   targetplatform=$(xx-info os)_$(xx-info arch)
@@ -52,7 +54,16 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  dockerd --version
+  actual_version=$(dockerd --version | awk '{print $3}' | cut -d',' -f1)
+  echo "Detected dockerd version: $actual_version"
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$actual_version" != "$expected_version" ]; then
+      echo "ERROR: Dockerd version mismatch! Expected: $expected_version, Got: $actual_version"
+      exit 1
+    fi
+    echo "SUCCESS: Dockerd version verification passed"
+  fi
 EOT
 
 FROM base AS verify-rpm
@@ -61,6 +72,7 @@ ARG DISTRO_NAME
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
+ARG PKG_VERSION
 RUN --mount=type=bind,from=scripts,source=verify-rpm-init.sh,target=/usr/local/bin/verify-rpm-init \
   verify-rpm-init $DISTRO_NAME
 ARG TARGETPLATFORM
@@ -83,7 +95,16 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  dockerd --version
+  actual_version=$(dockerd --version | awk '{print $3}' | cut -d',' -f1)
+  echo "Detected dockerd version: $actual_version"
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$actual_version" != "$expected_version" ]; then
+      echo "ERROR: Dockerd version mismatch! Expected: $expected_version, Got: $actual_version"
+      exit 1
+    fi
+    echo "SUCCESS: Dockerd version verification passed"
+  fi
 EOT
 
 FROM base AS verify-static
@@ -93,6 +114,7 @@ ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
 ARG TARGETPLATFORM
+ARG PKG_VERSION
 RUN --mount=from=bin,target=/build <<EOT
   set -e
   targetplatform=$(xx-info os)_$(xx-info arch)
@@ -111,7 +133,16 @@ RUN --mount=from=bin,target=/build <<EOT
     )
   done
   set -x
-  dockerd --version
+  actual_version=$(dockerd --version | awk '{print $3}' | cut -d',' -f1)
+  echo "Detected dockerd version: $actual_version"
+  if [ -n "$PKG_VERSION" ]; then
+    expected_version=$(echo "$PKG_VERSION" | sed 's/^v//')
+    if [ "$actual_version" != "$expected_version" ]; then
+      echo "ERROR: Dockerd version mismatch! Expected: $expected_version, Got: $actual_version"
+      exit 1
+    fi
+    echo "SUCCESS: Dockerd version verification passed"
+  fi
 EOT
 
 FROM verify-${DISTRO_TYPE}
