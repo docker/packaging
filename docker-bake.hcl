@@ -37,6 +37,7 @@ variable "DISTROS" {
     "oraclelinux9",
     "rhel8",
     "rhel9",
+    "rhel10",
     "rockylinux8",
     "rockylinux9"
   ]
@@ -401,6 +402,18 @@ target "_distro-rhel9" {
     DISTRO_ID = "9"
     DISTRO_SUITE = "9"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi9/ubi"
+    TEST_ONLY = "0"
+  }
+}
+
+target "_distro-rhel10" {
+  args = {
+    DISTRO_NAME = "rhel10"
+    DISTRO_TYPE = "rpm"
+    DISTRO_RELEASE = "rhel"
+    DISTRO_ID = "10"
+    DISTRO_SUITE = "10"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "registry.access.redhat.com/ubi10/ubi"
     TEST_ONLY = "0"
   }
 }
