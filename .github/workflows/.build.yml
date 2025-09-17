@@ -259,6 +259,9 @@ jobs:
           for tag in $(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
             echo "* \`${tag}\`" >> /tmp/tags.txt
           done
+
+          echo "* Tags" >> /tmp/summary.txt
+          cat /tmp/tags.txt >> /tmp/summary.txt
           
           cat > "/tmp/summary.txt" <<-EOF
           * repo: ${REPO}
