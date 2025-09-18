@@ -3,7 +3,7 @@
 Name: docker-ce-cli
 Version: %{_version}
 Release: %{_release}%{?dist}
-Epoch: 0
+Epoch: 1
 Source0: cli.tgz
 Summary: The open-source application container engine
 Group: Tools/Docker
