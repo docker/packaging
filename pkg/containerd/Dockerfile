@@ -119,6 +119,7 @@ EOT
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_VERSION
 ARG RUNC_REPO
 ARG RUNC_REF
 ARG RUNHCS_REPO
@@ -138,6 +139,7 @@ REPO=${PKG_REPO%.*}
 REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
 COMMIT=${GENVER_COMMIT}
+PKG_VERSION=${PKG_VERSION}
 EOF
   [ -z "$RUNC_REF" ] && RUNC_REF=$(cat /src/script/setup/runc-version)
   for l in $(gen-ver "/runc-src"); do
@@ -190,6 +192,7 @@ ARG PKG_PACKAGER
 ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
+ARG PKG_VERSION
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
@@ -229,6 +232,7 @@ ARG PKG_REF
 ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
+ARG PKG_VERSION
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
@@ -255,6 +259,7 @@ ENV GO111MODULE="on"
 ENV CGO_ENABLED="1"
 ARG PKG_NAME
 ARG PKG_REF
+ARG PKG_VERSION
 ARG NIGHTLY_BUILD
 ARG RUNC_REF
 WORKDIR /build
