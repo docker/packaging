@@ -41,7 +41,7 @@ ver="$(${RPM_BUILD_ROOT}%{_libexecdir}/docker/cli-plugins/docker-compose docker-
 pushd ${RPM_BUILD_DIR}/src/compose
     install -D -p -m 0755 bin/docker-compose ${RPM_BUILD_ROOT}%{_libexecdir}/docker/cli-plugins/docker-compose
 popd
-for f in LICENSE MAINTAINERS NOTICE README.md; do
+for f in LICENSE NOTICE README.md; do
     install -D -p -m 0644 "${RPM_BUILD_DIR}/src/compose/$f" "docker-compose-plugin-docs/$f"
 done
 
