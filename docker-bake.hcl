@@ -503,7 +503,7 @@ target "_pkg-buildx" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.7" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
@@ -514,7 +514,7 @@ target "_pkg-compose" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.12" # https://github.com/docker/compose/blob/c2cb0aef6bbbe1afc8c9e81267621655ac90c5f6/Dockerfile#L18
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
@@ -525,7 +525,7 @@ target "_pkg-containerd" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.7" # https://github.com/containerd/containerd/blame/822fb144732946f2a6f7998bfe748ed175674ade/.github/workflows/release.yml#L16
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
@@ -536,7 +536,7 @@ target "_pkg-credential-helpers" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.23.12" # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
@@ -569,7 +569,7 @@ target "_pkg-model" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.7" # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
-    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
