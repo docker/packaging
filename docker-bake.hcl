@@ -474,6 +474,7 @@ function "distroPlatforms" {
         oraclelinux9 = ["linux/amd64", "linux/arm64"]
         rhel8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         rhel9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+        rhel10 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         rockylinux8 = ["linux/amd64", "linux/arm64"]
         rockylinux9 = ["linux/amd64", "linux/arm64"]
       }, distro, []),
