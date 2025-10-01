@@ -25,6 +25,11 @@ on:
           - draft
           - prerelease
           - release
+      distro:
+        description: 'Single distro to build'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   release:
@@ -32,6 +37,7 @@ jobs:
     with:
       name: buildx
       release: ${{ inputs.release }}
+      distro: ${{ inputs.distro }}
       envs: |
         PKG_REPO=${{ inputs.repo }}
         PKG_REF=${{ inputs.ref }}
