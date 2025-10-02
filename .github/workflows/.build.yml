@@ -13,7 +13,7 @@ on:
       release:
         required: false
         type: string
-      distro:
+      distros:
         required: false
         type: string
 
@@ -38,12 +38,19 @@ jobs:
         env:
           INPUT_NAME: ${{ inputs.name }}
           INPUT_RELEASE: ${{ inputs.release }}
-          INPUT_DISTRO: ${{ inputs.distro }}
+          INPUT_DISTROS: ${{ inputs.distros }}
         with:
           script: |
             const inpName = core.getInput('name');
             const inpRelease = core.getInput('release');
-            const inpDistro = core.getInput('distro');
+            const inpDistros = core.getInput('distros');
+            let distroFilter = [];
+            if (inpDistros) {
+              distroFilter = inpDistros
+                .split(',')
+                .map(d => d.trim())
+                .filter(d => d !== '');
+            }
             
             if (inpRelease !== '' && !['pushonly', 'draft', 'prerelease', 'release'].includes(inpRelease)) {
               throw new Error(`Invalid release type: ${inpRelease}`);
@@ -73,7 +80,8 @@ jobs:
                 const pkgName = match[1];
                 const distro = match[2];
                 // Skip distros that don't match the input distro filter
-                if (inpDistro !== '' && distro !== inpDistro) {
+                if (distroFilter.length > 0 && !distroFilter.includes(distro)) {
+                  core.info(`Skipping ${targetName} because it doesn't match the input distro filter`);
                   continue;
                 }
                 const target = def.target[targetName];
