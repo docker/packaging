@@ -13,6 +13,9 @@ on:
       release:
         required: false
         type: string
+      distro:
+        required: false
+        type: string
 
 env:
   REPO_SLUG: dockereng/packaging
@@ -35,10 +38,12 @@ jobs:
         env:
           INPUT_NAME: ${{ inputs.name }}
           INPUT_RELEASE: ${{ inputs.release }}
+          INPUT_DISTRO: ${{ inputs.distro }}
         with:
           script: |
             const inpName = core.getInput('name');
             const inpRelease = core.getInput('release');
+            const inpDistro = core.getInput('distro');
             
             if (inpRelease !== '' && !['pushonly', 'draft', 'prerelease', 'release'].includes(inpRelease)) {
               throw new Error(`Invalid release type: ${inpRelease}`);
@@ -67,6 +72,10 @@ jobs:
                 }
                 const pkgName = match[1];
                 const distro = match[2];
+                // Skip distros that don't match the input distro filter
+                if (inpDistro !== '' && distro !== inpDistro) {
+                  continue;
+                }
                 const target = def.target[targetName];
                 if (target.platforms && target.platforms.length > 0) {
                   target.platforms.forEach(platform => {
