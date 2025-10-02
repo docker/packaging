@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.6.1"
+ARG XX_VERSION="1.7.0"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 ARG DISTRO_NAME="debian12"
