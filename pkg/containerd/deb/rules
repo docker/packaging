@@ -14,6 +14,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+# Build Raspbian armhf binaries as ARMv6 with hard float.
+include /usr/share/dpkg/vendor.mk
+ifeq ($(DEB_VENDOR),Raspbian)
+	export CFLAGS += -marm -march=armv6+fp
+	export GOARM := 6
+endif
+
 %:
 	dh $@
 
