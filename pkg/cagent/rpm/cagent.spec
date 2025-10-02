@@ -7,7 +7,7 @@ Epoch: 0
 Source0: cagent.tgz
 Summary: TODO
 Group: Tools/Docker
-License: ASL 2.0
+License: Apache-2.0
 URL: https://github.com/docker/cagent
 Vendor: Docker
 Packager: Docker <support@docker.com>
@@ -23,7 +23,7 @@ TODO
 %build
 pushd ${RPM_BUILD_DIR}/src/cagent
     mkdir bin && \
-    go build -trimpath -ldflags="$(VERSION="%{_origversion}" COMMIT="%{_commit}" gen-ldflags)" -o bin/cagent main.go
+    go build -trimpath -ldflags="-w -X github.com/docker/cagent/pkg/version.Version=%{_origversion} -X github.com/docker/cagent/pkg/version.Commit=%{_commit}" -o bin/cagent .
 popd
 
 %check

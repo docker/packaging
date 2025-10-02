@@ -49,9 +49,9 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    go build -trimpath -ldflags "-s -w -X 'github.com/docker/cagent/pkg/version.Version=${GENVER_VERSION}' -X 'github.com/docker/cagent/pkg/version.Commit=${GENVER_COMMIT}'" -o "${BUILDDIR}/${PKG_NAME}/docker-cagent${binext}" .
+    go build -trimpath -ldflags "-w -X 'github.com/docker/cagent/pkg/version.Version=${GENVER_VERSION}' -X 'github.com/docker/cagent/pkg/version.Commit=${GENVER_COMMIT}'" -o "${BUILDDIR}/${PKG_NAME}/cagent${binext}" .
   popd
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-cagent${binext}"
+  xx-verify --static "${BUILDDIR}/${PKG_NAME}/cagent${binext}"
 )
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
