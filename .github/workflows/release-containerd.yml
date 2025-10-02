@@ -26,7 +26,14 @@ on:
           - prerelease
           - release
       distro:
-        description: 'Single distro to build'
+        description: 'Single distro to build for'
+        required: false
+        type: string
+        default: ''
+      revision:
+        description: |
+          Revision of the package to build. Only in case we ever would have to re-build an already published release with a packaging-only change.
+          Default for a tagged/upstream release is 1.
         required: false
         type: string
         default: ''
@@ -41,4 +48,6 @@ jobs:
       envs: |
         PKG_REPO=${{ inputs.repo }}
         PKG_REF=${{ inputs.ref }}
+        PKG_DEB_REVISION=${{ inputs.revision }}
+        PKG_RPM_RELEASE=${{ inputs.revision }}
     secrets: inherit
