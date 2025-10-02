@@ -15,7 +15,7 @@ override_dh_builddeb:
 override_dh_auto_build:
 	set -x; \
 	cd $(CURDIR)/cagent && \
-		go build -trimpath -ldflags="$$(gen-ldflags)" -o /usr/bin/cagent main.go
+		go build -trimpath -ldflags="-w -X 'github.com/docker/cagent/pkg/version.Version=$(VERSION)' -X 'github.com/docker/cagent/pkg/version.Commit=$(REVISION)'" -o /usr/bin/cagent .
 
 override_dh_auto_test:
 	ver="$$(/usr/bin/cagent version | grep 'cagent version' | awk '{print $$3}')"; \
