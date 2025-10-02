@@ -109,7 +109,7 @@ variable "PKG_DEB_BUILDFLAGS" {
 }
 variable "PKG_DEB_REVISION" {
   description = "Revision of the package to build, used for debian packages. Include an extra .0 in the version, in case we ever would have to re-build an already published release with a packaging-only change."
-  default = "0"
+  default = "1"
 }
 variable "PKG_DEB_EPOCH" {
   description = "Epoch of the package to build, used for debian packages. This is used to allow mistakes in the version numbers of older versions of a package, and also a package's previous version numbering schemes, to be left behind. Should be enforced per package and not globally."
