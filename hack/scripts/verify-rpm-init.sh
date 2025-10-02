@@ -41,11 +41,11 @@ case "$pkgrelease" in
     dnf install -y findutils dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
-    dnf install -y findutils dnf-plugins-core epel-release
+    dnf --setopt=retries=15 install -y findutils dnf-plugins-core epel-release
     dnf config-manager --set-enabled powertools
     ;;
   rockylinux*|almalinux*)
-    dnf install -y findutils dnf-plugins-core epel-release
+    dnf --setopt=retries=15 install -y findutils dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
 esac

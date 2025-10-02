@@ -26,7 +26,7 @@ set -e
 
 builddepCmd=""
 if command -v dnf &> /dev/null; then
-  builddepCmd="setarch $arch dnf builddep --nobest"
+  builddepCmd="setarch $arch dnf --setopt=retries=15 builddep --nobest"
 elif command -v yum-builddep &> /dev/null; then
   builddepCmd="yum-builddep --target $arch"
 else

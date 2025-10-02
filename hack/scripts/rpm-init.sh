@@ -56,11 +56,11 @@ case "$pkgrelease" in
     dnf install -y git rpm-build rpmlint dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+    dnf --setopt=retries=15 install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled powertools
     ;;
   rockylinux*|almalinux*)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+    dnf --setopt=retries=15 install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
   rhel8|rhel9)
