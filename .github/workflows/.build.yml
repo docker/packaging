@@ -285,7 +285,7 @@ jobs:
           done
 
           echo "* Tags" >> /tmp/summary.txt
-          cat /tmp/tags.txt >> /tmp/summary.txt
+          sed 's/^/  /' /tmp/tags.txt >> /tmp/summary.txt
 
           if [ "${{ inputs.name }}" = "containerd" ]; then
             cat >> "/tmp/summary.txt" <<-EOF
