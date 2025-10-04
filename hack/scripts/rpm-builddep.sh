@@ -16,9 +16,10 @@
 
 arch=$1
 specsDir=$2
+shift 2
 
 if [[ -z "$arch" ]] || [[ -z "$specsDir" ]]; then
-  echo "usage: ./rpm-builddep <arch> <specs-dir>" >&2
+  echo "usage: ./rpm-builddep <arch> <specs-dir> [extra-args...]" >&2
   exit 1
 fi
 
@@ -35,4 +36,4 @@ else
 fi
 
 set -x
-$builddepCmd -y "$specsDir"/*.spec
+$builddepCmd "$@" -y "$specsDir"/*.spec

@@ -148,8 +148,16 @@ RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-
     rpm-init $DISTRO_NAME
 COPY rpm /root/rpmbuild/SPECS
 ARG TARGETPLATFORM
-RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
-    rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
+RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep <<EOT
+  set -e
+  no_libnftables=0
+  case "$DISTRO_NAME" in
+    rhel*)
+      no_libnftables=1
+      ;;
+  esac
+  rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS --define "_no_libnftables ${no_libnftables}"
+EOT
 WORKDIR /root/rpmbuild
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
@@ -196,7 +204,7 @@ ARG PKG_REF
 ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
+RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libnftables-dev libsecret-1-dev libsystemd-dev libudev-dev pkg-config
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \

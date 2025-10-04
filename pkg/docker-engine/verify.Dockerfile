@@ -28,6 +28,7 @@ FROM scratch AS scripts
 FROM ${DISTRO_IMAGE} AS base
 
 FROM base AS verify-deb
+RUN apt-get update && apt-get install -y libnftables1
 COPY --from=xx / /
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -48,7 +49,7 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       dpkg-deb --info $package
-      dpkg -i --ignore-depends=containerd.io,docker-ce-cli,iptables --force-depends $package
+      dpkg -i --ignore-depends=containerd.io,docker-ce-cli,iptables,nftables --force-depends $package
     )
   done
   set -x
@@ -82,6 +83,14 @@ RUN --mount=from=bin,target=/build <<EOT
       rpm --install --nodeps $package
     )
   done
+  case "$DISTRO_NAME" in
+    rhel*)
+      ;;
+    *)
+      # dockerd requires libnftables.so.1
+      dnf install -y nftables
+      ;;
+  esac
   set -x
   dockerd --version
 EOT
