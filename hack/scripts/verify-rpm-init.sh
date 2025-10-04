@@ -37,7 +37,7 @@ case "$pkgrelease" in
     dnf install -y findutils dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
     dnf config-manager --enable ol9_addons ol9_codeready_builder
     ;;
-  fedora*)
+  fedora*|rhel*)
     dnf install -y findutils dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
