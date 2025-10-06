@@ -34,6 +34,16 @@ EOF
   chmod +x /usr/local/bin/git
 }
 
+if [[ "$pkgrelease" = rockylinux* ]]; then
+  # disable mirrors for better stability
+  for repo in /etc/yum.repos.d/*.repo; do
+    sed -i \
+      -e 's/^\(mirrorlist=.*\)$/#\1/' \
+      -e 's/^#\(baseurl=.*\)$/\1/' \
+      "$repo"
+  done
+fi
+
 case "$pkgrelease" in
   centos9)
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
