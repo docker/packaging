@@ -58,11 +58,23 @@ export GO111MODULE=$(check-gomod)
 xx-go --wrap
 fix-cc
 
+no_libnftables=0
+case "$DISTRO_NAME" in
+  rhel*)
+    # The nftables-devel package is only available in RHEL CRB. For now, build
+    # with tag "no_libnftables", so dockerd will exec the nft tool, and this
+    # package is not required. Note that this '--define' is also defined in
+    # the Dockerfile to install build dependencies.
+    no_libnftables=1
+    ;;
+esac
+
 rpmDefine=(
   --define "_version ${GENVER_PKG_VERSION}"
   --define "_origversion ${GENVER_VERSION}"
   --define "_release ${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}"
   --define "_commit ${GENVER_COMMIT_SHORT}"
+  --define "_no_libnftables ${no_libnftables}"
 )
 
 pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"
@@ -75,6 +87,9 @@ case "$DISTRO_NAME" in
     export DOCKER_BUILDTAGS="exclude_graphdriver_btrfs $DOCKER_BUILDTAGS"
     ;;
 esac
+if [ "$no_libnftables" -eq 1 ]; then
+  export DOCKER_BUILDTAGS="no_libnftables $DOCKER_BUILDTAGS"
+fi
 
 set -x
 

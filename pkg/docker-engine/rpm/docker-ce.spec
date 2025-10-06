@@ -20,6 +20,7 @@ Recommends: docker-ce-rootless-extras
 Requires: container-selinux
 Requires: systemd
 Requires: iptables
+Requires: nftables
 %if %{undefined rhel} || 0%{?rhel} < 9
 # Libcgroup is no longer available in RHEL/CentOS >= 9 distros.
 Requires: libcgroup
@@ -35,6 +36,9 @@ BuildRequires: gcc
 BuildRequires: glibc-static
 BuildRequires: libarchive
 BuildRequires: libtool
+%if 0%{?_no_libnftables} == 0
+BuildRequires: nftables-devel
+%endif
 BuildRequires: make
 BuildRequires: pkgconfig
 BuildRequires: pkgconfig(systemd)
