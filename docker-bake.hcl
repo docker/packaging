@@ -566,9 +566,9 @@ target "_pkg-docker-engine" {
 target "_pkg-model" {
   args = {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-model-plugin"
-    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/model-cli.git"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/model-runner.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.7" # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.7" # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -591,7 +591,7 @@ function "pkgPlatforms" {
     docker-cli = ["darwin/amd64", "darwin/arm64", "linux/386", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/docker-bake.hcl#L82-L91
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
-    # https://github.com/docker/model-cli/blob/301126afc8ef4b8330de56db5d2889ddbc978022/Makefile#L36-L40
+    # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
   }, pkg, [])
 }

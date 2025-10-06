@@ -47,9 +47,9 @@ binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 
 (
   set -x
-  pushd ${SRCDIR}
-    # https://github.com/docker/model-cli/blob/main/Makefile#L52C2-L52C145
-    go build -trimpath -ldflags="-w -X github.com/docker/model-cli/desktop.Version=${GENVER_VERSION}" -o "${BUILDDIR}/${PKG_NAME}/docker-model" .
+  pushd ${SRCDIR}/cmd/cli
+    # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
+    go build -trimpath -ldflags="-w -X github.com/docker/model-runner/cmd/cli/desktop.Version=${GENVER_VERSION}" -o "${BUILDDIR}/${PKG_NAME}/docker-model" .
   popd
   if [ "$(xx-info os)" = "windows" ]; then
     mv "${BUILDDIR}/${PKG_NAME}/docker-model" "${BUILDDIR}/${PKG_NAME}/docker-model.exe"
