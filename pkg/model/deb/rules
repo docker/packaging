@@ -14,8 +14,8 @@ override_dh_builddeb:
 
 override_dh_auto_build:
 	mkdir -p /usr/libexec/docker/cli-plugins && \
-	GO111MODULE=on make -C $(CURDIR)/model VERSION=$(VERSION) ce-release \
-	&& mv $(CURDIR)/model/dist/docker-model /usr/libexec/docker/cli-plugins/docker-model
+	GO111MODULE=on make -C $(CURDIR)/model/cmd/cli VERSION=$(VERSION) ce-release \
+	&& mv $(CURDIR)/model/cmd/cli/dist/docker-model /usr/libexec/docker/cli-plugins/docker-model
 
 override_dh_auto_test:
 	ver="$$(/usr/libexec/docker/cli-plugins/docker-model docker-cli-plugin-metadata | awk '{ gsub(/[",:]/,"")}; $$1 == "Version" { print $$2 }')"; \

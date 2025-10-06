@@ -25,7 +25,7 @@ ARG DISTRO_ID="12"
 ARG DISTRO_IMAGE="debian:bookworm"
 
 ARG PKG_NAME="docker-model-plugin"
-ARG PKG_REPO="https://github.com/docker/model-cli.git"
+ARG PKG_REPO="https://github.com/docker/model-runner.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"

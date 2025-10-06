@@ -3,8 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Docker <support@docker.com>
 Homepage: https://www.docker.com
-Vcs-Browser: https://github.com/docker/model-cli
-Vcs-Git: git://github.com/docker/model-cli.git
+Vcs-Browser: https://github.com/docker/model-runner
+Vcs-Git: git://github.com/docker/model-runner.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
                debhelper-compat (= 12),
