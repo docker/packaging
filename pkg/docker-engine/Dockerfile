@@ -127,7 +127,6 @@ RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
-    --mount=source=common,target=/common \
     --mount=type=bind,from=src,source=/src,target=/root/package/engine,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/root/package/engine pkg-deb-build
@@ -173,8 +172,6 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
-    --mount=type=bind,source=common/systemd/docker.service,target=/root/rpmbuild/SOURCES/docker.service \
-    --mount=type=bind,source=common/systemd/docker.socket,target=/root/rpmbuild/SOURCES/docker.socket \
     --mount=type=bind,from=src-tgz,source=/out/engine.tgz,target=/root/rpmbuild/SOURCES/engine.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/engine \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \

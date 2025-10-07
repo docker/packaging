@@ -5,8 +5,6 @@ Version: %{_version}
 Release: %{_release}%{?dist}
 Epoch: 3
 Source0: engine.tgz
-Source1: docker.service
-Source2: docker.socket
 Summary: The open-source application container engine
 Group: Tools/Docker
 License: Apache-2.0
