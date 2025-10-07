@@ -47,8 +47,13 @@ RUN --mount=from=bin,target=/build <<EOT
   fi
   for package in $(find $dir -type f -name 'docker-ce_[0-9]*.deb'); do
     (
+      set -e
+      mkdir -p /tmp/$package
       set -x
       dpkg-deb --info $package
+      dpkg-deb -e $package /tmp/$package
+      grep -E 'docker\.service|docker\.socket' /tmp/$package/md5sums
+      grep -E 'deb-systemd-helper|installsystemd|systemctl' /tmp/$package/postinst
       dpkg -i --ignore-depends=containerd.io,docker-ce-cli,iptables,nftables --force-depends $package
     )
   done
