@@ -53,6 +53,7 @@ variable "PKGS" {
     "docker-cli",
     "docker-engine",
     "model",
+    "cagent"
   ]
 }
 
@@ -141,7 +142,7 @@ variable "GO_IMAGE" {
 }
 variable "GO_VERSION" {
   description = "Go version to use for building packages."
-  default = "1.24.7"
+  default = null
 }
 variable "GO_IMAGE_VARIANT" {
   description = "Go image variant to use for building packages."
@@ -574,6 +575,17 @@ target "_pkg-model" {
   }
 }
 
+target "_pkg-cagent" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "cagent"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/cagent.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.1" # https://github.com/docker/cagent/blob/1a83a28df2b0769e8cb14d54ac409bdbb98e254c/Dockerfile#L6
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
+  }
+}
+
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -593,6 +605,8 @@ function "pkgPlatforms" {
     docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/cagent/blob/1a83a28df2b0769e8cb14d54ac409bdbb98e254c/Taskfile.yml#L66
+    cagent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
   }, pkg, [])
 }
 
