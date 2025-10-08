@@ -1,0 +1,8 @@
+*                    @docker/packaging
+pkg/compose/*        @docker/compose-maintainers
+pkg/model/*          @docker/ai-models-infra
+pkg/buildx/*         @docker/build
+pkg/containerd/*     @docker/engine
+pkg/docker-cli/*     @docker/engine
+pkg/docker-engine/*  @docker/engine
+
