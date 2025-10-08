@@ -14,24 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -x
+# optional tag prefix to handle versions like:
+# cmd/cli/v0.1.44 -> v0.1.44
+# docker-v29.0.0 -> v29.0.0
+: "${TAGPREFIX:=}"
+
 srcdir="$1"
 if [ -z "$srcdir" ]; then
   echo "usage: ./gen-ver <srcdir>" >&2
   exit 1
 fi
 
-version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
+tagregex="${TAGPREFIX}v[0-9]*"
+version=$(git -C "${srcdir}" describe --match "$tagregex" --tags)
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
 
-# Handle prefixed version formats
-# cmd/cli/v0.1.44 -> v0.1.44
-if [[ "$version" =~ .*/v[0-9] ]]; then
-  version="${version##*/}"
-fi
-# docker-v29.0.0 -> v29.0.0
-if [[ "$version" =~ ^docker-v[0-9] ]]; then
-  version="${version#docker-}"
+if [ -n "$TAGPREFIX" ]; then
+  version="${version#$TAGPREFIX}"
 fi
 
 # rpm "Release:" field ($rpmRelease) is used to set the "_release" macro, which
