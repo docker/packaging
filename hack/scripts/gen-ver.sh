@@ -24,6 +24,16 @@ version=$(git -C "${srcdir}" describe --match 'v[0-9]*' --always --tags)
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
 
+# Handle prefixed version formats
+# cmd/cli/v0.1.44 -> v0.1.44
+if [[ "$version" =~ .*/v[0-9] ]]; then
+  version="${version##*/}"
+fi
+# docker-v29.0.0 -> v29.0.0
+if [[ "$version" =~ ^docker-v[0-9] ]]; then
+  version="${version#docker-}"
+fi
+
 # rpm "Release:" field ($rpmRelease) is used to set the "_release" macro, which
 # is an incremental number for builds of the same release (Version: / #rpmVersion).
 #
