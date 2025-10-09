@@ -31,6 +31,8 @@
 : "${SRCDIR=/work/src}"
 : "${OUTDIR=/out}"
 
+: "${TAGPREFIX=}"
+
 set -e
 
 if [ -z "$DISTRO_NAME" ]; then

@@ -22,6 +22,8 @@
 : "${SRCDIR=/work/src}"
 : "${OUTDIR=/out}"
 
+: "${TAGPREFIX=}"
+
 set -e
 
 if [ -z "$OUTDIR" ]; then

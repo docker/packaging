@@ -32,6 +32,8 @@ ARG GO_IMAGE="golang"
 ARG GO_VERSION=1.24.8
 ARG GO_IMAGE_VARIANT="bookworm"
 
+ARG TAGPREFIX="cmd/cli/"
+
 # stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
 FROM scratch AS scripts
@@ -63,6 +65,7 @@ FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
 ARG NIGHTLY_BUILD
+ARG TAGPREFIX
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
@@ -108,6 +111,7 @@ ARG PKG_DEB_BUILDFLAGS
 ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
+ARG TAGPREFIX
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
@@ -143,6 +147,7 @@ ARG PKG_PACKAGER
 ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
+ARG TAGPREFIX
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
@@ -165,6 +170,7 @@ ENV CGO_ENABLED="0"
 ARG PKG_NAME
 ARG PKG_REF
 ARG NIGHTLY_BUILD
+ARG TAGPREFIX
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \

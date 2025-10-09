@@ -26,6 +26,8 @@
 : "${LIBSECCOMP_SRCDIR=/work/libseccomp-src}"
 : "${RUNHCS_SRCDIR=/work/runhcs-src}"
 
+: "${TAGPREFIX=}"
+
 set -e
 
 if [ -z "$OUTDIR" ]; then
