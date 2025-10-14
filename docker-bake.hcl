@@ -578,21 +578,95 @@ target "_pkg-model" {
 function "pkgPlatforms" {
   params = [pkg]
   result = lookup({
-    # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/docker-bake.hcl#L156-L174
-    buildx = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/buildx/blob/c023bfaf026679d4e183876be3b56fadb9e4b507/docker-bake.hcl#L157-L173
+    buildx = [
+      "darwin/amd64",
+      "darwin/arm64",
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/riscv64",
+      "linux/s390x",
+      "windows/amd64",
+      "windows/arm64"
+    ]
     # https://github.com/docker/compose/blob/c626befee1596abcc74578cb10dd96ae1667f76f/docker-bake.hcl#L112-L124
-    compose = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
+    compose = [
+      "darwin/amd64",
+      "darwin/arm64",
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/riscv64",
+      "linux/s390x",
+      "windows/amd64",
+      "windows/arm64"
+    ]
     # https://github.com/containerd/containerd/blob/87742bd35f6ddc47c638a448c271b7ccf8df9010/.github/workflows/ci.yml#L145-L165
     # https://github.com/containerd/containerd/blob/87742bd35f6ddc47c638a448c271b7ccf8df9010/.github/workflows/ci.yml#L135-L137
-    containerd = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64", "windows/arm/v7"]
+    containerd = [
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/s390x",
+      "windows/amd64",
+      "windows/arm64",
+      "windows/arm/v7"
+    ]
     # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/docker-bake.hcl#L56-L66
-    credential-helpers = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64"]
+    credential-helpers = [
+      "darwin/amd64",
+      "darwin/arm64",
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/s390x",
+      "windows/amd64"
+    ]
     # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/docker-bake.hcl#L30-L42
-    docker-cli = ["darwin/amd64", "darwin/arm64", "linux/386", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
+    docker-cli = [
+      "darwin/amd64",
+      "darwin/arm64",
+      "linux/386",
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/riscv64",
+      "linux/s390x",
+      "windows/amd64",
+      "windows/arm64"
+    ]
     # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/docker-bake.hcl#L82-L91
-    docker-engine = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
+    docker-engine = [
+      "linux/amd64",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "linux/arm64",
+      "linux/ppc64le",
+      "linux/s390x",
+      "windows/amd64",
+      "windows/arm64"
+    ]
     # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
-    model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
+    model = [
+      "darwin/amd64",
+      "darwin/arm64",
+      "linux/amd64",
+      "linux/arm64",
+      "linux/arm/v7",
+      "windows/amd64",
+      "windows/arm64"
+    ]
   }, pkg, [])
 }
 
