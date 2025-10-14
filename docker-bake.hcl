@@ -142,7 +142,7 @@ variable "GO_IMAGE" {
 }
 variable "GO_VERSION" {
   description = "Go version to use for building packages."
-  default = "1.24.8"
+  default = "1.24.9"
 }
 variable "GO_IMAGE_VARIANT" {
   description = "Go image variant to use for building packages."
@@ -516,7 +516,7 @@ target "_pkg-buildx" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-buildx-plugin"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/buildx.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.8" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/docker/buildx/blob/0c747263ef1426f5fa217fcdb616eddf33da6c2d/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -527,7 +527,7 @@ target "_pkg-compose" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-compose-plugin"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/compose.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.8" # https://github.com/docker/compose/blob/fa081274567ac350f0e5f16abbe51701b320626e/Dockerfile#L18
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/docker/compose/blob/fa081274567ac350f0e5f16abbe51701b320626e/Dockerfile#L18
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -538,7 +538,7 @@ target "_pkg-containerd" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "containerd.io"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/containerd/containerd.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.8" # https://github.com/containerd/containerd/blob/2d28d98490f53d78c98faecfc91f9fd54cdbc16e/.github/workflows/release.yml#L16
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/containerd/containerd/blob/2d28d98490f53d78c98faecfc91f9fd54cdbc16e/.github/workflows/release.yml#L16
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -549,7 +549,7 @@ target "_pkg-credential-helpers" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-credential-helpers"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker-credential-helpers.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.8" # https://github.com/docker/docker-credential-helpers/blob/d4602cd9173ff3126de9fa67353efa73598b639b/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/docker/docker-credential-helpers/blob/d4602cd9173ff3126de9fa67353efa73598b639b/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -582,7 +582,7 @@ target "_pkg-model" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-model-plugin"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/model-runner.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.8" # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
