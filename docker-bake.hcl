@@ -582,6 +582,8 @@ function "pkgPlatforms" {
     buildx = [
       "darwin/amd64",
       "darwin/arm64",
+      "freebsd/amd64",
+      "freebsd/arm64",
       "linux/amd64",
       "linux/arm/v6",
       "linux/arm/v7",
@@ -589,6 +591,10 @@ function "pkgPlatforms" {
       "linux/ppc64le",
       "linux/riscv64",
       "linux/s390x",
+      "netbsd/amd64",
+      "netbsd/arm64",
+      "openbsd/amd64",
+      "openbsd/arm64",
       "windows/amd64",
       "windows/arm64"
     ]
