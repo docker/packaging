@@ -142,7 +142,7 @@ variable "GO_IMAGE" {
 }
 variable "GO_VERSION" {
   description = "Go version to use for building packages."
-  default = "1.24.9"
+  default = null
 }
 variable "GO_IMAGE_VARIANT" {
   description = "Go image variant to use for building packages."
