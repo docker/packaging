@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.6.1"
+ARG XX_VERSION="1.7.0"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 ARG DISTRO_NAME="debian12"
@@ -29,7 +29,7 @@ ARG PKG_REPO="https://github.com/docker/cagent.git"
 ARG PKG_REF="master"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.25.1"
+ARG GO_VERSION="1.25.3"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 # stage used as named context that mounts hack/scripts
@@ -154,6 +154,35 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/cagent \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     OUTDIR=/out SRCDIR=/usr/local/src/cagent pkg-rpm-build
+
+# static
+FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
+COPY --from=xx / /
+ARG DEBIAN_FRONTEND
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
+ENV GOPROXY="https://proxy.golang.org|direct"
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
+ENV GO111MODULE="on"
+ENV CGO_ENABLED="0"
+ARG NIGHTLY_BUILD
+ARG PKG_NAME
+ARG PKG_REF
+WORKDIR /build
+# download dependencies before "ARG TARGETPLATFORM" otherwise it will be cached
+# for each platform and that would take a lot of disk space
+RUN --mount=type=bind,from=src,source=/src/go.mod,target=/build/go.mod \
+    --mount=type=bind,from=src,source=/src/go.sum,target=/build/go.sum,rw \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    go mod download -x
+ARG TARGETPLATFORM
+RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/cagent \
+    --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/cagent pkg-static-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
