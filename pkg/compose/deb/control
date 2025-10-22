@@ -13,6 +13,7 @@ Build-Depends: bash,
 Package: docker-compose-plugin
 Priority: optional
 Architecture: linux-any
+Recommends: docker-buildx-plugin (>= 0.17.0)
 Enhances: docker-ce-cli
 Description: Docker Compose (V2) plugin for the Docker CLI.
  .
