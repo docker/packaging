@@ -1,0 +1,32 @@
+Source: cagent
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Vcs-Browser: https://github.com/docker/cagent
+Vcs-Git: git://github.com/docker/cagent.git
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               debhelper-compat (= 12)
+
+Package: cagent
+Priority: optional
+Architecture: linux-any
+Description: cagent is a powerful multi-agent AI runtime that enables you to
+ create, configure, and orchestrate specialized AI agents that work together to
+ solve complex problems. Each agent can be equipped with specific tools,
+ knowledge domains, and capabilities.
+ .
+ Key features:
+  * Multi-agent architecture with hierarchical task delegation
+  * Declarative YAML-based agent configuration
+  * MCP (Model Context Protocol) integration for extensible tooling
+  * Support for multiple AI providers (OpenAI, Anthropic, Google Gemini, Docker Model Runner)
+  * Built-in reasoning tools (think, todo, memory) for complex problem-solving
+  * Docker Hub integration for sharing and distributing agent configurations
+  * Event-driven streaming architecture for real-time responses
+ .
+ cagent makes it easy to build agent teams where specialized agents collaborate,
+ each bringing their own expertise and tools to handle specific aspects of user
+ requests. Perfect for developers building AI-powered workflows and automation.
+Homepage: https://github.com/docker/cagent

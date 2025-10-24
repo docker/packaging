@@ -17,6 +17,10 @@ area/pkg/buildx:
   - changed-files:
     - any-glob-to-any-file: 'pkg/buildx/**'
 
+area/pkg/cagent:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/cagent/**'
+
 area/pkg/compose:
   - changed-files:
     - any-glob-to-any-file: 'pkg/compose/**'
