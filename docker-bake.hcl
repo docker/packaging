@@ -620,7 +620,7 @@ function "pkgPlatforms" {
     # https://github.com/docker/model-runner/blob/039f7a31c0365f9161c9b9b6bb3888161d16e388/cmd/cli/Makefile#L39-L43
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/cagent/blob/1a83a28df2b0769e8cb14d54ac409bdbb98e254c/Taskfile.yml#L66
-    cagent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    cagent = ["darwin/amd64", "linux/arm/v7", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
   }, pkg, [])
 }
 
