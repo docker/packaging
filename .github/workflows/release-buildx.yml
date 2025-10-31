@@ -8,17 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Ref (e.g. v0.10.0)'
+        description: 'Tag/ref to build (e.g. v0.10.0)'
         required: true
         type: string
-      repo:
-        description: 'Override default repo'
-        required: false
-        type: string
       release:
-        description: 'Release type'
+        description: '(optional) Release type to create in https://github.com/docker/packaging/releases'
         required: false
-        default: 'pushonly'
+        default: 'draft'
         type: choice
         options:
           - pushonly
@@ -26,17 +22,21 @@ on:
           - prerelease
           - release
       distros:
-        description: 'Distros to build (comma-separated, e.g. "debian12,ubuntu2204")'
+        description: '(optional, empty = all supported) Distros to build (comma-separated, e.g. "debian12,ubuntu2204")'
         required: false
         type: string
         default: ''
       revision:
         description: |
-          Revision of the package to build. Only in case we ever would have to re-build an already published release with a packaging-only change.
+          (optional) Revision of the package to build. Only in case we ever would have to re-build an already published release with a packaging-only change.
           Default for a tagged/upstream release is 1.
         required: false
         type: string
         default: ''
+      repo:
+        description: '(optional) Override default repo (if want to build from a different Github repo/fork)'
+        required: false
+        type: string
 
 jobs:
   release:
