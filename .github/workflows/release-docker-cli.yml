@@ -12,9 +12,9 @@ on:
         required: true
         type: string
       release:
-        description: '(optional) Release type'
+        description: '(optional) Release type to create in https://github.com/docker/packaging/releases'
         required: false
-        default: 'pushonly'
+        default: 'draft'
         type: choice
         options:
           - pushonly
