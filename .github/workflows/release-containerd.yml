@@ -8,15 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Ref (e.g. v1.6.15)'
+        description: 'Tag/ref to build (e.g. v1.6.15)'
         required: true
         type: string
-      repo:
-        description: 'Override default repo'
-        required: false
-        type: string
       release:
-        description: 'Release type'
+        description: '(optional) Release type'
         required: false
         default: 'pushonly'
         type: choice
@@ -26,7 +22,7 @@ on:
           - prerelease
           - release
       distros:
-        description: 'Distros to build (comma-separated, e.g. "debian12,ubuntu22.04")'
+        description: '(optional, empty = all supported) Distros to build (comma-separated, e.g. "debian12,ubuntu2204")'
         required: false
         type: string
         default: ''
@@ -37,6 +33,10 @@ on:
         required: false
         type: string
         default: ''
+      repo:
+        description: '(optional) Override default repo (if want to build from a different Github repo/fork)'
+        required: false
+        type: string
 
 jobs:
   release:
