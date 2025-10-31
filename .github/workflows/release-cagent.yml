@@ -1,4 +1,4 @@
-name: release-compose
+name: release-cagent
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
