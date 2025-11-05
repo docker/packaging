@@ -11,6 +11,11 @@ on:
         description: 'Tag/ref to build (e.g. v1.6.15)'
         required: true
         type: string
+      runc_ref:
+        description: '(optional) Runc tag/ref to build (e.g. v1.1.10). Defaults to the containerd version.'
+        required: false
+        type: string
+        default: ''
       release:
         description: '(optional) Release type to create in https://github.com/docker/packaging/releases'
         required: false
@@ -50,4 +55,5 @@ jobs:
         PKG_REF=${{ inputs.ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
+        RUNC_REF=${{ inputs.runc_ref }}
     secrets: inherit

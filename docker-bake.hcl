@@ -132,6 +132,11 @@ variable "PKG_RPM_RELEASE" {
   default = null
 }
 
+variable "RUNC_REF" {
+  description = "Reference (branch, tag, commit) of runc to build. Only used for containerd package. If not set, defaults to the version specified in containerd's script/setup/runc-version file."
+  default = null
+}
+
 variable "NIGHTLY_BUILD" {
   description = "Set to 1 to enforce nightly build."
   default = null
@@ -542,6 +547,7 @@ target "_pkg-containerd" {
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.9" # https://github.com/containerd/containerd/blob/2d28d98490f53d78c98faecfc91f9fd54cdbc16e/.github/workflows/release.yml#L16
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
+    RUNC_REF = RUNC_REF != null && RUNC_REF != "" ? RUNC_REF : null
   }
 }
 
@@ -645,6 +651,7 @@ target "_common" {
     PKG_DEB_EPOCH = PKG_DEB_EPOCH
     PKG_RPM_BUILDFLAGS = PKG_RPM_BUILDFLAGS
     PKG_RPM_RELEASE = PKG_RPM_RELEASE
+    RUNC_REF = RUNC_REF
   }
 }
 
