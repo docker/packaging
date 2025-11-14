@@ -11,9 +11,8 @@ Build-Depends: bash,
                make
 
 Package: docker-compose-plugin
-Priority: optional
 Architecture: linux-any
-Recommends: docker-buildx-plugin (>= 0.17.0)
+Depends: docker-buildx-plugin (>= 0.17.0)
 Enhances: docker-ce-cli
 Description: Docker Compose (V2) plugin for the Docker CLI.
  .
@@ -21,4 +20,3 @@ Description: Docker Compose (V2) plugin for the Docker CLI.
  .
  The binary can also be run standalone as a direct replacement for
  Docker Compose V1 ('docker-compose').
-Homepage: https://github.com/docker/compose
