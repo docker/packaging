@@ -49,7 +49,7 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       dpkg-deb --info $package
-      dpkg -i $package
+      dpkg -i --ignore-depends=docker-buildx-plugin $package
     )
   done
   set -x
