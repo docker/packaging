@@ -42,7 +42,7 @@ jobs:
         pkg: ${{ fromJson(needs.prepare.outputs.pkgs) }}
     with:
       name: ${{ matrix.pkg }}
-      push: true
+      release: pushonly
       envs: |
         NIGHTLY_BUILD=1
     secrets: inherit
