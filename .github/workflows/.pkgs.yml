@@ -1,0 +1,31 @@
+# reusable workflow
+name: .pkgs
+
+on:
+  workflow_call:
+    outputs:
+      list:
+        description: List of packages as JSON array
+        value: ${{ jobs.run.outputs.pkgs }}
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    outputs:
+      pkgs: ${{ steps.set.outputs.pkgs }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v6
+      -
+        name: Set pkgs output
+        id: set
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const disabledPkgs = (process.env.DISABLED_PACKAGES || '').split(',').map(s => s.trim()).filter(Boolean);
+            const pkgs = fs.readdirSync('./pkg', { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name).filter(name => !disabledPkgs.includes(name));
+            core.info(JSON.stringify(pkgs, null, 2));
+            core.setOutput('pkgs', JSON.stringify(pkgs));

@@ -11,35 +11,17 @@ on:
     - cron: '0 1 * * 0'
 
 jobs:
-  prepare:
-    runs-on: ubuntu-24.04
-    outputs:
-      pkgs: ${{ steps.matrix.outputs.pkgs }}
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v6
-      -
-        name: Matrix
-        id: matrix
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const disabledPkgs = (process.env.DISABLED_PACKAGES || '').split(',').map(s => s.trim()).filter(Boolean);
-            const pkgs = fs.readdirSync('./pkg', { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name).filter(name => !disabledPkgs.includes(name));
-            core.info(JSON.stringify(pkgs, null, 2));
-            core.setOutput('pkgs', JSON.stringify(pkgs));
+  pkgs:
+    uses: ./.github/workflows/.pkgs.yml
 
   build:
     uses: ./.github/workflows/.build.yml
     needs:
-      - prepare
+      - pkgs
     strategy:
       fail-fast: false
       matrix:
-        pkg: ${{ fromJson(needs.prepare.outputs.pkgs) }}
+        pkg: ${{ fromJson(needs.pkgs.outputs.list) }}
     with:
       name: ${{ matrix.pkg }}
       release: pushonly
