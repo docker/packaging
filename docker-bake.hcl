@@ -522,7 +522,7 @@ target "_pkg-buildx" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-buildx-plugin"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/buildx.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.3" # https://github.com/docker/buildx/blob/854a58a65d5ada26ddc8b6ebd60ddb89fa5616a3/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.4" # https://github.com/docker/buildx/blob/854a58a65d5ada26ddc8b6ebd60ddb89fa5616a3/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
@@ -567,7 +567,7 @@ target "_pkg-docker-cli" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce-cli"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/cli.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.3" # https://github.com/docker/cli/blob/d16defd9e237a02e4e8b8710d9ce4a15472e60c8/Dockerfile#L11
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.4" # https://github.com/docker/cli/blob/d16defd9e237a02e4e8b8710d9ce4a15472e60c8/Dockerfile#L11
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
@@ -578,7 +578,7 @@ target "_pkg-docker-engine" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.3" # https://github.com/moby/moby/blob/4b978319922166bab9116b3e60e716a62b9cf130/Dockerfile#L3
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.4" # https://github.com/moby/moby/blob/4b978319922166bab9116b3e60e716a62b9cf130/Dockerfile#L3
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
   }
