@@ -1,0 +1,124 @@
+name: update-go
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  pkgs:
+    uses: ./.github/workflows/.pkgs.yml
+
+  build:
+    runs-on: ubuntu-24.04
+    needs:
+      - pkgs
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v6
+      -
+        name: Get GO_VERSION from upstream repositories
+        id: get-go-versions
+        uses: actions/github-script@v8
+        env:
+          INPUT_PKGS: ${{ needs.pkgs.outputs.list }}
+        with:
+          script: |
+            const inpPkgs = JSON.parse(core.getInput('pkgs'));
+            
+            const goVersions = [];
+            for (const pkg of inpPkgs) {
+              await core.group(`Getting go version for ${pkg} package`, async () => {
+                let pkgRepo = '';
+                let pkgRef = '';
+                let pkgDockerfile = '';
+                await exec.getExecOutput('docker', ['buildx', 'bake', `metadata-${pkg}`, '--print'], {
+                  ignoreReturnCode: true,
+                  silent: true
+                }).then(res => {
+                  if (res.stderr.length > 0 && res.exitCode != 0) {
+                    throw new Error(res.stderr);
+                  }
+                  const dt = JSON.parse(res.stdout.trim());
+                  pkgRepo = dt.target[`metadata-${pkg}`].args.PKG_REPO;
+                  pkgRef = dt.target[`metadata-${pkg}`].args.PKG_REF;
+                  pkgDockerfile = dt.target[`metadata-${pkg}`].args.PKG_REMOTE_DOCKERFILE;
+                });
+              
+                let goVersion = '';
+                core.info(`Fetching GO_VERSION from ${pkgRepo}#${pkgRef}`);
+                await exec.getExecOutput('docker', ['buildx', 'build', '--call', 'outline,format=json', '-f', pkgDockerfile, `${pkgRepo}#${pkgRef}`], {
+                  ignoreReturnCode: true,
+                  silent: true
+                }).then(res => {
+                  if (res.stderr.length > 0 && res.exitCode != 0) {
+                    throw new Error(res.stderr);
+                  }
+                  const outline = JSON.parse(res.stdout.trim());
+                  goVersion = outline.args.find(arg => arg.name === 'GO_VERSION')?.value;
+                  if (!goVersion) {
+                    core.info(JSON.stringify(outline, null, 2));
+                    throw new Error(`GO_VERSION not found in outline args`);
+                  }
+                  core.info(`Found GO_VERSION: ${goVersion}`);
+                });
+                goVersions.push({ pkg: pkg, go_version: goVersion });
+              });
+            }
+            
+            core.setOutput('list', JSON.stringify(goVersions));
+      -
+        name: Set GO_VERSION in docker-bake.hcl and Dockerfiles
+        uses: actions/github-script@v8
+        env:
+          INPUT_GO_VERSIONS: ${{ steps.get-go-versions.outputs.list }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const inpGoVersions = JSON.parse(core.getInput('go_versions'));
+            
+            for (const item of inpGoVersions) {
+              const bakefilePath = 'docker-bake.hcl';
+              core.info(`Updating GO_VERSION to ${item.go_version} in ${bakefilePath} for _pkg-${item.pkg} target`);
+              let bakeContent = fs.readFileSync(bakefilePath, 'utf8');
+              const bakeRegex = new RegExp(
+                `target "_pkg-${item.pkg}" \\{[\\s\\S]*?GO_VERSION = GO_VERSION != null && GO_VERSION != "" \\? GO_VERSION : "([^"]+)"`,
+                'm'
+              );
+              bakeContent = bakeContent.replace(bakeRegex, (match, p1) => {
+                return match.replace(p1, item.go_version);
+              });
+              fs.writeFileSync(bakefilePath, bakeContent);
+        
+              const dockerfilePath = path.join('pkg', item.pkg, 'Dockerfile');
+              core.info(`Updating GO_VERSION to ${item.go_version} in ${dockerfilePath}`);
+              let dockerfileContent = fs.readFileSync(dockerfilePath, 'utf8');
+              const dockerfileRegex = /^ARG GO_VERSION=.*$/m;
+              dockerfileContent = dockerfileContent.replace(dockerfileRegex, `ARG GO_VERSION="${item.go_version}"`);
+              fs.writeFileSync(dockerfilePath, dockerfileContent);
+            }
+            
+            await exec.exec(`git diff --color=always`);
+      -
+        name: Commit changes
+        run: |
+          git add -A .
+      -
+        name: Create PR
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e  # v7.0.8
+        with:
+          base: main
+          branch: bot/update-go
+          signoff: true
+          delete-branch: true
+          title: "chore: align go version from upstream repositories"
+          body: |
+            Keep Go versions in sync with upstream repositories.
+          draft: false
