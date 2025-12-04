@@ -35,7 +35,7 @@ ARG PKG_REPO="https://github.com/containerd/containerd.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.24.9"
+ARG GO_VERSION="1.24.11"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 # stage used as named context that mounts hack/scripts
