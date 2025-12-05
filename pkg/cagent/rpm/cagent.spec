@@ -13,6 +13,7 @@ Vendor: Docker
 Packager: Docker <support@docker.com>
 
 BuildRequires: bash
+BuildRequires: gcc
 
 %description
 cagent is a powerful multi-agent AI runtime that enables you to create,

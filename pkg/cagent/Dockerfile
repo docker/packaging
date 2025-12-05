@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.7.0"
+ARG XX_VERSION="1.9.0"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 ARG DISTRO_NAME="debian12"
@@ -32,12 +32,17 @@ ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.25.5"
 ARG GO_IMAGE_VARIANT="bookworm"
 
+ARG ZIG_VERSION="0.15.2"
+
 # stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
 FROM scratch AS scripts
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+
+# osxcross contains the MacOSX cross toolchain for xx
+FROM crazymax/osxcross:15.5-debian AS osxcross
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
@@ -90,7 +95,7 @@ ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
-ENV CGO_ENABLED="0"
+ENV CGO_ENABLED="1"
 ARG DISTRO_NAME
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
 COPY deb /root/package/debian
@@ -124,7 +129,7 @@ ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
-ENV CGO_ENABLED="0"
+ENV CGO_ENABLED="1"
 ARG DISTRO_NAME
 RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
     --mount=type=secret,id=RH_USER,env=RH_USER \
@@ -157,13 +162,25 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
-RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
+RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
+  dpkg-dev clang make pkg-config curl
+ARG ZIG_VERSION
+RUN <<EOT
+  set -e
+  ARCH=$(xx-info march)-$(xx-info os)
+  set -x
+  curl -LO https://ziglang.org/download/$ZIG_VERSION/zig-$ARCH-$ZIG_VERSION.tar.xz
+  tar xf zig-$ARCH-$ZIG_VERSION.tar.xz
+  mv zig-$ARCH-$ZIG_VERSION /opt/zig-$ZIG_VERSION
+  ln -sf /opt/zig-$ZIG_VERSION/zig /usr/local/bin/zig
+  zig version
+EOT
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 ENV GOTOOLCHAIN="local"
 ENV GO111MODULE="on"
-ENV CGO_ENABLED="0"
+ENV CGO_ENABLED="1"
 ARG NIGHTLY_BUILD
 ARG PKG_NAME
 ARG PKG_REF
@@ -180,6 +197,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/cagent \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/cagent pkg-static-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg
