@@ -20,8 +20,6 @@ variable "DISTROS" {
     "debian11",
     "debian12",
     "debian13",
-    "raspbian11",
-    "raspbian12",
     "ubuntu2204",
     "ubuntu2404",
     "ubuntu2510",
@@ -218,30 +216,6 @@ target "_distro-debian13" {
     DISTRO_ID = "13"
     DISTRO_SUITE = "trixie"
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:trixie"
-    TEST_ONLY = "0"
-  }
-}
-
-target "_distro-raspbian11" {
-  args = {
-    DISTRO_NAME = "raspbian11"
-    DISTRO_TYPE = "deb"
-    DISTRO_RELEASE = "raspbian"
-    DISTRO_ID = "11"
-    DISTRO_SUITE = "bullseye"
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bullseye"
-    TEST_ONLY = "0"
-  }
-}
-
-target "_distro-raspbian12" {
-  args = {
-    DISTRO_NAME = "raspbian12"
-    DISTRO_TYPE = "deb"
-    DISTRO_RELEASE = "raspbian"
-    DISTRO_ID = "12"
-    DISTRO_SUITE = "bookworm"
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "balenalib/rpi-raspbian:bookworm"
     TEST_ONLY = "0"
   }
 }
@@ -489,8 +463,6 @@ function "distroPlatforms" {
         debian11 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/s390x"]
         debian12 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/s390x"]
         debian13 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
-        raspbian11 = ["linux/arm/v7"]
-        raspbian12 = ["linux/arm/v7"]
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
         ubuntu2404 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2510 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
