@@ -163,7 +163,7 @@ jobs:
             *.platform=${{ matrix.platform }}
       -
         name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build-pkg-${{ inputs.name }}-${{ matrix.distro }}-${{ env.PLATFORM_PAIR }}
           path: ./bin/pkg/${{ inputs.name }}/*
