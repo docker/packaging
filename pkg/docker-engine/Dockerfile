@@ -92,7 +92,7 @@ ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-ENV DOCKER_BUILDTAGS="apparmor seccomp selinux"
+ENV DOCKER_BUILDTAGS="apparmor seccomp selinux nri_no_wasm"
 ENV RUNC_BUILDTAGS="apparmor seccomp selinux"
 ARG DISTRO_NAME
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates curl devscripts equivs git
