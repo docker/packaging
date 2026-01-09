@@ -27,7 +27,7 @@ ARG DISTRO_IMAGE="debian:bookworm"
 
 ARG PKG_NAME="docker-credential-helpers"
 ARG PKG_REPO="https://github.com/docker/docker-credential-helpers.git"
-ARG PKG_REF="master"
+ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.25.5"
