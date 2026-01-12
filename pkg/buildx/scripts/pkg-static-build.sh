@@ -51,7 +51,7 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${GENVER_VERSION} REVISION=${GENVER_COMMIT} DESTDIR=/tmp/buildx-build ./hack/build
+    go build -trimpath -ldflags="-s -w -X ${PKG_NAME}/version.Version=${GENVER_VERSION} -X ${PKG_NAME}/version.Revision=${GENVER_COMMIT} -X ${PKG_NAME}/version.Package=${PKG_NAME}" -o /tmp/buildx-build/docker-buildx ./cmd/buildx
     mv "/tmp/buildx-build/docker-buildx" "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
