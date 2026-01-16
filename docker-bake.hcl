@@ -571,7 +571,7 @@ target "_pkg-docker-cli" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce-cli"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/cli.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.5" # https://github.com/docker/cli/blob/master/Dockerfile
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.6" # https://github.com/docker/cli/blob/master/Dockerfile
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
@@ -583,7 +583,7 @@ target "_pkg-docker-engine" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.5" # https://github.com/moby/moby/blob/master/Dockerfile
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.6" # https://github.com/moby/moby/blob/master/Dockerfile
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
