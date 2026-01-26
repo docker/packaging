@@ -29,7 +29,7 @@ ARG PKG_REPO="https://github.com/docker/compose.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.24.12"
+ARG GO_VERSION="1.25.6"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 # stage used as named context that mounts hack/scripts
