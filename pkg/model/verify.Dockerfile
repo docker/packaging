@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.7.0"
+ARG XX_VERSION="1.9.0"
 
 ARG DISTRO_TYPE="deb"
 ARG DISTRO_IMAGE="debian:bookworm"
