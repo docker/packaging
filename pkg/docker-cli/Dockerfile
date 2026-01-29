@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.7.0"
+ARG XX_VERSION="1.9.0"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # https://github.com/docker/cli/blob/master/Dockerfile#L9
