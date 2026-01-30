@@ -181,7 +181,7 @@ target "_distro-static" {
     DISTRO_RELEASE = "static"
     DISTRO_ID = ""
     DISTRO_SUITE = ""
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bookworm"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:trixie"
     TEST_ONLY = "0"
   }
 }

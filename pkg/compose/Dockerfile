@@ -40,7 +40,7 @@ FROM scratch AS scripts
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
 # osxcross contains the MacOSX SDK for xx
-FROM dockercore/golang-cross:xx-sdk-extras AS osxsdk
+FROM crazymax/osxcross:15.5-alpine AS osxcross
 
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
@@ -217,7 +217,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/compose \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
-    --mount=from=osxsdk,target=/xx-sdk,src=/xx-sdk \
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/compose pkg-static-build
 
 FROM builder-static-$TARGETOS AS builder-static
