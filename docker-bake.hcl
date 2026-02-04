@@ -24,7 +24,6 @@ variable "DISTROS" {
     "raspbian12",
     "ubuntu2204",
     "ubuntu2404",
-    "ubuntu2504",
     "ubuntu2510",
     "ubuntu2604",
 
@@ -270,18 +269,6 @@ target "_distro-ubuntu2404" {
   }
 }
 
-target "_distro-ubuntu2504" {
-  args = {
-    DISTRO_NAME = "ubuntu2504"
-    DISTRO_TYPE = "deb"
-    DISTRO_RELEASE = "ubuntu"
-    DISTRO_ID = "25.04"
-    DISTRO_SUITE = "plucky"
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:plucky"
-    TEST_ONLY = "0"
-  }
-}
-
 target "_distro-ubuntu2510" {
   args = {
     DISTRO_NAME = "ubuntu2510"
@@ -493,7 +480,6 @@ function "distroPlatforms" {
         raspbian12 = ["linux/arm/v7"]
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
         ubuntu2404 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
-        ubuntu2504 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2510 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2604 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
 
