@@ -15,7 +15,6 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.9.0"
-ARG DEBIAN_FRONTEND="noninteractive"
 
 # https://github.com/moby/moby/blob/master/Dockerfile#L157
 ARG GOWINRES_VERSION="v0.3.1"
@@ -87,7 +86,6 @@ COPY --from=metadata-builder /out /
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
@@ -180,7 +178,6 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 # static
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS build-base-static
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -194,7 +191,6 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
     GOBIN=/out GO111MODULE=on go install "github.com/tc-hib/go-winres@${GOWINRES_VERSION}"
 
 FROM build-base-static AS builder-static
-ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends clang cmake gcc libc6-dev lld llvm make pkg-config
 ARG PKG_NAME
 ARG PKG_REF

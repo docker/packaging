@@ -15,7 +15,6 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.9.0"
-ARG DEBIAN_FRONTEND="noninteractive"
 
 # https://github.com/docker/cli/blob/master/Dockerfile#L9
 ARG GOVERSIONINFO_VERSION="v1.4.1"
@@ -90,7 +89,6 @@ COPY --from=metadata-builder /out /
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
@@ -171,7 +169,6 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 # static
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS build-base-static
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
@@ -186,7 +183,6 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
     GOBIN=/out GO111MODULE=on go install "github.com/josephspurrier/goversioninfo/cmd/goversioninfo@${GOVERSIONINFO_VERSION}"
 
 FROM build-base-static AS builder-static-nosdk
-ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
 ARG PKG_REF
@@ -206,7 +202,6 @@ FROM builder-static-nosdk AS builder-static-linux
 FROM builder-static-nosdk AS builder-static-windows
 
 FROM build-base-static AS builder-static-darwin
-ARG DEBIAN_FRONTEND
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
 ARG PKG_NAME
 ARG PKG_REF

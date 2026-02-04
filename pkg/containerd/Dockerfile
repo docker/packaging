@@ -15,7 +15,6 @@
 # limitations under the License.
 
 ARG XX_VERSION="1.9.0"
-ARG DEBIAN_FRONTEND="noninteractive"
 
 # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L111
 ARG MD2MAN_VERSION="v2.0.2"
@@ -167,7 +166,6 @@ COPY --from=metadata-builder /out /
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV GOTOOLCHAIN="local"
@@ -244,7 +242,6 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 # static
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git gperf zip tar \
   dpkg-dev clang make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
