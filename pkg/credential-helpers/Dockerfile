@@ -16,7 +16,6 @@
 
 ARG XX_VERSION="1.9.0"
 ARG OSXCROSS_VERSION="11.3-r7-debian"
-ARG DEBIAN_FRONTEND="noninteractive"
 
 ARG DISTRO_NAME="debian12"
 ARG DISTRO_TYPE="deb"
@@ -88,7 +87,6 @@ COPY --from=metadata-builder /out /
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 ENV GOPROXY="https://proxy.golang.org|direct"
 ENV GOPATH="/go"
 ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -158,7 +156,6 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
 # static
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static-nosdk
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
   dpkg-dev clang make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
@@ -184,7 +181,6 @@ FROM builder-static-nosdk AS builder-static-windows
 
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static-darwin
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends bash ca-certificates file git zip tar \
   dpkg-dev clang make pkg-config
 ENV GOPROXY="https://proxy.golang.org|direct"
