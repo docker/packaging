@@ -28,7 +28,7 @@ ARG PKG_REPO="https://github.com/docker/cagent.git"
 ARG PKG_REF="master"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.25.5"
+ARG GO_VERSION="1.26.0"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 ARG ZIG_VERSION="0.15.2"
