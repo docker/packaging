@@ -73,10 +73,8 @@ case "$pkgrelease" in
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
-  rhel8|rhel9)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
-    ;;
   rhel*)
+    # skipping rpmlint as it requires dependencies not available in ubi images
     dnf install -y git rpm-build dnf-plugins-core
     ;;
 esac
