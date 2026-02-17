@@ -31,7 +31,7 @@ ARG GO_IMAGE="golang"
 ARG GO_VERSION="1.25"
 ARG GO_IMAGE_VARIANT="bookworm"
 
-ARG TAGPREFIX="cmd/cli/"
+ARG TAGPREFIX=""
 
 # stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
