@@ -560,7 +560,7 @@ target "_pkg-containerd" {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "containerd.io"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/containerd/containerd.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
-    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.24.13" # https://github.com/containerd/containerd/blob/main/.github/workflows/release/Dockerfile
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.7" # https://github.com/containerd/containerd/blob/main/.github/workflows/release/Dockerfile
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
     RUNC_REF = RUNC_REF != null && RUNC_REF != "" ? RUNC_REF : null
