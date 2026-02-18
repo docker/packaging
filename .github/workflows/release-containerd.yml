@@ -19,7 +19,7 @@ on:
       release:
         description: '(optional) Release type to create in https://github.com/docker/packaging/releases'
         required: false
-        default: 'draft'
+        default: 'release'
         type: choice
         options:
           - pushonly
