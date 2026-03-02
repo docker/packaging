@@ -8,7 +8,6 @@ to request changes to the packaging process.
 
 *****
 #first commit
-#`second commit
 ## About
 #first commit to test revert chnages if pushed to remote branch
 
