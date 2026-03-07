@@ -139,7 +139,7 @@ jobs:
           version: latest
       -
         name: Build
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           targets: pkg-${{ inputs.name }}-${{ matrix.distro }}
@@ -155,7 +155,7 @@ jobs:
       -
         name: Verify
         if: ${{ matrix.verify }}
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           targets: verify-${{ inputs.name }}-${{ matrix.distro }}
@@ -203,7 +203,7 @@ jobs:
           tree -nh ./bin/pkg/${{ inputs.name }}
       -
         name: Generate metadata
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           targets: metadata-${{ inputs.name }}
@@ -246,7 +246,7 @@ jobs:
       -
         name: Build release
         id: build
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           files: |
