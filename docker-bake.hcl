@@ -620,6 +620,8 @@ target "sbx-binaries" {
   args = {
     VERSION = VERSION
   }
+  secret = ["type=env,id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
+  ssh = ["default"]
 }
 
 target "_pkg-sbx" {
