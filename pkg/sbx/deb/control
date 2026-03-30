@@ -1,0 +1,16 @@
+Source: docker-sbx
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               dh-apparmor,
+               debhelper-compat (= 12)
+
+Package: docker-sbx
+Priority: optional
+Architecture: linux-any
+Recommends: apparmor
+Description: Docker sbx
+Homepage: https://docs.docker.com/sandbox/

@@ -1,0 +1,14 @@
+Docker Sandbox (sbx) - Proprietary Software
+
+Copyright (c) 2026 Docker, Inc. All rights reserved.
+
+This software is proprietary to Docker, Inc. Use is subject to the
+Docker Subscription Service Agreement:
+https://www.docker.com/legal/docker-subscription-service-agreement
+
+This package includes third-party open source components distributed
+under their own licenses. See THIRD-PARTY-NOTICES for details. The
+full license texts are provided in the following files:
+
+  GPL-2.0    - GNU General Public License version 2
+  Apache-2.0 - Apache License version 2.0

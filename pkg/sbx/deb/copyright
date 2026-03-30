@@ -1,0 +1,88 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: docker-sbx
+Source: https://github.com/docker/sandboxes
+
+Files: *
+Copyright: 2026 Docker, Inc.
+License: Proprietary
+ This software is proprietary to Docker, Inc.
+ Use is subject to the Docker Subscription Service Agreement.
+ See https://www.docker.com/legal/docker-subscription-service-agreement
+
+Files: usr/libexec/nerdbox-kernel-*
+Copyright: Linus Torvalds and Linux kernel contributors
+License: GPL-2.0
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License version 2 as published
+ by the Free Software Foundation.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ .
+ Docker, Inc. offers to provide the complete corresponding source code
+ for a period of at least three years from the date of distribution.
+ Contact open-source@docker.com or see https://github.com/torvalds/linux
+ Patches: https://github.com/containerd/nerdbox/tree/main/kernel/patches
+
+Files: usr/libexec/mkfs.erofs
+Copyright: erofs-utils contributors
+License: GPL-2.0+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation; either version 2 of the License, or (at your
+ option) any later version.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ .
+ Docker, Inc. offers to provide the complete corresponding source code
+ for a period of at least three years from the date of distribution.
+ Contact open-source@docker.com or see https://github.com/erofs/erofs-utils
+
+Files: usr/libexec/mkfs.ext4
+Copyright: Theodore Ts'o and e2fsprogs contributors
+License: GPL-2.0+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation; either version 2 of the License, or (at your
+ option) any later version.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ .
+ Docker, Inc. offers to provide the complete corresponding source code
+ for a period of at least three years from the date of distribution.
+ Contact open-source@docker.com or see https://github.com/tytso/e2fsprogs
+
+Files: usr/libexec/nerdbox-initrd-*
+Copyright: Giuseppe Scrivano and crun contributors, The containerd Authors
+License: GPL-2.0+ and Apache-2.0
+ The initrd image contains crun (GPL-2.0+) and vminitd (Apache-2.0).
+ .
+ crun: Copyright (C) Giuseppe Scrivano and crun contributors.
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation; either version 2 of the License, or (at your
+ option) any later version.
+ See https://github.com/containers/crun
+ .
+ vminitd: Copyright The containerd Authors.
+ Licensed under the Apache License, Version 2.0.
+ See https://github.com/containerd/nerdbox
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ The complete text of the Apache License version 2.0 can be found in
+ "/usr/share/common-licenses/Apache-2.0".
+ .
+ Docker, Inc. offers to provide the complete corresponding source code
+ for GPL-licensed components for a period of at least three years from
+ the date of distribution. Contact open-source@docker.com.
+
+Files: usr/libexec/containerd-shim-nerdbox-v1
+Copyright: The containerd Authors
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0.
+ .
+ On Debian systems, the complete text of the Apache License version 2.0
+ can be found in "/usr/share/common-licenses/Apache-2.0".

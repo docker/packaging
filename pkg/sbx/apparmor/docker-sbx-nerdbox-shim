@@ -1,0 +1,17 @@
+# AppArmor profile for the containerd-shim-nerdbox-v1 binary.
+#
+# On kernels with kernel.apparmor_restrict_unprivileged_userns=1 (default on
+# Ubuntu 23.10+), unconfined processes cannot create user namespaces.  The
+# nerdbox shim needs user namespaces to set up microVMs, so this profile
+# explicitly allows it.
+#
+# Under ABI 3.0, the presence of a loaded profile is sufficient to permit
+# user namespace creation for the associated binary.
+
+abi <abi/3.0>,
+
+include <tunables/global>
+
+/usr/libexec/containerd-shim-nerdbox-v1 flags=(unconfined) {
+  include if exists <local/docker-sbx-nerdbox-shim>
+}

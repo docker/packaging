@@ -45,3 +45,6 @@ area/pkg/model:
   - changed-files:
     - any-glob-to-any-file: 'pkg/model/**'
 
+area/pkg/sbx:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/sbx/**'

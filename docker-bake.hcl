@@ -52,7 +52,8 @@ variable "PKGS" {
     "docker-cli",
     "docker-engine",
     "model",
-    "cagent"
+    "cagent",
+    "sbx"
   ]
 }
 
@@ -165,6 +166,21 @@ variable "BUILD_CACHE_REGISTRY_SLUG" {
 variable "BUILD_CACHE_REGISTRY_PUSH" {
   description = "Set to 1 to enable pushing to the registry cache exporter."
   default = ""
+}
+
+variable "SBX_SRC" {
+  description = "Path to the sbx source repo checkout. The binary is built by its own Dockerfile."
+  default = "./sandboxes-src"
+}
+
+variable "RUNTIME_SRC" {
+  description = "Path to a directory containing pre-built runtime binaries. Use scripts/fetch-runtime-binaries.sh to populate it."
+  default = "./runtime-bin"
+}
+
+variable "VERSION" {
+  description = "Version of the package to build. Used by sbx; other packages derive this from PKG_REF."
+  default = null
 }
 
 #
@@ -586,6 +602,30 @@ target "_pkg-cagent" {
   }
 }
 
+# sbx binary is built by its own Dockerfile.
+target "sbx-binaries" {
+  context = SBX_SRC
+  target = "binaries"
+  platforms = pkgPlatforms("sbx")
+  args = {
+    VERSION = VERSION
+  }
+}
+
+target "_pkg-sbx" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-sbx"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/sandboxes.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
+    VERSION = VERSION != null && VERSION != "" ? VERSION : PKG_REF
+  }
+  contexts = {
+    sbx-src = "target:sbx-binaries"
+    runtime-src = RUNTIME_SRC
+  }
+}
+
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -607,6 +647,8 @@ function "pkgPlatforms" {
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/cagent/blob/1a83a28df2b0769e8cb14d54ac409bdbb98e254c/Taskfile.yml#L66
     cagent = ["darwin/amd64", "linux/arm/v7", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    # https://github.com/docker/sandboxes/blob/main/docker-bake.hcl
+    sbx = ["linux/amd64"]
   }, pkg, [])
 }
 

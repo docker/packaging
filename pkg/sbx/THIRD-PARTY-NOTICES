@@ -1,0 +1,99 @@
+This file lists the third-party components bundled in the docker-sbx package,
+their copyright holders, and their licenses.
+
+Docker, Inc. offers to provide the complete corresponding source code for
+any GPL-licensed component listed below, for a period of at least three
+years from the date of distribution. To obtain source code, contact
+open-source@docker.com or visit the upstream repositories listed below.
+
+--------------------------------------------------------------------------------
+
+Component: Linux kernel (nerdbox-kernel)
+License: GPL-2.0-only
+Source: https://github.com/torvalds/linux
+Patches: https://github.com/containerd/nerdbox/tree/main/kernel/patches
+SPDX-License-Identifier: GPL-2.0-only
+
+  Copyright (C) Linus Torvalds and Linux kernel contributors.
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License version 2 as published
+  by the Free Software Foundation.
+
+  The full text of the license is available at
+  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+--------------------------------------------------------------------------------
+
+Component: erofs-utils (mkfs.erofs)
+License: GPL-2.0+
+Source: https://github.com/erofs/erofs-utils
+SPDX-License-Identifier: GPL-2.0-or-later
+
+  Copyright (C) erofs-utils contributors.
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation; either version 2 of the License, or (at your
+  option) any later version.
+
+  The full text of the license is available at
+  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+--------------------------------------------------------------------------------
+
+Component: e2fsprogs (mkfs.ext4)
+License: GPL-2.0+
+Source: https://github.com/tytso/e2fsprogs
+SPDX-License-Identifier: GPL-2.0-or-later
+
+  Copyright (C) Theodore Ts'o and e2fsprogs contributors.
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation; either version 2 of the License, or (at your
+  option) any later version.
+
+  The full text of the license is available at
+  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+--------------------------------------------------------------------------------
+
+Component: crun (bundled in nerdbox-initrd)
+License: GPL-2.0+
+Source: https://github.com/containers/crun
+SPDX-License-Identifier: GPL-2.0-or-later
+
+  Copyright (C) Giuseppe Scrivano and crun contributors.
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation; either version 2 of the License, or (at your
+  option) any later version.
+
+  The full text of the license is available at
+  https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+--------------------------------------------------------------------------------
+
+Component: containerd-shim-nerdbox-v1
+License: Apache-2.0
+Source: https://github.com/containerd/nerdbox
+SPDX-License-Identifier: Apache-2.0
+
+  Copyright The containerd Authors.
+
+  Licensed under the Apache License, Version 2.0.
+  https://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+
+Component: vminitd (bundled in nerdbox-initrd)
+License: Apache-2.0
+Source: https://github.com/containerd/nerdbox
+SPDX-License-Identifier: Apache-2.0
+
+  Copyright The containerd Authors.
+
+  Licensed under the Apache License, Version 2.0.
+  https://www.apache.org/licenses/LICENSE-2.0

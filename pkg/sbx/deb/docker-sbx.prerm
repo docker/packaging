@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        # Kill all running sbx processes before uninstalling.
+        killall sbx 2>/dev/null || true
+        ;;
+esac
+
+#DEBHELPER#

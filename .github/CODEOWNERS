@@ -6,4 +6,4 @@ pkg/cagent/*         @docker/ai-agent-team
 pkg/containerd/*     @docker/engine
 pkg/docker-cli/*     @docker/engine
 pkg/docker-engine/*  @docker/engine
-
+pkg/sbx/*            @docker/coding-agent-sandboxes

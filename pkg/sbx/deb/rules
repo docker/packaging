@@ -1,0 +1,48 @@
+#!/usr/bin/make -f
+
+# force packages to be built with xz compression, as Ubuntu 21.10 and up use
+# zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
+
+override_dh_auto_build:
+	# Binary is pre-built and installed by pkg-deb-build.sh
+
+override_dh_auto_test:
+	/usr/bin/sbx version
+
+override_dh_strip:
+	# Go has lots of problems with stripping, so just don't
+
+# http://manpages.debian.org/dh_dwz
+override_dh_dwz:
+	# dh_dwz in debhelper versions less than 13 has issues with files that are missing debug symbols (once we update to debhelper-compat 13+ this can be removed)
+	@# https://packages.debian.org/debhelper
+	@# https://packages.ubuntu.com/debhelper
+
+override_dh_auto_install:
+	install -D -p -m 0755 /usr/bin/sbx debian/docker-sbx/usr/bin/sbx
+	install -D -p -m 0755 /usr/libexec/containerd-shim-nerdbox-v1 debian/docker-sbx/usr/libexec/containerd-shim-nerdbox-v1
+	install -D -p -m 0755 /usr/libexec/mkfs.erofs debian/docker-sbx/usr/libexec/mkfs.erofs
+	install -D -p -m 0755 /usr/libexec/mkfs.ext4 debian/docker-sbx/usr/libexec/mkfs.ext4
+	for f in /usr/libexec/nerdbox-kernel-* /usr/libexec/nerdbox-initrd-*; do \
+		install -D -p -m 0644 "$$f" "debian/docker-sbx$$f"; \
+	done
+	install -D -p -m 0755 /usr/libexec/lib/libkrun.so debian/docker-sbx/usr/libexec/lib/libkrun.so
+	install -D -p -m 0644 /usr/share/apparmor/docker-sbx-nerdbox-shim debian/docker-sbx/etc/apparmor.d/docker-sbx-nerdbox-shim
+
+override_dh_installinit:
+	dh_installinit
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
+override_dh_install:
+	dh_install
+	dh_apparmor --profile-name=docker-sbx-nerdbox-shim -pdocker-sbx
+
+override_dh_gencontrol:
+	dh_gencontrol --remaining-packages
+
+%:
+	dh $@
