@@ -11,6 +11,7 @@ Build-Depends: bash,
 Package: docker-sbx
 Priority: optional
 Architecture: linux-any
+Depends: ca-certificates
 Recommends: apparmor
 Description: Docker sbx
 Homepage: https://docs.docker.com/sandbox/

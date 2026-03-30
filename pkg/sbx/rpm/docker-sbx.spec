@@ -12,6 +12,7 @@ Vendor: Docker
 Packager: Docker <support@docker.com>
 
 BuildRequires: bash
+Requires: ca-certificates
 
 %description
 Docker Sandbox manager.
