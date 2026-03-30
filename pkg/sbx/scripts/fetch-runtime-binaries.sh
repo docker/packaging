@@ -35,7 +35,6 @@ set -x
 gh release download "${TAG}" --repo "${REPO}" --dir "${OUTDIR}" \
   --clobber \
   --pattern "containerd-shim-nerdbox-v1-linux-*" \
-  --pattern "mkfs.erofs-linux-*" \
   --pattern "mkfs.ext4-linux-*" \
   --pattern "nerdbox-kernel-*" \
   --pattern "nerdbox-initrd-*" \

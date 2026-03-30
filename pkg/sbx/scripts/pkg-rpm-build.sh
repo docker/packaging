@@ -84,7 +84,7 @@ install -D -p -m 0755 /opt/sbx-bin/sbx /usr/local/bin/sbx
 
 # Install runtime companion binaries
 install -D -p -m 0755 "/opt/runtime-bin/containerd-shim-nerdbox-v1-linux-${GOARCH}" /usr/local/libexec/containerd-shim-nerdbox-v1
-install -D -p -m 0755 "/opt/runtime-bin/mkfs.erofs-linux-${GOARCH}" /usr/local/libexec/mkfs.erofs
+build-erofs /opt/erofs-src /usr/local/libexec/mkfs.erofs
 install -D -p -m 0755 "/opt/runtime-bin/mkfs.ext4-linux-${GOARCH}" /usr/local/libexec/mkfs.ext4
 install -D -p -m 0644 "/opt/runtime-bin/${KERNEL_ARTIFACT}" "/usr/local/libexec/${KERNEL_ARTIFACT}"
 install -D -p -m 0644 "/opt/runtime-bin/${INITRD_ARTIFACT}" "/usr/local/libexec/${INITRD_ARTIFACT}"

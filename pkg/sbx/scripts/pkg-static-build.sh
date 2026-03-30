@@ -56,7 +56,7 @@ mkdir -p "${BUILDDIR}/${PKG_NAME}"
   set -x
   install -p -m 0755 /opt/sbx-bin/sbx${binext} "${BUILDDIR}/${PKG_NAME}/sbx${binext}"
   install -p -m 0755 "/opt/runtime-bin/containerd-shim-nerdbox-v1-linux-${GOARCH}" "${BUILDDIR}/${PKG_NAME}/containerd-shim-nerdbox-v1"
-  install -p -m 0755 "/opt/runtime-bin/mkfs.erofs-linux-${GOARCH}" "${BUILDDIR}/${PKG_NAME}/mkfs.erofs"
+  build-erofs /opt/erofs-src "${BUILDDIR}/${PKG_NAME}/mkfs.erofs"
   install -p -m 0755 "/opt/runtime-bin/mkfs.ext4-linux-${GOARCH}" "${BUILDDIR}/${PKG_NAME}/mkfs.ext4"
   install -p -m 0644 "/opt/runtime-bin/${KERNEL_ARTIFACT}" "${BUILDDIR}/${PKG_NAME}/${KERNEL_ARTIFACT}"
   install -p -m 0644 "/opt/runtime-bin/${INITRD_ARTIFACT}" "${BUILDDIR}/${PKG_NAME}/${INITRD_ARTIFACT}"

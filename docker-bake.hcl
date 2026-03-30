@@ -178,6 +178,16 @@ variable "RUNTIME_SRC" {
   default = "./runtime-bin"
 }
 
+variable "EROFS_UTILS_REPO" {
+  description = "Repository URL for erofs-utils source."
+  default = "https://github.com/erofs/erofs-utils.git"
+}
+
+variable "EROFS_UTILS_VERSION" {
+  description = "Git tag of erofs-utils to build mkfs.erofs from."
+  default = "v1.9.1"
+}
+
 variable "VERSION" {
   description = "Version of the package to build. Used by sbx; other packages derive this from PKG_REF."
   default = null
@@ -619,6 +629,8 @@ target "_pkg-sbx" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "main"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
     VERSION = VERSION != null && VERSION != "" ? VERSION : PKG_REF
+    EROFS_UTILS_REPO = EROFS_UTILS_REPO
+    EROFS_UTILS_VERSION = EROFS_UTILS_VERSION
   }
   contexts = {
     sbx-src = "target:sbx-binaries"

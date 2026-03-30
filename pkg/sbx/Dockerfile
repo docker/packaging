@@ -26,6 +26,9 @@ ARG DISTRO_IMAGE="debian:bookworm"
 ARG PKG_NAME="docker-sbx"
 ARG VERSION
 
+ARG EROFS_UTILS_REPO="https://github.com/erofs/erofs-utils.git"
+ARG EROFS_UTILS_VERSION="v1.9.1"
+
 # stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
 FROM scratch AS scripts
@@ -40,6 +43,13 @@ FROM scratch AS sbx-src
 # Pre-built runtime binaries fetched by scripts/fetch-runtime-binaries.sh.
 # Overridden via named context in docker-bake.hcl.
 FROM scratch AS runtime-src
+
+# Clone erofs-utils source for building inside each distro-specific builder.
+FROM --platform=$BUILDPLATFORM debian:bookworm-slim AS erofs-src
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git
+ARG EROFS_UTILS_REPO
+ARG EROFS_UTILS_VERSION
+RUN git clone --depth 1 --branch "${EROFS_UTILS_VERSION}" "${EROFS_UTILS_REPO}" /src/erofs-utils
 
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
@@ -63,10 +73,12 @@ ARG PKG_DEB_REVISION
 ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
+    --mount=type=bind,source=scripts/build-erofs.sh,target=/usr/local/bin/build-erofs \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=sbx-src,target=/opt/sbx-bin \
     --mount=type=bind,from=runtime-src,target=/opt/runtime-bin \
+    --mount=type=bind,from=erofs-src,source=/src/erofs-utils,target=/opt/erofs-src \
     --mount=type=bind,source=apparmor,target=/opt/apparmor \
     --mount=type=bind,source=licenses,target=/opt/licenses \
     OUTDIR=/out pkg-deb-build
@@ -93,9 +105,11 @@ ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
+    --mount=type=bind,source=scripts/build-erofs.sh,target=/usr/local/bin/build-erofs \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=sbx-src,target=/opt/sbx-bin \
     --mount=type=bind,from=runtime-src,target=/opt/runtime-bin \
+    --mount=type=bind,from=erofs-src,source=/src/erofs-utils,target=/opt/erofs-src \
     --mount=type=bind,source=apparmor,target=/opt/apparmor \
     --mount=type=bind,source=THIRD-PARTY-NOTICES,target=/opt/notices/THIRD-PARTY-NOTICES \
     --mount=type=bind,source=licenses,target=/opt/licenses \
@@ -111,9 +125,11 @@ ARG NIGHTLY_BUILD
 WORKDIR /build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,source=scripts/build-erofs.sh,target=/usr/local/bin/build-erofs \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=sbx-src,target=/opt/sbx-bin \
     --mount=type=bind,from=runtime-src,target=/opt/runtime-bin \
+    --mount=type=bind,from=erofs-src,source=/src/erofs-utils,target=/opt/erofs-src \
     --mount=type=bind,source=THIRD-PARTY-NOTICES,target=/opt/notices/THIRD-PARTY-NOTICES \
     --mount=type=bind,source=licenses,target=/opt/licenses \
     OUTDIR=/out BUILDDIR=/build pkg-static-build
