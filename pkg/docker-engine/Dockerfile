@@ -31,7 +31,7 @@ ARG PKG_REPO="https://github.com/docker/docker.git"
 ARG PKG_REF="master"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.26.2"
+ARG GO_VERSION="1.26.3"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 ARG TAGPREFIX="docker-"
