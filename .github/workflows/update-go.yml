@@ -123,6 +123,7 @@ jobs:
           base: main
           branch: bot/update-go
           signoff: true
+          sign-commits: true
           delete-branch: true
           title: "chore: align go version from upstream repositories"
           body: |
