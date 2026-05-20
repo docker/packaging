@@ -74,6 +74,12 @@ case "$pkgrelease" in
     dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled powertools
     ;;
+  rockylinux10|almalinux10)
+    dnf install -y dnf-plugins-core epel-release
+    dnf config-manager --set-enabled crb
+    # skipping rpmlint until EPEL provides its EL10 dependencies
+    dnf install -y git rpm-build
+    ;;
   rockylinux*|almalinux*)
     dnf install -y dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
