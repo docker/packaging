@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Docker <support@docker.com>
 Homepage: https://www.docker.com
 Vcs-Browser: https://github.com/docker/docker-agent
-Vcs-Git: git://github.com/docker/docker-agent.git
+Vcs-Git: https://github.com/docker/docker-agent.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
                gcc,
