@@ -50,7 +50,6 @@ Conflicts: docker-ee
 
 Obsoletes: docker-ce-selinux
 Obsoletes: docker-engine-selinux
-Obsoletes: docker-engine
 
 %description
 Docker is a product for you to build, ship and run any application as a
