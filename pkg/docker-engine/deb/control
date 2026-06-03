@@ -3,8 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Docker <support@docker.com>
 Homepage: https://www.docker.com
-Vcs-Browser: https://github.com/docker/docker
-Vcs-Git: https://github.com/docker/docker.git
+Vcs-Browser: https://github.com/moby/moby
+Vcs-Git: https://github.com/moby/moby.git
 Standards-Version: 3.9.6
 Build-Depends: ca-certificates,
                cmake,
