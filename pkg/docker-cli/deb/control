@@ -19,8 +19,7 @@ Depends: ${shlibs:Depends}
 Recommends: docker-buildx-plugin,
             docker-compose-plugin
 Suggests: docker-model-plugin
-Conflicts: docker (<< 1.5~),
-           docker.io
+Conflicts: docker.io
 Replaces: docker-ce (<< 5:0)
 Breaks: docker-ce (<< 5:0)
 Description: Docker CLI: the open-source application container engine
