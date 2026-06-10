@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: ''
+      go_version:
+        description: '(optional) Go version to use for building packages. Defaults to the pinned containerd version.'
+        required: false
+        type: string
+        default: ''
       release:
         description: '(optional) Release type to create in https://github.com/docker/packaging/releases'
         required: false
@@ -61,6 +66,7 @@ jobs:
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
         RUNC_REF=${{ inputs.runc_ref }}
+        GO_VERSION=${{ inputs.go_version }}
     secrets:
       rh_user: ${{ secrets.RH_USER }}
       rh_pass: ${{ secrets.RH_PASS }}
