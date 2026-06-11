@@ -30,7 +30,6 @@ variable "DISTROS" {
     "almalinux10",
     "centos9",
     "centos10",
-    "fedora42",
     "fedora43",
     "fedora44",
     "oraclelinux8",
@@ -373,18 +372,6 @@ target "_distro-centos10" {
   }
 }
 
-target "_distro-fedora42" {
-  args = {
-    DISTRO_NAME = "fedora42"
-    DISTRO_TYPE = "rpm"
-    DISTRO_RELEASE = "fedora"
-    DISTRO_ID = "42"
-    DISTRO_SUITE = "42"
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "fedora:42"
-    TEST_ONLY = "0"
-  }
-}
-
 target "_distro-fedora43" {
   args = {
     DISTRO_NAME = "fedora43"
@@ -542,7 +529,6 @@ function "distroPlatforms" {
         almalinux10 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         centos9 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
         centos10 = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
-        fedora42 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         fedora43 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         fedora44 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         oraclelinux8 = ["linux/amd64", "linux/arm64"]
