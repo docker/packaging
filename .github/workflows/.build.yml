@@ -16,14 +16,15 @@ on:
       distros:
         required: false
         type: string
+      dockerhub_username:
+        required: false
+        type: string
     secrets:
       rh_user:
         required: false
       rh_pass:
         required: false
-      dockerpublicbot_username:
-        required: false
-      dockerpublicbot_write_pat:
+      dockerhub_token:
         required: false
       ghtoken:
         required: false
@@ -257,8 +258,8 @@ jobs:
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         if: ${{ inputs.release || github.event_name == 'schedule' }}
         with:
-          username: ${{ secrets.dockerpublicbot_username }}
-          password: ${{ secrets.dockerpublicbot_write_pat }}
+          username: ${{ inputs.dockerhub_username }}
+          password: ${{ secrets.dockerhub_token }}
       -
         name: Build release
         id: build

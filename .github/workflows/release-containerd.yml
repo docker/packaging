@@ -67,8 +67,8 @@ jobs:
         PKG_RPM_RELEASE=${{ inputs.revision }}
         RUNC_REF=${{ inputs.runc_ref }}
         GO_VERSION=${{ inputs.go_version }}
+      dockerhub_username: ${{ vars.DOCKERPUBLICBOT_USERNAME }}
     secrets:
       rh_user: ${{ secrets.RH_USER }}
       rh_pass: ${{ secrets.RH_PASS }}
-      dockerpublicbot_username: ${{ secrets.DOCKERPUBLICBOT_USERNAME }}
-      dockerpublicbot_write_pat: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
+      dockerhub_token: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
