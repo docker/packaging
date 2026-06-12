@@ -26,8 +26,5 @@ override_dh_dwz:
 override_dh_auto_install:
 	install -D -p -m 0755 /usr/libexec/docker/cli-plugins/docker-model debian/docker-model-plugin/usr/libexec/docker/cli-plugins/docker-model
 
-override_dh_gencontrol:
-	dh_gencontrol --remaining-packages
-
 %:
 	dh $@
