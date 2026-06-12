@@ -59,8 +59,5 @@ override_dh_auto_install:
 	install -D -p -m 0644 cli/build/completion/fish/docker.fish debian/docker-ce-cli/usr/share/fish/vendor_completions.d/docker.fish
 	install -D -p -m 0644 cli/build/completion/zsh/_docker debian/docker-ce-cli/usr/share/zsh/vendor-completions/_docker
 
-override_dh_gencontrol:
-	dh_gencontrol --remaining-packages
-
 %:
 	dh $@ --with=bash-completion

@@ -50,8 +50,5 @@ override_dh_install:
 	# TODO Can we do this from within our container?
 	dh_apparmor --profile-name=docker-ce -pdocker-ce
 
-override_dh_gencontrol:
-	dh_gencontrol --remaining-packages
-
 %:
 	dh $@
