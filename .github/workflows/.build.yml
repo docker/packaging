@@ -341,7 +341,7 @@ jobs:
             core.setOutput('summary', fs.readFileSync('/tmp/summary.txt', {encoding: 'utf8'}));
       -
         name: Create release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b  # v3.0.1
         if: ${{ inputs.release && inputs.release != 'pushonly' }}
         with:
           name: ${{ env.GIT_TAG }}-${{ github.run_number }}
