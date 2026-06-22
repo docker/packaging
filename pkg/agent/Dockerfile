@@ -28,7 +28,7 @@ ARG PKG_REPO="https://github.com/docker/docker-agent.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
-ARG GO_VERSION="1.26.3"
+ARG GO_VERSION="1.26.4"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 ARG ZIG_VERSION="0.15.2"
