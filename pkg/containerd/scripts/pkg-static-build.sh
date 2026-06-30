@@ -122,13 +122,11 @@ for pkgname in *; do
   mkdir -p "$workdir/${pkgname}"
   (
     set -x
-    cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
+    cp "${pkgname}"/* ${SRCDIR}/LICENSE "$workdir/${pkgname}/"
     if [ "$(xx-info os)" = "windows" ]; then
       cp ${RUNHCS_SRCDIR}/LICENSE "$workdir/${pkgname}/runhcs.LICENSE"
-      cp ${RUNHCS_SRCDIR}/README.md "$workdir/${pkgname}/runhcs.README.md"
     else
       cp ${RUNC_SRCDIR}/LICENSE "$workdir/${pkgname}/runc.LICENSE"
-      cp ${RUNC_SRCDIR}/README.md "$workdir/${pkgname}/runc.README.md"
     fi
   )
   if [ "$(xx-info os)" = "windows" ]; then
