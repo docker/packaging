@@ -586,7 +586,7 @@ target "_pkg-compose" {
 
 target "_pkg-containerd" {
   args = {
-    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "containerd.io"
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "containerd"
     PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/containerd/containerd.git"
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "release/2.2"
     GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.25.11" # https://github.com/containerd/containerd/blob/release/2.2/.github/workflows/release/Dockerfile

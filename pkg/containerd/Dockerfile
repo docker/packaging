@@ -29,7 +29,7 @@ ARG DISTRO_ID="12"
 ARG DISTRO_SUITE="bookworm"
 ARG DISTRO_IMAGE="debian:bookworm"
 
-ARG PKG_NAME="containerd.io"
+ARG PKG_NAME="containerd"
 ARG PKG_REPO="https://github.com/containerd/containerd.git"
 ARG PKG_REF="main"
 
