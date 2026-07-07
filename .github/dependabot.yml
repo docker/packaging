@@ -11,6 +11,9 @@ updates:
       crazy-max-dot-github:
         patterns:
           - "crazy-max/.github/*"
+      docker-actions:
+        patterns:
+          - "docker/*"
     labels:
       - "area/dependencies"
       - "bot"
