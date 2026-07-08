@@ -34,5 +34,6 @@ jobs:
     uses: ./.github/workflows/.build.yml
     permissions:
       contents: read
+      id-token: write
     with:
       name: model

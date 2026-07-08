@@ -58,11 +58,12 @@ jobs:
     uses: ./.github/workflows/.build.yml
     permissions:
       contents: write # needed to create release and upload artifacts
+      id-token: write # needed to sign attestations
     with:
       name: docker-engine
       release: ${{ inputs.release }}
       distros: ${{ inputs.distros }}
-      envs: |
+      vars: |
         PKG_REPO=${{ inputs.engine-repo }}
         PKG_REF=${{ inputs.engine-ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}
@@ -77,11 +78,12 @@ jobs:
     uses: ./.github/workflows/.build.yml
     permissions:
       contents: write # needed to create release and upload artifacts
+      id-token: write # needed to sign attestations
     with:
       name: docker-cli
       release: ${{ inputs.release }}
       distros: ${{ inputs.distros }}
-      envs: |
+      vars: |
         PKG_REPO=${{ inputs.cli-repo }}
         PKG_REF=${{ inputs.cli-ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}

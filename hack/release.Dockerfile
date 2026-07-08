@@ -49,7 +49,10 @@ RUN --mount=from=bin,source=.,target=/release <<EOT
         mkdir -p "/out/${relpdir}"
         cp "${pdir}"/* "/out/${relpdir}/"
         cp ${f}/${basedir}/sbom-build*.json "/out/${relpdir}/sbom.json"
-        cp "${f}/${basedir}/provenance.json" "/out/${relpdir}/provenance.json"
+        cp "${f}/${basedir}/provenance.json" "/out/${relpdir}/"
+        if [ -f "${f}/${basedir}/provenance.sigstore.json" ]; then
+          cp "${f}/${basedir}/provenance.sigstore.json" "/out/${relpdir}/"
+        fi
       )
     done
   done
