@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.23
 ARG ADDLICENSE_VERSION=1.0.0
 
 ARG LICENSE_TYPE="apache"
