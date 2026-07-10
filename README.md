@@ -13,12 +13,20 @@ are published as a Docker image [on Docker Hub](https://hub.docker.com/r/dockere
 
 ___
 
+* [Packaging guidelines](#packaging-guidelines)
 * [Release](#release)
 * [Build](#build)
   * [Requirements](#requirements)
   * [Usage](#usage)
   * [Remote override](#remote-override)
 * [Contributing](#contributing)
+
+## Packaging guidelines
+
+Docker-maintained `.deb` and `.rpm` packages must build shipped binaries from
+source in the distro package build path. See [PACKAGING.md](PACKAGING.md) for
+the full packaging contract around source builds, distro build environments,
+provenance, and SBOMs.
 
 ## Release
 
