@@ -48,8 +48,18 @@ RUN --mount=from=bin,source=.,target=/release <<EOT
         set -x
         mkdir -p "/out/${relpdir}"
         cp "${pdir}"/* "/out/${relpdir}/"
-        cp ${f}/${basedir}/sbom-build*.json "/out/${relpdir}/sbom.json"
-        cp "${f}/${basedir}/provenance.json" "/out/${relpdir}/provenance.json"
+        for package in "${pdir}"/*.deb "${pdir}"/*.rpm "${pdir}"/*.tgz "${pdir}"/*.zip; do
+          if [ ! -f "$package" ]; then
+            continue
+          fi
+          package_name="${package##*/}"
+          package_name="${package_name%.*}"
+          cp ${f}/${basedir}/sbom-build*.json "/out/${relpdir}/${package_name}.sbom.json"
+          cp "${f}/${basedir}/provenance.json" "/out/${relpdir}/${package_name}.provenance.json"
+          if [ -f "${f}/${basedir}/provenance.sigstore.json" ]; then
+            cp "${f}/${basedir}/provenance.sigstore.json" "/out/${relpdir}/${package_name}.sigstore.json"
+          fi
+        done
       )
     done
   done

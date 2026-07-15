@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/.build.yml
     permissions:
       contents: read
+      id-token: write
     needs:
       - pkgs
     strategy:
@@ -30,7 +31,7 @@ jobs:
     with:
       name: ${{ matrix.pkg }}
       release: pushonly
-      envs: |
+      vars: |
         NIGHTLY_BUILD=1
       dockerhub_username: ${{ vars.DOCKERPUBLICBOT_USERNAME }}
     secrets:

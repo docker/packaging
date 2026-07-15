@@ -46,11 +46,12 @@ jobs:
     uses: ./.github/workflows/.build.yml
     permissions:
       contents: write # needed to create release and upload artifacts
+      id-token: write # needed to sign attestations
     with:
       name: compose
       release: ${{ inputs.release }}
       distros: ${{ inputs.distros }}
-      envs: |
+      vars: |
         PKG_REPO=${{ inputs.repo }}
         PKG_REF=${{ inputs.ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}
