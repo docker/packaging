@@ -68,11 +68,11 @@ jobs:
         PKG_REF=${{ inputs.engine-ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
-      dockerhub_username: ${{ vars.DOCKERPUBLICBOT_USERNAME }}
+      dockerhub_username: docker
+      dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
     secrets:
       rh_user: ${{ secrets.RH_USER }}
       rh_pass: ${{ secrets.RH_PASS }}
-      dockerhub_token: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
 
   cli:
     uses: ./.github/workflows/.build.yml
@@ -88,8 +88,8 @@ jobs:
         PKG_REF=${{ inputs.cli-ref }}
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
-      dockerhub_username: ${{ vars.DOCKERPUBLICBOT_USERNAME }}
+      dockerhub_username: docker
+      dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
     secrets:
       rh_user: ${{ secrets.RH_USER }}
       rh_pass: ${{ secrets.RH_PASS }}
-      dockerhub_token: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
