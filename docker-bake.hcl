@@ -22,6 +22,7 @@ variable "DISTROS" {
     "debian13",
     "ubuntu2204",
     "ubuntu2404",
+    "ubuntu2510",
     "ubuntu2604",
 
     "almalinux8",
@@ -287,6 +288,18 @@ target "_distro-ubuntu2404" {
   }
 }
 
+target "_distro-ubuntu2510" {
+  args = {
+    DISTRO_NAME = "ubuntu2510"
+    DISTRO_TYPE = "deb"
+    DISTRO_RELEASE = "ubuntu"
+    DISTRO_ID = "25.10"
+    DISTRO_SUITE = "questing"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:questing"
+    TEST_ONLY = "0"
+  }
+}
+
 target "_distro-ubuntu2604" {
   args = {
     DISTRO_NAME = "ubuntu2604"
@@ -508,6 +521,7 @@ function "distroPlatforms" {
         debian13 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
         ubuntu2404 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
+        ubuntu2510 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2604 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
 
         almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
