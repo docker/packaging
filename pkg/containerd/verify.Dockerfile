@@ -112,7 +112,7 @@ RUN --mount=from=bin,target=/build <<EOT
   for package in $(find $dir -type f -name '*.tgz'); do
     (
       set -x
-      tar zxvf $package -C /usr/bin --strip-components=1
+      tar zxvf $package -C /usr/local
     )
   done
   set -x

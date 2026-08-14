@@ -119,28 +119,28 @@ mkdir -p "${pkgoutput}"
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}"
+  mkdir -p "$workdir/bin" "$workdir/share/doc/${pkgname}"
   (
     set -x
-    cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
+    cp "${pkgname}"/* "$workdir/bin/"
+    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/share/doc/${pkgname}/"
     if [ "$(xx-info os)" = "windows" ]; then
-      cp ${RUNHCS_SRCDIR}/LICENSE "$workdir/${pkgname}/runhcs.LICENSE"
-      cp ${RUNHCS_SRCDIR}/README.md "$workdir/${pkgname}/runhcs.README.md"
+      cp "${RUNHCS_SRCDIR}/LICENSE" "$workdir/share/doc/${pkgname}/runhcs.LICENSE"
+      cp "${RUNHCS_SRCDIR}/README.md" "$workdir/share/doc/${pkgname}/runhcs.README.md"
     else
-      cp ${RUNC_SRCDIR}/LICENSE "$workdir/${pkgname}/runc.LICENSE"
-      cp ${RUNC_SRCDIR}/README.md "$workdir/${pkgname}/runc.README.md"
+      cp "${RUNC_SRCDIR}/LICENSE" "$workdir/share/doc/${pkgname}/runc.LICENSE"
+      cp "${RUNC_SRCDIR}/README.md" "$workdir/share/doc/${pkgname}/runc.README.md"
     fi
   )
   if [ "$(xx-info os)" = "windows" ]; then
     (
       set -x
-      cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
+      cd "$workdir" && zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" .
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" .
     )
   fi
 done

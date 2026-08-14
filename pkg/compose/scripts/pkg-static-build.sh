@@ -72,21 +72,21 @@ mkdir -p "${pkgoutput}"
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}"
+  mkdir -p "$workdir/bin" "$workdir/share/doc/${pkgname}"
   (
     set -x
-    cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
+    cp "${pkgname}"/* "$workdir/bin/"
+    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/share/doc/${pkgname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
     (
       set -x
-      cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
+      cd "$workdir" && zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" .
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" .
     )
   fi
 done
