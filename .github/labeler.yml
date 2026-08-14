@@ -35,11 +35,15 @@ area/pkg/credential-helpers:
 
 area/pkg/docker-cli:
   - changed-files:
-    - any-glob-to-any-file: 'pkg/docker-cli/**'
+    - any-glob-to-any-file:
+      - 'pkg/docker/**'
+      - 'pkg/docker-cli/**'
 
 area/pkg/docker-engine:
   - changed-files:
-    - any-glob-to-any-file: 'pkg/docker-engine/**'
+    - any-glob-to-any-file:
+      - 'pkg/docker/**'
+      - 'pkg/docker-engine/**'
 
 area/pkg/model:
   - changed-files:

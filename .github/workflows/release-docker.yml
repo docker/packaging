@@ -93,3 +93,22 @@ jobs:
     secrets:
       rh_user: ${{ secrets.RH_USER }}
       rh_pass: ${{ secrets.RH_PASS }}
+
+  docker:
+    if: ${{ inputs.distros == '' || contains(inputs.distros, 'static') }}
+    uses: ./.github/workflows/.build.yml
+    permissions:
+      contents: write # needed to create release and upload artifacts
+      id-token: write # needed to sign attestations
+    with:
+      name: docker
+      release: ${{ inputs.release }}
+      distros: ${{ inputs.distros }}
+      vars: |
+        PKG_REPO=${{ inputs.engine-repo }}
+        PKG_REF=${{ inputs.engine-ref }}
+        CLI_REPO=${{ inputs.cli-repo }}
+        CLI_REF=${{ inputs.cli-ref }}
+        DOCKER_VERSION=${{ inputs.version }}
+      dockerhub_username: docker
+      dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
