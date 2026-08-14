@@ -57,6 +57,9 @@ if [  "$(xx-info arch)" = "arm64" ]; then
   XX_CC_PREFER_LINKER=ld xx-clang --setup-target-triple
 fi
 
+binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
+clibin="docker${binext}"
+
 (
   set -x
   pushd ${SRCDIR}
@@ -77,7 +80,8 @@ for pkgname in *; do
   mkdir -p "$workdir/${pkgname}"
   (
     set -x
-    cp "${pkgname}"/* ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
+    cp -L "${pkgname}/docker" "$workdir/${pkgname}/${clibin}"
+    cp ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
     (
