@@ -47,9 +47,11 @@ RUN --mount=from=bin,target=/build <<EOT
       found=1
       (
         set -x
-        unzip -l $package
+        cd "${package%/*}"
+        sha256sum -c "${package##*/}.sha256"
+        unzip -l "${package##*/}"
         workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
-        unzip -q $package -d $workdir
+        unzip -q "${package##*/}" -d $workdir
         xx-verify --static $workdir/docker/docker.exe
         xx-verify --static $workdir/docker/dockerd.exe
         xx-verify --static $workdir/docker/containerd.exe
@@ -66,7 +68,9 @@ RUN --mount=from=bin,target=/build <<EOT
   for package in $(find $dir -type f -name '*.tgz'); do
     (
       set -x
-      tar zxvf $package -C /usr/bin --strip-components=1
+      cd "${package%/*}"
+      sha256sum -c "${package##*/}.sha256"
+      tar zxvf "${package##*/}" -C /usr/bin --strip-components=1
     )
   done
   set -x

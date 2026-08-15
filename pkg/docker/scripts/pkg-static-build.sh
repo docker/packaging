@@ -229,14 +229,21 @@ mkdir -p "$workdir/docker"
   fi
 )
 if [ "$(xx-info os)" = "windows" ]; then
+  pkgfile="${pkgoutput}/docker-${version_no_v}.zip"
   (
     set -x
     cd "$workdir"
-    zip -r "${pkgoutput}/docker-${version_no_v}.zip" docker
+    zip -r "$pkgfile" docker
   )
 else
+  pkgfile="${pkgoutput}/docker-${version_no_v}.tgz"
   (
     set -x
-    tar -czf "${pkgoutput}/docker-${version_no_v}.tgz" -C "$workdir" docker
+    tar -czf "$pkgfile" -C "$workdir" docker
   )
 fi
+(
+  set -x
+  cd "$pkgoutput"
+  sha256sum "${pkgfile##*/}" > "${pkgfile##*/}.sha256"
+)

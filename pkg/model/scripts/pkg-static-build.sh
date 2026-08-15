@@ -74,15 +74,22 @@ for pkgname in *; do
     cp "${pkgname}"/* ${SRCDIR}/LICENSE "$workdir/${pkgname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
+    pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip"
     (
       set -x
       cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
+      zip -r "$pkgfile" "${pkgname}"
     )
   else
+    pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz"
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
     )
   fi
+  (
+    set -x
+    cd "$pkgoutput"
+    sha256sum "${pkgfile##*/}" > "${pkgfile##*/}.sha256"
+  )
 done
