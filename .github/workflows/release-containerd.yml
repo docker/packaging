@@ -68,7 +68,7 @@ jobs:
         PKG_RPM_RELEASE=${{ inputs.revision }}
         RUNC_REF=${{ inputs.runc_ref }}
         GO_VERSION=${{ inputs.go_version }}
-      dockerhub_username: docker
+      dockerhub_username: dockereng
       dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
     secrets:
       rh_user: ${{ secrets.RH_USER }}
