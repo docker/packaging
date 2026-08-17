@@ -134,7 +134,7 @@ jobs:
     uses: docker/github-builder/.github/workflows/bake.yml@a492c6d04fd3315f67230809b44d60cc0acd50b3 # v1.16.0
     permissions:
       contents: read
-      id-token: write
+      id-token: write # for signing attestations with GitHub OIDC
     needs:
       - prepare
     strategy:
@@ -203,6 +203,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     if: ${{ always() && needs.build.result == 'success' && (needs.verify.result == 'success' || needs.verify.result == 'skipped') }}
+    permissions:
+      contents: read
+      id-token: write # to login to Docker Hub with GitHub OIDC
     needs:
       - prepare
       - build
