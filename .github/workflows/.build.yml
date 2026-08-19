@@ -90,14 +90,15 @@ jobs:
               const verifications = [];
               let goVersion;
               for (const targetName of Object.keys(def.target)) {
-                if (!targetName.startsWith(`pkg-${inpName}-`)) {
-                  continue;
-                }
                 const match = targetName.match(/^pkg-(.+)-([^-]+)$/);
                 if (!match) {
                   throw new Error(`Invalid target name: ${targetName}`);
                 }
+                const pkgName = match[1];
                 const distro = match[2];
+                if (pkgName !== inpName) {
+                  continue;
+                }
                 if (distroFilter.length > 0 && !distroFilter.includes(distro)) {
                   core.info(`Skipping ${targetName} because it doesn't match the input distro filter`);
                   continue;
@@ -372,6 +373,22 @@ jobs:
             * ref: \`${RUNHCS_REF}\`
             * version: \`${RUNHCS_VERSION}\`
             * commit: [\`${RUNHCS_COMMIT}\`](${RUNHCS_REPO}/commit/${RUNHCS_COMMIT})
+          EOF
+          fi
+
+          if [ "$INPUT_NAME" = "docker" ]; then
+            cat >> "/tmp/summary.txt" <<-EOF
+          * cli
+            * repo: ${CLI_REPO}
+            * ref: \`${CLI_REF}\`
+            * version: \`${CLI_VERSION}\`
+            * commit: [\`${CLI_COMMIT}\`](${CLI_REPO}/commit/${CLI_COMMIT})
+          * containerd
+            * repo: ${CONTAINERD_REPO}
+            * version: \`${CONTAINERD_VERSION}\`
+          * runc
+            * repo: ${RUNC_REPO}
+            * version: \`${RUNC_VERSION}\`
           EOF
           fi
           

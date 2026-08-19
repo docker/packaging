@@ -4,5 +4,6 @@ pkg/model/*          @docker/ai-models-infra
 pkg/buildx/*         @docker/build
 pkg/agent/*          @docker/ai-agent-team
 pkg/containerd/*     @docker/engine
+pkg/docker/*         @docker/engine
 pkg/docker-cli/*     @docker/engine
 pkg/docker-engine/*  @docker/engine

@@ -16,6 +16,7 @@ on:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-docker.yml'
       - 'hack/scripts/**'
+      - 'pkg/docker/**'
       - 'pkg/docker-engine/**'
       - 'pkg/docker-cli/**'
       - 'docker-bake.hcl'
@@ -27,6 +28,7 @@ on:
       - '.github/workflows/.build.yml'
       - '.github/workflows/build-docker.yml'
       - 'hack/scripts/**'
+      - 'pkg/docker/**'
       - 'pkg/docker-engine/**'
       - 'pkg/docker-cli/**'
       - 'docker-bake.hcl'
@@ -47,3 +49,11 @@ jobs:
       id-token: write
     with:
       name: docker-cli
+
+  docker:
+    uses: ./.github/workflows/.build.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      name: docker

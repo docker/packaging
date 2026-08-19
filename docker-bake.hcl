@@ -50,6 +50,7 @@ variable "PKGS_BASE" {
     "compose",
     "containerd",
     "credential-helpers",
+    "docker",
     "docker-cli",
     "docker-engine",
     "model",
@@ -79,6 +80,8 @@ variable "PKG_PLATFORMS_BASE" {
     containerd = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/docker-credential-helpers/blob/f9d3010165b642df37215b1be945552f2c6f0e3b/docker-bake.hcl#L56-L66
     credential-helpers = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64"]
+    # Combined Docker static archives include Engine and CLI, so this uses the Engine platform set.
+    docker = ["linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/cli/blob/84038691220e7ba3329a177e4e3357b4ee0e3a52/docker-bake.hcl#L30-L42
     docker-cli = ["darwin/amd64", "darwin/arm64", "linux/386", "linux/amd64", "linux/arm/v6", "linux/arm/v7", "linux/arm64", "linux/ppc64le", "linux/riscv64", "linux/s390x", "windows/amd64", "windows/arm64"]
     # https://github.com/moby/moby/blob/83264918d3e1c61341511e360a7277150b914b3f/docker-bake.hcl#L82-L91
@@ -93,6 +96,13 @@ variable "PKG_PLATFORMS_BASE" {
 variable "PKG_PLATFORMS_EXTRA" {
   description = "Additional package platform mapping to merge from an override bake definition."
   default = {}
+}
+
+variable "PKG_DISTROS" {
+  description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
+  default = {
+    docker = ["static"]
+  }
 }
 
 variable "PKG_CONTEXTS_EXTRA" {
@@ -174,6 +184,18 @@ variable "PKG_RPM_RELEASE" {
   default = null
 }
 
+variable "CLI_REPO" {
+  description = "Repository URL of the Docker CLI to build. Only used for the combined Docker static package."
+  default = null
+}
+variable "CLI_REF" {
+  description = "Reference (branch, tag, commit) of the Docker CLI to build. Only used for the combined Docker static package."
+  default = null
+}
+variable "DOCKER_VERSION" {
+  description = "Docker version to use for the combined Docker static package. If empty, the Engine source version is used."
+  default = null
+}
 variable "RUNC_REF" {
   description = "Reference (branch, tag, commit) of runc to build. Only used for containerd package. If not set, defaults to the version specified in containerd's script/setup/runc-version file."
   default = null
@@ -595,6 +617,20 @@ target "_pkg-credential-helpers" {
   }
 }
 
+target "_pkg-docker" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker"
+    PKG_REPO = PKG_REPO != null && PKG_REPO != "" ? PKG_REPO : "https://github.com/docker/docker.git"
+    PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
+    CLI_REPO = CLI_REPO != null && CLI_REPO != "" ? CLI_REPO : "https://github.com/docker/cli.git"
+    CLI_REF = CLI_REF != null && CLI_REF != "" ? CLI_REF : "master"
+    DOCKER_VERSION = DOCKER_VERSION
+    GO_VERSION = GO_VERSION != null && GO_VERSION != "" ? GO_VERSION : "1.26.5" # https://github.com/moby/moby/blob/master/Dockerfile
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
+    PKG_REMOTE_DOCKERFILE = "Dockerfile"
+  }
+}
+
 target "_pkg-docker-cli" {
   args = {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-ce-cli"
@@ -689,22 +725,28 @@ group "default" {
 }
 
 target "pkg" {
-  name = "pkg-${pkg}-${distro}"
-  description = "Build ${pkg} package for ${distro}"
-  inherits = ["_common", "_distro-${distro}", "_pkg-${pkg}"]
+  name = "pkg-${item.pkg}-${item.distro}"
+  description = "Build ${item.pkg} package for ${item.distro}"
+  inherits = ["_common", "_distro-${item.distro}", "_pkg-${item.pkg}"]
   matrix = {
-    pkg = PKGS
-    distro = DISTROS
+    item = flatten([
+      for pkg in PKGS : [
+        for distro in lookup(PKG_DISTROS, pkg, DISTROS) : {
+          pkg = pkg
+          distro = distro
+        }
+      ]
+    ])
   }
-  context = pkgContext(pkg)
+  context = pkgContext(item.pkg)
   contexts = {
     scripts = "./hack/scripts"
   }
-  output = ["type=local,dest=./bin/pkg/${pkg}/${distro}"]
+  output = ["type=local,dest=./bin/pkg/${item.pkg}/${item.distro}"]
   # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
   # default platform specification: https://docs.docker.com/build/customize/bake/file-definition/#built-in-variables
-  platforms = LOCAL_PLATFORM != null ? [BAKE_LOCAL_PLATFORM] : distroPlatforms(distro, pkg)
-  secret = distroSecrets(distro)
+  platforms = LOCAL_PLATFORM != null ? [BAKE_LOCAL_PLATFORM] : distroPlatforms(item.distro, item.pkg)
+  secret = distroSecrets(item.distro)
   attest = [
     "type=sbom",
     "type=provenance,mode=max"
@@ -712,18 +754,24 @@ target "pkg" {
 }
 
 target "verify" {
-  name = "verify-${pkg}-${distro}"
-  description = "Verify ${pkg} package for ${distro}"
-  inherits = ["_common", "_distro-${distro}", "_pkg-${pkg}"]
+  name = "verify-${item.pkg}-${item.distro}"
+  description = "Verify ${item.pkg} package for ${item.distro}"
+  inherits = ["_common", "_distro-${item.distro}", "_pkg-${item.pkg}"]
   matrix = {
-    pkg = PKGS
-    distro = DISTROS
+    item = flatten([
+      for pkg in PKGS : [
+        for distro in lookup(PKG_DISTROS, pkg, DISTROS) : {
+          pkg = pkg
+          distro = distro
+        }
+      ]
+    ])
   }
-  context = pkgContext(pkg)
+  context = pkgContext(item.pkg)
   dockerfile = "verify.Dockerfile"
   contexts = {
     scripts = "./hack/scripts"
-    bin = "./bin/pkg/${pkg}/${distro}"
+    bin = "./bin/pkg/${item.pkg}/${item.distro}"
   }
   no-cache = true
   output = ["type=cacheonly"]
