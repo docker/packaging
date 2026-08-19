@@ -102,13 +102,13 @@ for pkgname in *; do
   if [ "$(xx-info os)" = "windows" ]; then
     (
       set -x
-      cd "$workdir"
-      zip -r "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip" "${pkgname}"
+      cd "$workdir/${pkgname}"
+      zip -r "${pkgoutput}/${pkgname}-${GENVER_VERSION#v}.zip" .
     )
   else
     (
       set -x
-      tar -czf "${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz" -C "$workdir" "${pkgname}"
+      tar -czf "${pkgoutput}/${pkgname}-${GENVER_VERSION#v}.tgz" -C "$workdir/${pkgname}" .
     )
   fi
 done
