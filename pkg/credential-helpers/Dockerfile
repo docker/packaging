@@ -173,6 +173,7 @@ RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/credential-helpers pkg-static-build
@@ -198,6 +199,7 @@ RUN xx-apt-get install -y gcc libsecret-1-dev
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/credential-helpers \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \

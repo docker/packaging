@@ -260,6 +260,7 @@ RUN xx-apt-get install -y gcc
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
     --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
     --mount=type=bind,from=runhcs-src,source=/src,target=/go/src/github.com/Microsoft/hcsshim,rw \
