@@ -39,6 +39,7 @@ jobs:
     outputs:
       includes: ${{ steps.matrix.outputs.includes }}
       verifications: ${{ steps.matrix.outputs.verifications }}
+      go-version: ${{ steps.matrix.outputs.go-version }}
     steps:
       -
         name: Checkout
@@ -87,6 +88,7 @@ jobs:
             await core.group(`Generating matrix`, async () => {
               const includes = [];
               const verifications = [];
+              let goVersion;
               for (const targetName of Object.keys(def.target)) {
                 if (!targetName.startsWith(`pkg-${inpName}-`)) {
                   continue;
@@ -102,6 +104,15 @@ jobs:
                 }
                 const target = def.target[targetName];
                 if (target.platforms && target.platforms.length > 0) {
+                  const targetGoVersion = target.args.GO_VERSION;
+                  if (!targetGoVersion) {
+                    throw new Error(`GO_VERSION not found for ${targetName}`);
+                  }
+                  if (goVersion === undefined) {
+                    goVersion = targetGoVersion;
+                  } else if (goVersion !== targetGoVersion) {
+                    throw new Error(`Inconsistent GO_VERSION values: ${goVersion} and ${targetGoVersion}`);
+                  }
                   includes.push({
                     distro: distro
                   });
@@ -127,6 +138,7 @@ jobs:
               core.info(JSON.stringify(verifications, null, 2));
               core.setOutput('includes', JSON.stringify(includes));
               core.setOutput('verifications', JSON.stringify(verifications));
+              core.setOutput('go-version', goVersion);
             });
 
   # TODO: add RH_USER and RH_PASS to the build job once we have a way to pass secrets: https://github.com/docker/github-builder/pull/248
@@ -208,6 +220,7 @@ jobs:
       - build
       - verify
     env:
+      GO_VERSION: ${{ needs.prepare.outputs.go-version }}
       INPUT_INCLUDES: ${{ needs.prepare.outputs.includes }}
       INPUT_NAME: ${{ inputs.name }}
     steps:
@@ -344,6 +357,7 @@ jobs:
           * ref: \`${REF}\`
           * version: \`${VERSION}\`
           * commit: [\`${COMMIT}\`](${REPO}/commit/${COMMIT})
+          * go version: \`${GO_VERSION}\`
           EOF
 
           if [ "$INPUT_NAME" = "containerd" ]; then
