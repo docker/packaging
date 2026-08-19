@@ -208,6 +208,7 @@ RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/p
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
+    --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/docker,rw \
     --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=bind,from=gowinres,source=/out/go-winres,target=/usr/bin/go-winres \

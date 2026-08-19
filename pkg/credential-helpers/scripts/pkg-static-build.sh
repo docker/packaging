@@ -113,9 +113,5 @@ for pkgname in *; do
       tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
     )
   fi
-  (
-    set -x
-    cd "$pkgoutput"
-    sha256sum "${pkgfile##*/}" > "${pkgfile##*/}.sha256"
-  )
+  write-sha256sum "$pkgfile"
 done

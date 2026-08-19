@@ -242,8 +242,4 @@ else
     tar -czf "$pkgfile" -C "$workdir" docker
   )
 fi
-(
-  set -x
-  cd "$pkgoutput"
-  sha256sum "${pkgfile##*/}" > "${pkgfile##*/}.sha256"
-)
+write-sha256sum "$pkgfile"
