@@ -156,7 +156,7 @@ jobs:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     with:
       job-name-prefix: ${{ matrix.distro }}
-      artifact-name: build-pkg-${{ inputs.name }}-${{ matrix.distro }}
+      artifact-name: build-pkg-${{ inputs.name }}_${{ matrix.distro }}
       artifact-upload: true
       artifact-retention-days: 1
       output: local
@@ -187,7 +187,7 @@ jobs:
         name: Download artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: build-pkg-${{ inputs.name }}-${{ matrix.distro }}
+          name: build-pkg-${{ inputs.name }}_${{ matrix.distro }}
           path: ./bin/pkg/${{ inputs.name }}/${{ matrix.distro }}
       -
         name: Set up QEMU
@@ -240,7 +240,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: /tmp/build-pkg
-          pattern: build-pkg-${{ inputs.name }}-*
+          pattern: build-pkg-${{ inputs.name }}_*
           merge-multiple: false
       -
         name: Arrange artifacts
@@ -259,7 +259,10 @@ jobs:
 
             fs.mkdirSync(destinationRoot, {recursive: true});
             for (const include of includes) {
-              const artifact = path.join('/tmp', 'build-pkg', `build-pkg-${inputName}-${include.distro}`);
+              let artifact = path.join('/tmp', 'build-pkg', `build-pkg-${inputName}_${include.distro}`);
+              if (includes.length === 1 && !fs.existsSync(artifact)) {
+                artifact = path.join('/tmp', 'build-pkg');
+              }
               if (!fs.existsSync(artifact) || !fs.statSync(artifact).isDirectory()) {
                 core.setFailed(`missing artifact: ${artifact}`);
                 return;
