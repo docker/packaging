@@ -1,4 +1,5 @@
 name: release-docker
+run-name: ${{ github.workflow }} ${{ inputs.version }} (${{ inputs.release }})
 
 permissions:
   contents: read
