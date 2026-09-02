@@ -1,4 +1,5 @@
 name: release-compose
+run-name: ${{ github.workflow }} ${{ inputs.ref }} (${{ inputs.release }})
 
 permissions:
   contents: read
