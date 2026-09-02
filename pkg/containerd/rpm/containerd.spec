@@ -104,7 +104,8 @@ rm -f bin/containerd-stress
 bin/containerd --version
 bin/ctr --version
 
-GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_builddir}/bin runc install
+# Use runc's pathrs-lite backend until supported distributions package libpathrs.
+GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_builddir}/bin RUNC_BUILDTAGS="-libpathrs" runc install
 
 
 %install
