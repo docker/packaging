@@ -103,7 +103,8 @@ else
   (
     set -x
     pushd ${RUNC_SRCDIR}
-      make static
+      # Use runc's pathrs-lite backend until supported distributions package libpathrs.
+      make RUNC_BUILDTAGS="-libpathrs" static
       mv runc "${BUILDDIR}/${PKG_NAME}"
     popd
     xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
