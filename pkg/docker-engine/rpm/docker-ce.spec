@@ -1,4 +1,5 @@
 %global debug_package %{nil}
+%global selinux_modules docker-af-alg-deny docker-af-vsock-deny
 
 Name: docker-ce
 Version: %{_version}
@@ -113,13 +114,16 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/docker
 if ! getent group docker > /dev/null; then
     groupadd --system docker
 fi
-# Load the AF_ALG deny policy when SELinux is enabled. This may fail on systems
-# with SELinux userspace < 3.6, or without container-selinux's container_domain
-# attribute, so keep installation non-fatal.
+# Load the socket deny policies when SELinux is enabled. This may fail on
+# systems with SELinux userspace < 3.6, or without container-selinux's
+# container_domain attribute, so keep installation non-fatal.
 if command -v semodule > /dev/null 2>&1 && selinuxenabled 2>/dev/null; then
-    if ! semodule -i %{_datadir}/docker-ce/selinux/docker-af-alg-deny.cil 2>/dev/null; then
-        echo "warning: could not load docker-af-alg-deny.cil SELinux policy; AF_ALG SELinux denial is not active" >&2
-    fi
+    for module in %{selinux_modules}; do
+        policy=%{_datadir}/docker-ce/selinux/$module.cil
+        if ! semodule -i "$policy" 2>/dev/null; then
+            echo "warning: could not load $module.cil SELinux policy" >&2
+        fi
+    done
 fi
 
 %preun
@@ -129,7 +133,9 @@ fi
 %systemd_postun_with_restart docker.service
 if [ "$1" -eq 0 ]; then
     if command -v semodule > /dev/null 2>&1; then
-        semodule -r container-af-alg-deny 2>/dev/null || :
+        for module in %{selinux_modules}; do
+            semodule -r "$module" 2>/dev/null || :
+        done
     fi
 fi
 
