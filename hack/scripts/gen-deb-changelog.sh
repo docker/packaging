@@ -57,10 +57,10 @@ pkgDate="$(date --rfc-2822)"
 #   packaging-only changes (without a corresponding release of the software
 #   that's packaged).
 # - distro (e.g., "ubuntu")
-# - VERSION_ID (e.g. "22.04" or "11") this must be "sortable" to make sure that
+# - VERSION_ID (e.g. "22.04" or "12") this must be "sortable" to make sure that
 #   packages are upgraded when upgrading to a newer distro version ("codename"
 #   cannot be used for this, as they're not sorted)
-# - SUITE ("codename"), e.g. "jammy" or "bullseye". This is mostly for convenience,
+# - SUITE ("codename"), e.g. "jammy" or "bookworm". This is mostly for convenience,
 #   because some places refer to distro versions by codename, others by version.
 #   we prefix the codename with a tilde (~), which effectively excludes it from
 #   version comparison.
@@ -72,7 +72,7 @@ pkgDate="$(date --rfc-2822)"
 #
 # Examples:
 #
-# docker-ce_23.0.0~beta.0-1~debian.11~bullseye_amd64.deb
+# docker-ce_23.0.0~beta.0-1~debian.12~bookworm_amd64.deb
 # docker-ce_23.0.0~beta.0-1~ubuntu.22.04~jammy_amd64.deb
 
 if [[ -f "debian/changelog" ]] && [[ "${version}" != "v${pkgVersion}" ]]; then

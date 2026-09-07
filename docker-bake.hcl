@@ -17,7 +17,6 @@ variable "DISTROS" {
   default = [
     "static",
 
-    "debian11",
     "debian12",
     "debian13",
     "ubuntu2204",
@@ -123,11 +122,11 @@ variable "DISTRO_RELEASE" {
   default = null
 }
 variable "DISTRO_ID" {
-  description = "Distro ID, e.g. 11 for debian11, 12 for debian12, etc."
+  description = "Distro ID, e.g. 12 for debian12, 13 for debian13, etc."
   default = null
 }
 variable "DISTRO_SUITE" {
-  description = "Distro suite name, e.g. bullseye for debian11, bookworm for debian12, etc."
+  description = "Distro suite name, e.g. bookworm for debian12, trixie for debian13, etc."
   default = null
 }
 variable "DISTRO_IMAGE" {
@@ -245,18 +244,6 @@ target "_distro-static" {
     DISTRO_ID = ""
     DISTRO_SUITE = ""
     DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:trixie"
-    TEST_ONLY = "0"
-  }
-}
-
-target "_distro-debian11" {
-  args = {
-    DISTRO_NAME = "debian11"
-    DISTRO_TYPE = "deb"
-    DISTRO_RELEASE = "debian"
-    DISTRO_ID = "11"
-    DISTRO_SUITE = "bullseye"
-    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "debian:bullseye"
     TEST_ONLY = "0"
   }
 }
@@ -525,7 +512,6 @@ function "distroPlatforms" {
       lookup({
         static = pkgPlatforms(pkg)
 
-        debian11 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/s390x"]
         debian12 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/s390x"]
         debian13 = ["linux/386", "linux/amd64", "linux/arm64", "linux/arm/v7", "linux/mips64le", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
