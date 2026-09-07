@@ -79,7 +79,15 @@ low-level storage and network attachments, etc.
 
 
 %prep
+# Recent rpm distribution create an rpmbuild.env file as part of the build
+# setup, which is needed for other recipes, so keep it while we totally
+# destroy the existing build directory.
+if [ -e  %{_builddir}/rpmbuild.env ]; then
+    cp -a %{_builddir}/rpmbuild.env /go/src/%{import_path}/rpmbuild.env
+fi
+
 rm -rf %{_builddir}
+
 if [ ! -d %{_sourcedir}/containerd ]; then
     # Copy over our source code from our gopath to our source directory
     cp -rf /go/src/%{import_path} %{_sourcedir}/containerd;
