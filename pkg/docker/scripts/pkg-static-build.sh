@@ -174,7 +174,8 @@ if [ "$(xx-info os)" = "linux" ]; then
     set -x
     fetch_git_ref "https://github.com/opencontainers/runc.git" "$runc_version" "$runc_srcdir"
     pushd "$runc_srcdir"
-      CGO_ENABLED=1 GO111MODULE=on make static
+      # Use runc's pathrs-lite backend until supported distributions package libpathrs.
+      CGO_ENABLED=1 GO111MODULE=on make RUNC_BUILDTAGS="-libpathrs" static
       mv runc "$runtime_builddir/"
     popd
     xx-verify --static "${runtime_builddir}/runc"
