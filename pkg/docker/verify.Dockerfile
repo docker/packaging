@@ -41,6 +41,28 @@ RUN --mount=from=bin,target=/build <<EOT
     echo >&2 "warning: no packages found in $dir"
     exit 0
   fi
+  if [ "$(xx-info os)" = "darwin" ]; then
+    found=
+    for package in $(find $dir -type f -name 'docker-*.tgz'); do
+      found=1
+      (
+        set -x
+        cd "${package%/*}"
+        sha256sum -c "${package##*/}.sha256"
+        workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
+        tar zxvf "${package##*/}" -C "$workdir"
+        xx-verify --static "$workdir/docker/docker"
+        test -f "$workdir/docker/cli.LICENSE"
+        test -f "$workdir/docker/cli.README.md"
+        test "$(find "$workdir" -type f | wc -l)" -eq 3
+      )
+    done
+    if [ -z "$found" ]; then
+      echo >&2 "error: no packages found in $dir"
+      exit 1
+    fi
+    exit 0
+  fi
   if [ "$(xx-info os)" = "windows" ]; then
     found=
     for package in $(find $dir -type f -name '*.zip'); do
