@@ -80,7 +80,7 @@ set -x
 
 sed 's#/usr/local/bin/containerd#/usr/bin/containerd#g' "${SRCDIR}/containerd.service" > /root/rpmbuild/SOURCES/containerd.service
 
-rpmbuild --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
+rpmbuild --nosignature --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
 cp ./RPMS/*/*.* "${pkgoutput}"/
 if [ "$(ls -A ./SRPMS)" ]; then
