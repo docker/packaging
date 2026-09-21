@@ -67,6 +67,7 @@ jobs:
       vars: |
         PKG_REPO=${{ inputs.engine-repo }}
         PKG_REF=${{ inputs.engine-ref }}
+        DOCKER_VERSION=${{ inputs.version }}
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
       dockerhub_username: dockereng
@@ -87,6 +88,7 @@ jobs:
       vars: |
         PKG_REPO=${{ inputs.cli-repo }}
         PKG_REF=${{ inputs.cli-ref }}
+        DOCKER_VERSION=${{ inputs.version }}
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
       dockerhub_username: dockereng
