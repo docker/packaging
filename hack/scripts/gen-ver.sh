@@ -22,18 +22,22 @@ set -x
 
 srcdir="$1"
 if [ -z "$srcdir" ]; then
-  echo "usage: ./gen-ver <srcdir>" >&2
+  echo "usage: ./gen-ver <srcdir> [version]" >&2
   exit 1
 fi
 
-tagregex="${TAGPREFIX}v[0-9]*"
-version=$(git -C "${srcdir}" describe --match "$tagregex" --tags)
+version="${2:-}"
+if [ -n "$version" ]; then
+  version="v${version#v}"
+else
+  tagregex="${TAGPREFIX}v[0-9]*"
+  version=$(git -C "${srcdir}" describe --match "$tagregex" --tags)
+  if [ -n "$TAGPREFIX" ]; then
+    version="${version#$TAGPREFIX}"
+  fi
+fi
 commit="$(git --git-dir "${srcdir}/.git" rev-parse HEAD)"
 commitShort=${commit:0:7}
-
-if [ -n "$TAGPREFIX" ]; then
-  version="${version#$TAGPREFIX}"
-fi
 
 # rpm "Release:" field ($rpmRelease) is used to set the "_release" macro, which
 # is an incremental number for builds of the same release (Version: / #rpmVersion).
@@ -66,10 +70,9 @@ fi
 # Docker 22.06.0-dev:     version=0.0.0~YYYYMMDDHHMMSS.gitHASH, release=0
 rpmRelease=1
 
-# if NIGHTLY_BUILD=1, or we have a "-dev" suffix or a commit not pointing to a
-# tag, this is a nightly build, and we'll create a pseudo version based on
-# commit-date and -sha.
-if [[ "$NIGHTLY_BUILD" == "1" ]] || [[ "$version" == *-dev ]] || [[ -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ]]; then
+# NIGHTLY_BUILD=1 always forces a pseudo version. Without an explicit version,
+# a "-dev" suffix or a commit not pointing to a tag also denotes a nightly.
+if [[ "$NIGHTLY_BUILD" == "1" || ( -z "${2:-}" && ( "$version" == *-dev || -z "$(git -C "${srcdir}" tag --points-at HEAD --sort -version:refname)" ) ) ]]; then
   # based on golang's pseudo-version: https://groups.google.com/forum/#!topic/golang-dev/a5PqQuBljF4
   #
   # using a "pseudo-version" of the form v0.0.0-yyyymmddhhmmss-abcdefa,

@@ -52,7 +52,7 @@ if ! command -v xx-info &> /dev/null; then
   exit 1
 fi
 
-for l in $(gen-ver "${SRCDIR}"); do
+for l in $(gen-ver "${SRCDIR}" "${DOCKER_VERSION:-}"); do
   export "${l?}"
 done
 

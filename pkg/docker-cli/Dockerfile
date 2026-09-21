@@ -67,12 +67,13 @@ RUN --mount=from=src,source=/src,target=/cli \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG DOCKER_VERSION
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
   set -e
   mkdir -p /out
-  for l in $(gen-ver "/src"); do
+  for l in $(gen-ver "/src" "${DOCKER_VERSION}"); do
     export "${l?}"
   done
   cat > "/out/metadata.env" <<-EOF
@@ -111,6 +112,7 @@ COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
+ARG DOCKER_VERSION
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -148,6 +150,7 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/rpm-builddep \
     rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
+ARG DOCKER_VERSION
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -184,6 +187,7 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 
 FROM build-base-static AS builder-static-nosdk
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
+ARG DOCKER_VERSION
 ARG PKG_NAME
 ARG PKG_REF
 ARG NIGHTLY_BUILD
@@ -204,6 +208,7 @@ FROM builder-static-nosdk AS builder-static-windows
 
 FROM build-base-static AS builder-static-darwin
 RUN apt-get install -y --no-install-recommends dpkg-dev clang lld llvm make pkg-config
+ARG DOCKER_VERSION
 ARG PKG_NAME
 ARG PKG_REF
 ARG NIGHTLY_BUILD
