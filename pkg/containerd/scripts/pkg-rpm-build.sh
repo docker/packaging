@@ -29,6 +29,7 @@
 
 : "${SOURCE_DATE_EPOCH=}"
 : "${SRCDIR=/work/src}"
+: "${RUNC_SRCDIR=/work/runc-src}"
 : "${OUTDIR=/out}"
 
 : "${TAGPREFIX=}"
@@ -55,6 +56,8 @@ for l in $(gen-ver "${SRCDIR}"); do
   export "${l?}"
 done
 
+RUNC_COMMIT="$(git -C "${RUNC_SRCDIR}" describe --dirty --long --always)"
+
 xx-go --wrap
 fix-cc
 
@@ -63,6 +66,7 @@ rpmDefine=(
   --define "_origversion ${GENVER_VERSION}"
   --define "_release ${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}"
   --define "_commit ${GENVER_COMMIT}"
+  --define "_runccommit ${RUNC_COMMIT}"
 )
 
 pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"

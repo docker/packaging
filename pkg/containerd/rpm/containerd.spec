@@ -23,10 +23,6 @@ AutoReq: no
 %global debug_package %{nil}
 %endif
 
-%define SHA256SUM0 08f057ece7e518b14cce2e9737228a5a899a7b58b78248a03e02f4a6c079eeaf
-%global import_path github.com/containerd/containerd
-%global gopath %{getenv:GOPATH}
-
 Name: containerd.io
 Provides: containerd
 # For some reason on rhel >= 8 if we "provide" runc then it makes this package unsearchable
@@ -79,49 +75,37 @@ low-level storage and network attachments, etc.
 
 
 %prep
-rm -rf %{_builddir}
-if [ ! -d %{_sourcedir}/containerd ]; then
-    # Copy over our source code from our gopath to our source directory
-    cp -rf /go/src/%{import_path} %{_sourcedir}/containerd;
-fi
-# symlink the go source path to our build directory
-ln -s /go/src/%{import_path} %{_builddir}
-
-if [ ! -d %{_sourcedir}/runc ]; then
-    # Copy over our source code from our gopath to our source directory
-    cp -rf /go/src/github.com/opencontainers/runc %{_sourcedir}/runc
-fi
-cd %{_builddir}
-
+# Extract containerd (source 0, implicitly extracted) and runc (source 3).
+%setup -q -c -n src -a 3
 
 %build
-cd %{_builddir}
-GO111MODULE=auto make man
-GO111MODULE=auto make -C /go/src/%{import_path} VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="%{getenv:BUILDTAGS}"
+GO111MODULE=auto make -C containerd man
+GO111MODULE=auto make -C containerd VERSION=%{_origversion} REVISION=%{_commit} PACKAGE=%{getenv:PKG_NAME} BUILDTAGS="%{getenv:BUILDTAGS}"
 
 # Remove containerd-stress, as we're not shipping it as part of the packages
-rm -f bin/containerd-stress
-bin/containerd --version
-bin/ctr --version
+rm -f containerd/bin/containerd-stress
+containerd/bin/containerd --version
+containerd/bin/ctr --version
 
 # Use runc's pathrs-lite backend until supported distributions package libpathrs.
-GO111MODULE=auto make -C /go/src/github.com/opencontainers/runc BINDIR=%{_builddir}/bin RUNC_BUILDTAGS="-libpathrs" runc install
+GO111MODULE=auto make -C runc RUNC_BUILDTAGS="-libpathrs" COMMIT="%{_runccommit}" runc
 
 
 %install
-cd %{_builddir}
 mkdir -p %{buildroot}%{_bindir}
-install -D -p -m 0755 bin/* %{buildroot}%{_bindir}
+install -D -p -m 0755 containerd/bin/* %{buildroot}%{_bindir}
 install -D -p -m 0644 %{S:1} %{buildroot}%{_unitdir}/containerd.service
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/containerd/config.toml
 
 # install manpages, taking into account that not all sections may be present
 for i in $(seq 1 8); do
-    if ls man/*.${i} 1> /dev/null 2>&1; then
+    if ls containerd/man/*.${i} 1> /dev/null 2>&1; then
         install -d %{buildroot}%{_mandir}/man${i};
-        install -p -m 644 man/*.${i} %{buildroot}%{_mandir}/man${i};
+        install -p -m 644 containerd/man/*.${i} %{buildroot}%{_mandir}/man${i};
     fi
 done
+
+make -C runc BINDIR=%{buildroot}%{_bindir} install
 
 %post
 %systemd_post containerd.service
@@ -136,8 +120,8 @@ done
 
 
 %files
-%license LICENSE
-%doc README.md
+%license containerd/LICENSE
+%doc containerd/README.md
 %{_bindir}/*
 %{_unitdir}/containerd.service
 %{_sysconfdir}/containerd
