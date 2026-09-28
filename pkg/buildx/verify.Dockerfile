@@ -80,7 +80,7 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       rpm -qilp $package
-      rpm --install --nodeps $package
+      rpm --install --nodeps --nosignature $package
     )
   done
   set -x
