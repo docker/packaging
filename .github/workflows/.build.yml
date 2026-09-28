@@ -27,6 +27,10 @@ on:
         required: false
       rh_pass:
         required: false
+    outputs:
+      image:
+        description: 'Release image with the run number tag'
+        value: ${{ jobs.release.outputs.image }}
 
 env:
   REPO_SLUG: dockereng/packaging
@@ -220,6 +224,8 @@ jobs:
       - prepare
       - build
       - verify
+    outputs:
+      image: ${{ steps.image.outputs.image }}
     env:
       GO_VERSION: ${{ needs.prepare.outputs.go-version }}
       INPUT_INCLUDES: ${{ needs.prepare.outputs.includes }}
@@ -312,6 +318,12 @@ jobs:
             com.github.docker.packaging.run_id=${{ github.run_id }}
             com.github.docker.packaging.run_number=${{ github.run_number }}
           bake-target: meta-helper
+      -
+        name: Set image output
+        id: image
+        run: |
+          image=$(jq -r --arg suffix "-${GITHUB_RUN_NUMBER}" '.tags[] | select(endswith($suffix))' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
       -
         name: Login to Docker Hub
         if: ${{ inputs.release || github.event_name == 'schedule' }}

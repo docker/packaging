@@ -115,3 +115,32 @@ jobs:
         DOCKER_VERSION=${{ inputs.version }}
       dockerhub_username: dockereng
       dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
+
+  summary:
+    if: ${{ always() && needs.engine.result == 'success' && needs.cli.result == 'success' && (needs.docker.result == 'success' || needs.docker.result == 'skipped') }}
+    needs:
+      - engine
+      - cli
+      - docker
+    runs-on: ubuntu-24.04
+    steps:
+      -
+        name: Summarize images
+        env:
+          ENGINE_IMAGE: ${{ needs.engine.outputs.image }}
+          CLI_IMAGE: ${{ needs.cli.outputs.image }}
+          DOCKER_IMAGE: ${{ needs.docker.outputs.image }}
+        run: |
+          images=("$ENGINE_IMAGE" "$CLI_IMAGE")
+          # The docker job is skipped when only building for selected distros (inputs.distros).
+          if [[ -n "$DOCKER_IMAGE" ]]; then
+            images+=("$DOCKER_IMAGE")
+          fi
+          image_list=$(IFS=,; printf '%s' "${images[*]}")
+          {
+            echo '## Images for release-repo'
+            echo
+            echo '```text'
+            echo "$image_list"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
