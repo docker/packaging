@@ -53,7 +53,7 @@ mkdir -p "$cli_builddir"
 (
   set -x
   cd "${CLI_SRCDIR}"
-  CGO_ENABLED=0 GO111MODULE=off VERSION="${VERSION}" GITCOMMIT="${CLI_COMMIT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
+  CGO_ENABLED=0 GO111MODULE=off VERSION="${VERSION#v}" GITCOMMIT="${CLI_COMMIT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
 )
 xx-verify --static "${cli_builddir}/docker"
 

@@ -60,7 +60,7 @@ fix-cc
 
 rpmDefine=(
   --define "_version ${GENVER_PKG_VERSION}"
-  --define "_origversion ${GENVER_VERSION}"
+  --define "_origversion ${GENVER_VERSION#v}"
   --define "_release ${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}"
   --define "_commit ${GENVER_COMMIT}"
 )
