@@ -48,11 +48,7 @@ for l in $(TAGPREFIX= gen-ver "${CLI_SRCDIR}"); do
 done
 
 version="${DOCKER_VERSION:-${ENGINE_GENVER_VERSION}}"
-case "$version" in
-  v*) ;;
-  *) version="v${version}" ;;
-esac
-version_no_v="${version#v}"
+version="${version#v}"
 
 export GO111MODULE
 GO111MODULE=$(SRCDIR="${ENGINE_SRCDIR}" check-gomod)
@@ -230,14 +226,14 @@ mkdir -p "$workdir/docker"
   fi
 )
 if [ "$(xx-info os)" = "windows" ]; then
-  pkgfile="${pkgoutput}/docker-${version_no_v}.zip"
+  pkgfile="${pkgoutput}/docker-${version}.zip"
   (
     set -x
     cd "$workdir"
     zip -r "$pkgfile" docker
   )
 else
-  pkgfile="${pkgoutput}/docker-${version_no_v}.tgz"
+  pkgfile="${pkgoutput}/docker-${version}.tgz"
   (
     set -x
     tar -czf "$pkgfile" -C "$workdir" docker
