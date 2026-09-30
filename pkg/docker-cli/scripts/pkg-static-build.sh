@@ -84,14 +84,14 @@ for pkgname in *; do
     cp ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
-    pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip"
+    pkgfile="${pkgoutput}/docker-cli_${GENVER_VERSION#v}.zip"
     (
       set -x
       cd "$workdir"
       zip -r "$pkgfile" "${pkgname}"
     )
   else
-    pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz"
+    pkgfile="${pkgoutput}/docker-cli_${GENVER_VERSION#v}.tgz"
     (
       set -x
       tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
