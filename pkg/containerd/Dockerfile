@@ -234,10 +234,10 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,source=common/containerd.toml,target=/root/rpmbuild/SOURCES/containerd.toml \
     --mount=type=bind,from=src-tgz,source=/out/containerd.tgz,target=/root/rpmbuild/SOURCES/containerd.tgz \
     --mount=type=bind,from=runc-src-tgz,source=/out/runc.tgz,target=/root/rpmbuild/SOURCES/runc.tgz \
-    --mount=type=bind,from=src,source=/src,target=/go/src/github.com/containerd/containerd,rw \
-    --mount=type=bind,from=runc-src,source=/src,target=/go/src/github.com/opencontainers/runc,rw \
+    --mount=type=bind,from=src,source=/src,target=/usr/local/src/containerd,rw \
+    --mount=type=bind,from=runc-src,source=/src,target=/usr/local/src/runc,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
-    OUTDIR=/out SRCDIR=/go/src/github.com/containerd/containerd pkg-rpm-build
+    OUTDIR=/out SRCDIR=/usr/local/src/containerd RUNC_SRCDIR=/usr/local/src/runc pkg-rpm-build
 
 # static
 FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
