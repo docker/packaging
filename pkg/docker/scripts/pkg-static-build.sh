@@ -18,6 +18,9 @@
 
 : "${DOCKER_VERSION=}"
 
+: "${DOCKER_PLATFORM_NAME=}"
+: "${DOCKER_PRODUCT_LICENSE=}"
+
 : "${BUILDDIR=/work/build}"
 : "${ENGINE_SRCDIR=/work/engine-src}"
 : "${CLI_SRCDIR=/work/cli-src}"
@@ -101,7 +104,7 @@ fetch_git_ref() {
 (
   set -x
   pushd "${ENGINE_SRCDIR}"
-    CGO_ENABLED=1 VERSION="${version}" DOCKER_GITCOMMIT="${ENGINE_GENVER_COMMIT_SHORT}" ./hack/make.sh binary
+    CGO_ENABLED=1 VERSION="${version}" DOCKER_GITCOMMIT="${ENGINE_GENVER_COMMIT_SHORT}" PLATFORM="${DOCKER_PLATFORM_NAME}" DEFAULT_PRODUCT_LICENSE="${DOCKER_PRODUCT_LICENSE}" ./hack/make.sh binary
     mv "./bundles/binary-daemon/dockerd${binext}" "${engine_builddir}/"
     if [ "$(xx-info os)" != "windows" ]; then
       mv "./bundles/binary-daemon/docker-proxy${binext}" "${engine_builddir}/"

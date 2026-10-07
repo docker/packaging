@@ -113,6 +113,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG DOCKER_VERSION
+ARG DOCKER_PLATFORM_NAME
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -151,6 +152,7 @@ RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/
     rpm-builddep $(xx-info rhel-arch) /root/rpmbuild/SPECS
 WORKDIR /root/rpmbuild
 ARG DOCKER_VERSION
+ARG DOCKER_PLATFORM_NAME
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID

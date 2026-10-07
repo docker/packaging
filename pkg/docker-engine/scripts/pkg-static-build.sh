@@ -16,6 +16,9 @@
 
 : "${NIGHTLY_BUILD=}"
 
+: "${DOCKER_PLATFORM_NAME=}"
+: "${DOCKER_PRODUCT_LICENSE=}"
+
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -59,7 +62,7 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
 (
   set -x
   pushd ${SRCDIR}
-    CGO_ENABLED=1 VERSION=${GENVER_VERSION#v} DOCKER_GITCOMMIT=${GENVER_COMMIT_SHORT} ./hack/make.sh binary
+    CGO_ENABLED=1 VERSION=${GENVER_VERSION#v} DOCKER_GITCOMMIT=${GENVER_COMMIT_SHORT} PLATFORM="${DOCKER_PLATFORM_NAME}" DEFAULT_PRODUCT_LICENSE="${DOCKER_PRODUCT_LICENSE}" ./hack/make.sh binary
     mv "./bundles/binary-daemon/dockerd${binext}" "${BUILDDIR}/${PKG_NAME}/"
     if [ "$(xx-info os)" != "windows" ]; then
       mv "./bundles/binary-daemon/docker-proxy${binext}" "${BUILDDIR}/${PKG_NAME}/"

@@ -114,6 +114,7 @@ ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG DOCKER_VERSION
+ARG DOCKER_PLATFORM_NAME
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -163,6 +164,7 @@ RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/
 EOT
 WORKDIR /root/rpmbuild
 ARG DOCKER_VERSION
+ARG DOCKER_PLATFORM_NAME
 ARG NIGHTLY_BUILD
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
@@ -201,6 +203,8 @@ RUN --mount=type=bind,from=gocross,source=/usr/local/go,target=/usr/local/go,rw 
 FROM build-base-static AS builder-static
 RUN apt-get install -y --no-install-recommends clang cmake gcc libc6-dev lld llvm make pkg-config
 ARG DOCKER_VERSION
+ARG DOCKER_PLATFORM_NAME
+ARG DOCKER_PRODUCT_LICENSE
 ARG PKG_NAME
 ARG PKG_REF
 ARG NIGHTLY_BUILD
