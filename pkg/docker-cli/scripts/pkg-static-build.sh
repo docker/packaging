@@ -63,7 +63,7 @@ clibin="docker${binext}"
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${GENVER_VERSION} GITCOMMIT=${GENVER_COMMIT} GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
+    VERSION=${GENVER_VERSION} GITCOMMIT=${GENVER_COMMIT_SHORT} GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker"
 )
