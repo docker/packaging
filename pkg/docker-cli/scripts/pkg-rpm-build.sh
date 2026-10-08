@@ -16,6 +16,8 @@
 
 : "${NIGHTLY_BUILD=}"
 
+: "${DOCKER_PLATFORM_NAME=}"
+
 : "${DISTRO_NAME=}"
 : "${DISTRO_RELEASE=}"
 : "${DISTRO_ID=}"
@@ -72,7 +74,7 @@ fi
 
 set -x
 
-rpmbuild --target $(xx-info rhel-arch)  $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
+PLATFORM="${DOCKER_PLATFORM_NAME}" rpmbuild --target $(xx-info rhel-arch)  $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
 cp ./RPMS/*/*.* "${pkgoutput}"/
 if [ "$(ls -A ./SRPMS)" ]; then

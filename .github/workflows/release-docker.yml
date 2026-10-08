@@ -68,6 +68,8 @@ jobs:
         PKG_REPO=${{ inputs.engine-repo }}
         PKG_REF=${{ inputs.engine-ref }}
         DOCKER_VERSION=${{ inputs.version }}
+        DOCKER_PLATFORM_NAME=Docker Engine - Community
+        DOCKER_PRODUCT_LICENSE=Community Engine
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
       dockerhub_username: dockereng
@@ -89,6 +91,7 @@ jobs:
         PKG_REPO=${{ inputs.cli-repo }}
         PKG_REF=${{ inputs.cli-ref }}
         DOCKER_VERSION=${{ inputs.version }}
+        DOCKER_PLATFORM_NAME=Docker Engine - Community
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
       dockerhub_username: dockereng
@@ -113,6 +116,8 @@ jobs:
         CLI_REPO=${{ inputs.cli-repo }}
         CLI_REF=${{ inputs.cli-ref }}
         DOCKER_VERSION=${{ inputs.version }}
+        DOCKER_PLATFORM_NAME=Docker Engine - Community
+        DOCKER_PRODUCT_LICENSE=Community Engine
       dockerhub_username: dockereng
       dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
 

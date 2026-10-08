@@ -16,6 +16,8 @@
 
 : "${NIGHTLY_BUILD=}"
 
+: "${DOCKER_PLATFORM_NAME=}"
+
 : "${DISTRO_NAME=}"
 : "${DISTRO_RELEASE=}"
 : "${DISTRO_ID=}"
@@ -70,5 +72,5 @@ mkdir -p "${pkgoutput}"
 set -x
 
 chmod -x debian/control debian/docs debian/*.manpages
-VERSION=${GENVER_VERSION#v} REVISION=${GENVER_COMMIT_SHORT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION=${GENVER_VERSION#v} REVISION=${GENVER_COMMIT_SHORT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/
