@@ -101,7 +101,7 @@ fetch_git_ref() {
 (
   set -x
   pushd "${ENGINE_SRCDIR}"
-    CGO_ENABLED=1 VERSION="${version}" DOCKER_GITCOMMIT="${ENGINE_GENVER_COMMIT}" ./hack/make.sh binary
+    CGO_ENABLED=1 VERSION="${version}" DOCKER_GITCOMMIT="${ENGINE_GENVER_COMMIT_SHORT}" ./hack/make.sh binary
     mv "./bundles/binary-daemon/dockerd${binext}" "${engine_builddir}/"
     if [ "$(xx-info os)" != "windows" ]; then
       mv "./bundles/binary-daemon/docker-proxy${binext}" "${engine_builddir}/"
@@ -128,7 +128,7 @@ fi
 (
   set -x
   pushd "${CLI_SRCDIR}"
-    CGO_ENABLED=0 GO111MODULE=off VERSION="${version}" GITCOMMIT="${CLI_GENVER_COMMIT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
+    CGO_ENABLED=0 GO111MODULE=off VERSION="${version}" GITCOMMIT="${CLI_GENVER_COMMIT_SHORT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
   popd
   xx-verify --static "${cli_builddir}/docker"
 )

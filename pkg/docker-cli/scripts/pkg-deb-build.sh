@@ -70,5 +70,5 @@ mkdir -p "${pkgoutput}"
 set -x
 
 chmod -x debian/control debian/docs debian/*.manpages
-VERSION=${GENVER_VERSION#v} REVISION=${GENVER_COMMIT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+VERSION=${GENVER_VERSION#v} REVISION=${GENVER_COMMIT_SHORT} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/
