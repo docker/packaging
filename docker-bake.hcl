@@ -22,6 +22,7 @@ variable "DISTROS" {
     "ubuntu2204",
     "ubuntu2404",
     "ubuntu2604",
+    "ubuntu2610",
 
     "almalinux8",
     "almalinux9",
@@ -317,6 +318,18 @@ target "_distro-ubuntu2604" {
   }
 }
 
+target "_distro-ubuntu2610" {
+  args = {
+    DISTRO_NAME = "ubuntu2610"
+    DISTRO_TYPE = "deb"
+    DISTRO_RELEASE = "ubuntu"
+    DISTRO_ID = "26.10"
+    DISTRO_SUITE = "stonking"
+    DISTRO_IMAGE = DISTRO_IMAGE != null && DISTRO_IMAGE != "" ? DISTRO_IMAGE : "ubuntu:stonking"
+    TEST_ONLY = "0"
+  }
+}
+
 target "_distro-almalinux8" {
   args = {
     DISTRO_NAME = "almalinux8"
@@ -538,6 +551,7 @@ function "distroPlatforms" {
         ubuntu2204 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/s390x"]
         ubuntu2404 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
         ubuntu2604 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
+        ubuntu2610 = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le", "linux/riscv64", "linux/s390x"]
 
         almalinux8 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
         almalinux9 = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
