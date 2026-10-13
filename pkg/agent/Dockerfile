@@ -66,6 +66,8 @@ RUN --mount=from=src,source=/src,target=/agent \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_DEB_REVISION
+ARG PKG_RPM_RELEASE
 ARG NIGHTLY_BUILD
 RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=src,source=/src,target=/src <<EOT
@@ -78,6 +80,8 @@ RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-v
 REPO=${PKG_REPO%.*}
 REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
+PKG_DEB_REVISION=${PKG_DEB_REVISION:-1}
+PKG_RPM_RELEASE=${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}
 COMMIT=${GENVER_COMMIT}
 EOF
 EOT

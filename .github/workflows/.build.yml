@@ -376,6 +376,14 @@ jobs:
           * go version: \`${GO_VERSION}\`
           EOF
 
+          # docker static archives don't have revision yet
+          if [ "$INPUT_NAME" != "docker" ]; then
+            cat >> "/tmp/summary.txt" <<-EOF
+          * package revision (deb): \`${PKG_DEB_REVISION}\`
+          * package release (rpm): \`${PKG_RPM_RELEASE}\`
+          EOF
+          fi
+
           if [ "$INPUT_NAME" = "containerd" ]; then
             cat >> "/tmp/summary.txt" <<-EOF
           * runc
