@@ -66,6 +66,8 @@ RUN --mount=from=src,source=/src,target=/engine \
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_DEB_REVISION
+ARG PKG_RPM_RELEASE
 ARG DOCKER_VERSION
 ARG NIGHTLY_BUILD
 ARG TAGPREFIX
@@ -80,6 +82,8 @@ RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-v
 REPO=${PKG_REPO%.*}
 REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
+PKG_DEB_REVISION=${PKG_DEB_REVISION:-1}
+PKG_RPM_RELEASE=${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}
 COMMIT=${GENVER_COMMIT}
 EOF
 EOT

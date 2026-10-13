@@ -118,6 +118,8 @@ EOT
 FROM src-base AS metadata-builder
 ARG PKG_REPO
 ARG PKG_REF
+ARG PKG_DEB_REVISION
+ARG PKG_RPM_RELEASE
 ARG RUNC_REPO
 ARG RUNC_REF
 ARG RUNHCS_REPO
@@ -136,6 +138,8 @@ RUN --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-v
 REPO=${PKG_REPO%.*}
 REF=${PKG_REF}
 VERSION=${GENVER_VERSION}
+PKG_DEB_REVISION=${PKG_DEB_REVISION:-1}
+PKG_RPM_RELEASE=${PKG_RPM_RELEASE:-${GENVER_RPM_RELEASE}}
 COMMIT=${GENVER_COMMIT}
 EOF
   [ -z "$RUNC_REF" ] && RUNC_REF=$(cat /src/script/setup/runc-version)
