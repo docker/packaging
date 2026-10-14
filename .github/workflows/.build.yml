@@ -175,6 +175,8 @@ jobs:
       sbom: true
       sign: ${{ github.event_name != 'pull_request' }}
       target: pkg-${{ inputs.name }}-${{ matrix.distro }}
+      set: |
+        *.pull=true
       vars: |
         ${{ inputs.vars }}
 
