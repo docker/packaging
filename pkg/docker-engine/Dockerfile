@@ -31,6 +31,7 @@ ARG PKG_REPO="https://github.com/docker/docker.git"
 ARG PKG_REF="master"
 
 ARG GO_IMAGE="golang"
+# https://github.com/moby/moby/blob/master/Dockerfile
 ARG GO_VERSION="1.26.9"
 ARG GO_IMAGE_VARIANT="bookworm"
 

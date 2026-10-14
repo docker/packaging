@@ -79,7 +79,7 @@ jobs:
             
             core.setOutput('list', JSON.stringify(goVersions));
       -
-        name: Set GO_VERSION in docker-bake.hcl and Dockerfiles
+        name: Set GO_VERSION in Dockerfiles
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           INPUT_GO_VERSIONS: ${{ steps.get-go-versions.outputs.list }}
@@ -91,18 +91,6 @@ jobs:
             const inpGoVersions = JSON.parse(core.getInput('go_versions'));
             
             for (const item of inpGoVersions) {
-              const bakefilePath = 'docker-bake.hcl';
-              core.info(`Updating GO_VERSION to ${item.go_version} in ${bakefilePath} for _pkg-${item.pkg} target`);
-              let bakeContent = fs.readFileSync(bakefilePath, 'utf8');
-              const bakeRegex = new RegExp(
-                `target "_pkg-${item.pkg}" \\{[\\s\\S]*?GO_VERSION = GO_VERSION != null && GO_VERSION != "" \\? GO_VERSION : "([^"]+)"`,
-                'm'
-              );
-              bakeContent = bakeContent.replace(bakeRegex, (match, p1) => {
-                return match.replace(p1, item.go_version);
-              });
-              fs.writeFileSync(bakefilePath, bakeContent);
-        
               const dockerfilePath = path.join('pkg', item.pkg, 'Dockerfile');
               core.info(`Updating GO_VERSION to ${item.go_version} in ${dockerfilePath}`);
               let dockerfileContent = fs.readFileSync(dockerfilePath, 'utf8');

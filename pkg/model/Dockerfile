@@ -28,6 +28,7 @@ ARG PKG_REPO="https://github.com/docker/model-runner.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
+# https://github.com/docker/model-runner/blob/main/cmd/cli/Dockerfile
 ARG GO_VERSION="1.25"
 ARG GO_IMAGE_VARIANT="bookworm"
 
