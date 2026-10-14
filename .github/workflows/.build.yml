@@ -165,6 +165,7 @@ jobs:
       target: pkg-${{ inputs.name }}-${{ matrix.distro }}
       vars: |
         ${{ inputs.vars }}
+        DOCKER_BUILD_SUMMARY=false
 
   verify:
     runs-on: ${{ matrix.runner }}

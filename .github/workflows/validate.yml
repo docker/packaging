@@ -9,6 +9,9 @@ on:
       - 'main'
   pull_request:
 
+env:
+  DOCKER_BUILD_SUMMARY: false
+
 jobs:
   validate:
     runs-on: ubuntu-24.04
