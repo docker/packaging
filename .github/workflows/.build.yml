@@ -59,6 +59,9 @@ jobs:
           INPUT_VARS: ${{ inputs.vars }}
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+
             const inpName = core.getInput('name');
             const inpRelease = core.getInput('release');
             const inpDistros = core.getInput('distros');
@@ -109,7 +112,12 @@ jobs:
                 }
                 const target = def.target[targetName];
                 if (target.platforms && target.platforms.length > 0) {
-                  const targetGoVersion = target.args.GO_VERSION;
+                  let targetGoVersion = target.args.GO_VERSION;
+                  if (!targetGoVersion) {
+                    const dockerfilePath = path.join(target.context, target.dockerfile || 'Dockerfile');
+                    const dockerfile = fs.readFileSync(dockerfilePath, 'utf8');
+                    targetGoVersion = dockerfile.match(/^ARG GO_VERSION="([^"]+)"$/m)?.[1];
+                  }
                   if (!targetGoVersion) {
                     throw new Error(`GO_VERSION not found for ${targetName}`);
                   }

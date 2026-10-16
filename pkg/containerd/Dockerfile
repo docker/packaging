@@ -34,6 +34,7 @@ ARG PKG_REPO="https://github.com/containerd/containerd.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
+# https://github.com/containerd/containerd/blob/release/2.4/.github/workflows/release/Dockerfile
 ARG GO_VERSION="1.27.2"
 ARG GO_IMAGE_VARIANT="bookworm"
 

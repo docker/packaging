@@ -28,6 +28,7 @@ ARG PKG_REPO="https://github.com/docker/compose.git"
 ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
+# https://github.com/docker/compose/blob/main/Dockerfile
 ARG GO_VERSION="1.26.9"
 ARG GO_IMAGE_VARIANT="bookworm"
 
