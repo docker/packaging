@@ -35,7 +35,7 @@ ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
 # https://github.com/containerd/containerd/blob/release/2.4/.github/workflows/release/Dockerfile
-ARG GO_VERSION="1.27.2"
+ARG GO_VERSION="1.27"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 # stage used as named context that mounts hack/scripts

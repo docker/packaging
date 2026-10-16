@@ -29,7 +29,7 @@ ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
 # https://github.com/docker/docker-agent/blob/main/Dockerfile
-ARG GO_VERSION="1.27.2"
+ARG GO_VERSION="1.27"
 ARG GO_IMAGE_VARIANT="bookworm"
 
 ARG ZIG_VERSION="0.15.2"
