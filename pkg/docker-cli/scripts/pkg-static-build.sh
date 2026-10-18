@@ -74,27 +74,29 @@ if [ -n "$(xx-info variant)" ]; then
 fi
 mkdir -p "${pkgoutput}"
 
+dirname="docker-cli"
+
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}"
+  mkdir -p "$workdir/${dirname}"
   (
     set -x
-    cp -L "${pkgname}/docker" "$workdir/${pkgname}/${clibin}"
-    cp ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${pkgname}/"
+    cp -L "${pkgname}/docker" "$workdir/${dirname}/${clibin}"
+    cp ${SRCDIR}/LICENSE ${SRCDIR}/README.md "$workdir/${dirname}/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
-    pkgfile="${pkgoutput}/docker-cli_${GENVER_VERSION#v}.zip"
+    pkgfile="${pkgoutput}/${dirname}_${GENVER_VERSION#v}.zip"
     (
       set -x
       cd "$workdir"
-      zip -r "$pkgfile" "${pkgname}"
+      zip -r "$pkgfile" "${dirname}"
     )
   else
-    pkgfile="${pkgoutput}/docker-cli_${GENVER_VERSION#v}.tgz"
+    pkgfile="${pkgoutput}/${dirname}_${GENVER_VERSION#v}.tgz"
     (
       set -x
-      tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
+      tar -czf "$pkgfile" -C "$workdir" "${dirname}"
     )
   fi
   write-sha256sum "$pkgfile"
