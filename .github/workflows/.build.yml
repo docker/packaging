@@ -154,9 +154,8 @@ jobs:
               core.setOutput('go-version', goVersion);
             });
 
-  # TODO: add RH_USER and RH_PASS to the build job once we have a way to pass secrets: https://github.com/docker/github-builder/pull/248
   build:
-    uses: docker/github-builder/.github/workflows/bake.yml@58cb9f5b71b1836d6f690c1e95effdeb9b98cb8a # v1.17.0
+    uses: docker/github-builder/.github/workflows/bake.yml@4345a1cea1e4cfb65c8a5e2b1b80f9e630068827 # v1.18.0
     permissions:
       contents: read
       id-token: write # for signing attestations with GitHub OIDC
@@ -168,6 +167,7 @@ jobs:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     with:
       job-name-prefix: ${{ matrix.distro }}
+      buildkit-proxy-network: true
       artifact-name: build-pkg-${{ inputs.name }}_${{ matrix.distro }}
       artifact-upload: true
       artifact-retention-days: 1
@@ -179,6 +179,11 @@ jobs:
         *.pull=true
       vars: |
         ${{ inputs.vars }}
+    secrets:
+      build-secrets: >-
+        ${{ startsWith(matrix.distro, 'rhel') && secrets.rh_user != '' && secrets.rh_pass != '' &&
+            format('{{"RH_USER":{0},"RH_PASS":{1}}}',
+              toJSON(secrets.rh_user), toJSON(secrets.rh_pass)) || '' }}
 
   verify:
     runs-on: ${{ matrix.runner }}
