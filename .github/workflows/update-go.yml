@@ -92,10 +92,17 @@ jobs:
             
             for (const item of inpGoVersions) {
               const dockerfilePath = path.join('pkg', item.pkg, 'Dockerfile');
-              core.info(`Updating GO_VERSION to ${item.go_version} in ${dockerfilePath}`);
               let dockerfileContent = fs.readFileSync(dockerfilePath, 'utf8');
-              const dockerfileRegex = /^ARG GO_VERSION=.*$/m;
-              dockerfileContent = dockerfileContent.replace(dockerfileRegex, `ARG GO_VERSION="${item.go_version}"`);
+              const dockerfileRegex = /^ARG GO_VERSION=(.*)$/m;
+              let goVersion = item.go_version;
+              // A Dockerfile pinned to a Go series tracks its latest patch
+              // release, so keep it on the series instead of the upstream patch.
+              const current = dockerfileContent.match(dockerfileRegex)?.[1] ?? '';
+              if (current.replaceAll('"', '').split('.').length === 2) {
+                goVersion = goVersion.split('.').slice(0, 2).join('.');
+              }
+              core.info(`Updating GO_VERSION to ${goVersion} in ${dockerfilePath}`);
+              dockerfileContent = dockerfileContent.replace(dockerfileRegex, `ARG GO_VERSION="${goVersion}"`);
               fs.writeFileSync(dockerfilePath, dockerfileContent);
             }
             
