@@ -155,7 +155,7 @@ jobs:
             });
 
   build:
-    uses: docker/github-builder/.github/workflows/bake.yml@4345a1cea1e4cfb65c8a5e2b1b80f9e630068827 # v1.18.0
+    uses: docker/github-builder/.github/workflows/bake.yml@cbc9d42f8c89a55623392aadd03600965b80e963 # v1.18.1
     permissions:
       contents: read
       id-token: write # for signing attestations with GitHub OIDC
@@ -342,7 +342,7 @@ jobs:
       -
         name: Login to Docker Hub
         if: ${{ inputs.release || github.event_name == 'schedule' }}
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         env:
           DOCKERHUB_OIDC_CONNECTIONID: ${{ inputs.dockerhub_oidc_connectionid }}
         with:
