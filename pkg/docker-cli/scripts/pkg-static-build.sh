@@ -16,6 +16,8 @@
 
 : "${NIGHTLY_BUILD=}"
 
+: "${DOCKER_PLATFORM_NAME=}"
+
 : "${PKG_NAME=}"
 
 : "${BUILDDIR=/work/build}"
@@ -63,7 +65,7 @@ clibin="docker${binext}"
 (
   set -x
   pushd ${SRCDIR}
-    VERSION=${GENVER_VERSION#v} GITCOMMIT=${GENVER_COMMIT_SHORT} GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
+    PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION=${GENVER_VERSION#v} GITCOMMIT=${GENVER_COMMIT_SHORT} GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
   popd
   xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker"
 )
