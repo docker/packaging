@@ -201,10 +201,6 @@ variable "DOCKER_PLATFORM_NAME" {
   description = "Platform name embedded in Docker CLI and Engine binaries (shown in `docker version`). Only used for docker, docker-cli, and docker-engine packages."
   default = null
 }
-variable "DOCKER_PRODUCT_LICENSE" {
-  description = "Default product license embedded in Docker Engine binaries (shown in `docker info`). Only used for docker and docker-engine packages."
-  default = null
-}
 variable "RUNC_REF" {
   description = "Reference (branch, tag, commit) of runc to build. Only used for containerd package. If not set, defaults to the version specified in containerd's script/setup/runc-version file."
   default = null
@@ -644,7 +640,6 @@ target "_pkg-docker" {
     CLI_REF = CLI_REF != null && CLI_REF != "" ? CLI_REF : "master"
     DOCKER_VERSION = DOCKER_VERSION
     DOCKER_PLATFORM_NAME = DOCKER_PLATFORM_NAME
-    DOCKER_PRODUCT_LICENSE = DOCKER_PRODUCT_LICENSE
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
   }
@@ -670,7 +665,6 @@ target "_pkg-docker-engine" {
     PKG_REF = PKG_REF != null && PKG_REF != "" ? PKG_REF : "master"
     DOCKER_VERSION = DOCKER_VERSION
     DOCKER_PLATFORM_NAME = DOCKER_PLATFORM_NAME
-    DOCKER_PRODUCT_LICENSE = DOCKER_PRODUCT_LICENSE
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "bookworm"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : "5"
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
