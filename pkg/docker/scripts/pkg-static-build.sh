@@ -131,7 +131,7 @@ fi
 (
   set -x
   pushd "${CLI_SRCDIR}"
-    CGO_ENABLED=0 GO111MODULE=off VERSION="${version}" GITCOMMIT="${CLI_GENVER_COMMIT_SHORT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
+    CGO_ENABLED=0 GO111MODULE=off PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION="${version}" GITCOMMIT="${CLI_GENVER_COMMIT_SHORT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
   popd
   xx-verify --static "${cli_builddir}/docker"
 )

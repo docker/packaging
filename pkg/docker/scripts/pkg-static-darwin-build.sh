@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+: "${DOCKER_PLATFORM_NAME=}"
+
 : "${BUILDDIR=/work/build}"
 : "${CLI_SRCDIR=/work/cli-src}"
 : "${OUTDIR=/out}"
@@ -53,7 +55,7 @@ mkdir -p "$cli_builddir"
 (
   set -x
   cd "${CLI_SRCDIR}"
-  CGO_ENABLED=0 GO111MODULE=off VERSION="${VERSION#v}" GITCOMMIT="${CLI_COMMIT:0:7}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
+  CGO_ENABLED=0 GO111MODULE=off PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION="${VERSION#v}" GITCOMMIT="${CLI_COMMIT:0:7}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
 )
 xx-verify --static "${cli_builddir}/docker"
 
