@@ -59,6 +59,9 @@ done
 
 export GO111MODULE=$(check-gomod)
 
+CONTAINERD_COMMIT=$(gen-containerd-commit "${SRCDIR}")
+export CONTAINERD_COMMIT
+
 xx-go --wrap
 fix-cc
 

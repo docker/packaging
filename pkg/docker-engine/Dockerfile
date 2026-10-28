@@ -136,6 +136,7 @@ RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
+    --mount=type=bind,from=scripts,source=gen-containerd-commit.sh,target=/usr/local/bin/gen-containerd-commit \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src,source=/src,target=/root/package/engine,rw \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
@@ -184,6 +185,7 @@ ARG TAGPREFIX
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=gen-containerd-commit.sh,target=/usr/local/bin/gen-containerd-commit \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=src-tgz,source=/out/engine.tgz,target=/root/rpmbuild/SOURCES/engine.tgz \
     --mount=type=bind,from=src,source=/src,target=/usr/local/src/engine \
@@ -220,6 +222,7 @@ RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libnftables-dev libsecre
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=gen-containerd-commit.sh,target=/usr/local/bin/gen-containerd-commit \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,source=/src,target=/go/src/github.com/docker/docker,rw \

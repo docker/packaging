@@ -166,6 +166,7 @@ RUN xx-apt-get install -y gcc libc6-dev libapparmor-dev libnftables-dev libsecre
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,source=scripts/check-gomod.sh,target=/usr/local/bin/check-gomod \
     --mount=type=bind,from=scripts,source=gen-ver.sh,target=/usr/local/bin/gen-ver \
+    --mount=type=bind,from=scripts,source=gen-containerd-commit.sh,target=/usr/local/bin/gen-containerd-commit \
     --mount=type=bind,from=scripts,source=fix-cc.sh,target=/usr/local/bin/fix-cc \
     --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=engine-src,source=/src,target=/go/src/github.com/docker/docker,rw \

@@ -56,6 +56,9 @@ version="${version#v}"
 export GO111MODULE
 GO111MODULE=$(SRCDIR="${ENGINE_SRCDIR}" check-gomod)
 
+CONTAINERD_COMMIT=$(gen-containerd-commit "${ENGINE_SRCDIR}")
+export CONTAINERD_COMMIT
+
 xx-go --wrap
 fix-cc
 
