@@ -6,7 +6,7 @@ Homepage: https://www.docker.com
 Vcs-Browser: https://github.com/docker/docker-credential-helpers
 Vcs-Git: https://github.com/docker/docker-credential-helpers.git
 Standards-Version: 3.9.6
-Build-Depends: debhelper-compat (= 12),
+Build-Depends: debhelper-compat (= 13),
                gcc,
                libsecret-1-dev,
                make
