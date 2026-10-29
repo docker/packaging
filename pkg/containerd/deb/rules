@@ -61,10 +61,6 @@ override_dh_dwz:
 
 override_dh_auto_build: binaries bin/runc man
 
-override_dh_systemd_start:
-	dh_systemd_start --restart-after-upgrade
-	sed -i 's/_dh_action=try-restart/_dh_action=restart/g' ./debian/containerd.io.postinst.debhelper
-
 override_dh_auto_install: binaries bin/runc man
 	mkdir -p debian/containerd.io/usr/bin
 	install -D -p -m 0755 bin/* debian/containerd.io/usr/bin
