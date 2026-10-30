@@ -8,7 +8,7 @@ Vcs-Git: https://github.com/docker/docker-agent.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
                gcc,
-               debhelper-compat (= 12)
+               debhelper-compat (= 13)
 
 Package: docker-agent-plugin
 Priority: optional

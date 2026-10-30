@@ -7,7 +7,7 @@ Vcs-Browser: https://github.com/docker/model-runner
 Vcs-Git: https://github.com/docker/model-runner.git
 Standards-Version: 3.9.6
 Build-Depends: bash,
-               debhelper-compat (= 12),
+               debhelper-compat (= 13),
                make
 
 Package: docker-model-plugin
