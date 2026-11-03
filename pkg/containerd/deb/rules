@@ -48,11 +48,6 @@ man: ## Create containerd man pages
 	install -d man
 	install -D -p -m 0644 /go/src/github.com/containerd/containerd/man/* man
 
-# force packages to be built with xz compression, as Ubuntu 21.10 and up use
-# zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
-override_dh_builddeb:
-	dh_builddeb -- -Zxz
-
 # http://manpages.debian.org/dh_dwz
 override_dh_dwz:
 	# dh_dwz in debhelper versions less than 13 has issues with files that are missing debug symbols (once we update to debhelper-compat 13+ this can be removed)
