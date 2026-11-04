@@ -209,7 +209,6 @@ FROM build-base-static AS builder-static
 RUN apt-get install -y --no-install-recommends clang cmake gcc libc6-dev lld llvm make pkg-config
 ARG DOCKER_VERSION
 ARG DOCKER_PLATFORM_NAME
-ARG DOCKER_PRODUCT_LICENSE
 ARG PKG_NAME
 ARG PKG_REF
 ARG NIGHTLY_BUILD

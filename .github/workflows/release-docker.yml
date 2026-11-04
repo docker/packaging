@@ -69,7 +69,6 @@ jobs:
         PKG_REF=${{ inputs.engine-ref }}
         DOCKER_VERSION=${{ inputs.version }}
         DOCKER_PLATFORM_NAME=Docker Engine - Community
-        DOCKER_PRODUCT_LICENSE=Community Engine
         PKG_DEB_REVISION=${{ inputs.revision }}
         PKG_RPM_RELEASE=${{ inputs.revision }}
       dockerhub_username: dockereng
@@ -117,7 +116,6 @@ jobs:
         CLI_REF=${{ inputs.cli-ref }}
         DOCKER_VERSION=${{ inputs.version }}
         DOCKER_PLATFORM_NAME=Docker Engine - Community
-        DOCKER_PRODUCT_LICENSE=Community Engine
       dockerhub_username: dockereng
       dockerhub_oidc_connectionid: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
 
