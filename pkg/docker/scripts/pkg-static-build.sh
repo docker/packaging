@@ -69,11 +69,13 @@ binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
 engine_builddir="${BUILDDIR}/docker-engine"
 cli_builddir="${BUILDDIR}/docker-cli"
 runtime_builddir="${BUILDDIR}/docker-runtime"
+rootless_builddir="${BUILDDIR}/docker-rootless-extras"
 combined_builddir="${BUILDDIR}/docker"
 runtime_srcdir="${BUILDDIR}/runtime-src"
 containerd_srcdir="${runtime_srcdir}/containerd"
 runc_srcdir="${runtime_srcdir}/runc"
 runhcs_srcdir="${runtime_srcdir}/runhcs"
+rootlesskit_srcdir="${runtime_srcdir}/rootlesskit"
 mkdir -p "$engine_builddir" "$cli_builddir" "$runtime_builddir" "$combined_builddir" "$runtime_srcdir"
 
 dockerfile_arg() {
@@ -180,6 +182,21 @@ if [ "$(xx-info os)" = "linux" ]; then
   )
 fi
 
+if [ "$(xx-info os)" = "linux" ]; then
+  rootlesskit_version=$(dockerfile_arg ROOTLESSKIT_VERSION)
+
+  (
+    set -x
+    mkdir -p "$rootless_builddir"
+    fetch_git_ref "https://github.com/rootless-containers/rootlesskit.git" "$rootlesskit_version" "$rootlesskit_srcdir"
+    pushd "$rootlesskit_srcdir"
+      CGO_ENABLED=0 GO111MODULE=on go build -tags=urfave_cli_no_docs -o "${rootless_builddir}/rootlesskit" ./cmd/rootlesskit
+    popd
+    xx-verify --static "${rootless_builddir}/rootlesskit"
+    cp "${ENGINE_SRCDIR}/contrib/dockerd-rootless.sh" "${ENGINE_SRCDIR}/contrib/dockerd-rootless-setuptool.sh" "$rootless_builddir/"
+  )
+fi
+
 if [ "$(xx-info os)" = "windows" ]; then
   runhcs_ref=$(cat "${containerd_srcdir}/script/setup/runhcs-version")
 
@@ -242,3 +259,12 @@ else
   )
 fi
 write-sha256sum "$pkgfile"
+
+if [ "$(xx-info os)" = "linux" ]; then
+  rootless_pkgfile="${pkgoutput}/docker-rootless-extras-${version}.tgz"
+  (
+    set -x
+    tar -czf "$rootless_pkgfile" -C "$BUILDDIR" docker-rootless-extras
+  )
+  write-sha256sum "$rootless_pkgfile"
+fi
