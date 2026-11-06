@@ -56,6 +56,7 @@ override_dh_auto_install:
 	# [1]: https://manpages.debian.org/bookworm/bash-completion/dh_bash-completion.1.en.html
 	# [2]: https://manpages.debian.org/testing/dh-shell-completions/dh_shell_completions.1.en.html
 	# [3]: https://github.com/PowerShell/PowerShell/issues/17582
+	install -D -p -m 0644 cli/build/completion/bash/docker debian/docker-ce-cli/usr/share/bash-completion/completions/docker
 	install -D -p -m 0644 cli/build/completion/fish/docker.fish debian/docker-ce-cli/usr/share/fish/vendor_completions.d/docker.fish
 	install -D -p -m 0644 cli/build/completion/zsh/_docker debian/docker-ce-cli/usr/share/zsh/vendor-completions/_docker
 
