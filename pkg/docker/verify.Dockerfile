@@ -101,6 +101,9 @@ RUN --mount=from=bin,target=/build <<EOT
   containerd --version
   ctr --version
   runc --version
+  rootlesskit --version
+  test -x /usr/bin/dockerd-rootless.sh
+  test -x /usr/bin/dockerd-rootless-setuptool.sh
 EOT
 
 FROM verify-${DISTRO_TYPE}
