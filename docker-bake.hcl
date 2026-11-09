@@ -91,6 +91,8 @@ variable "PKG_PLATFORMS_BASE" {
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/docker-agent/blob/5b9feaabe743a5ad577f2247ed55d5dcb2678e8b/Taskfile.yml#L79
     agent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    # Linux packages only; darwin and windows ship through the source repo.
+    offload = ["linux/amd64", "linux/arm64"]
   }
 }
 
@@ -102,7 +104,8 @@ variable "PKG_PLATFORMS_EXTRA" {
 variable "PKG_DISTROS" {
   description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
   default = {
-    docker = ["static"]
+    docker  = ["static"]
+    offload = ["ubuntu2404", "ubuntu2604", "rockylinux8"]
   }
 }
 
@@ -690,6 +693,17 @@ target "_pkg-agent" {
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "trixie"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
+  }
+}
+
+# The source repo is private, so there is no PKG_REPO/PKG_REF clone. Offload is not in PKGS_BASE.
+# The offload repo adds it through PKGS_EXTRA in a remote override, and sets the VERSION, COMMIT,
+# BUILD and DATE args, the build-env secret and the src named context there.
+target "_pkg-offload" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-offload-plugin"
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "trixie"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
   }
 }
 
