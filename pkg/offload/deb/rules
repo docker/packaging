@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
+
+override_dh_auto_build:
+
+override_dh_auto_test:
+	ver="$$(/usr/libexec/docker/cli-plugins/docker-offload docker-cli-plugin-metadata | awk '{ gsub(/[",:]/,"")}; $$1 == "Version" { print $$2 }')"; \
+		test "$$ver" = "$(VERSION)" && echo "PASS" || (echo "FAIL: got '$$ver', want '$(VERSION)'" && exit 1)
+
+# The binary is prebuilt and its signature and attestation cover the exact bytes, so do not
+# strip or rewrite it.
+override_dh_strip:
+
+override_dh_dwz:
+
+override_dh_auto_install:
+	install -D -p -m 0755 /usr/libexec/docker/cli-plugins/docker-offload debian/docker-offload-plugin/usr/libexec/docker/cli-plugins/docker-offload
+
+%:
+	dh $@

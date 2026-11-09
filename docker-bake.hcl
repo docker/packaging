@@ -55,7 +55,8 @@ variable "PKGS_BASE" {
     "docker-cli",
     "docker-engine",
     "model",
-    "agent"
+    "agent",
+    "offload"
   ]
 }
 
@@ -91,6 +92,8 @@ variable "PKG_PLATFORMS_BASE" {
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/docker-agent/blob/5b9feaabe743a5ad577f2247ed55d5dcb2678e8b/Taskfile.yml#L79
     agent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    # Packages only the prebuilt linux binaries; darwin and windows ship through the source repo.
+    offload = ["linux/amd64", "linux/arm64"]
   }
 }
 
@@ -102,7 +105,8 @@ variable "PKG_PLATFORMS_EXTRA" {
 variable "PKG_DISTROS" {
   description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
   default = {
-    docker = ["static"]
+    docker  = ["static"]
+    offload = ["ubuntu2404", "ubuntu2604", "rockylinux8"]
   }
 }
 
@@ -209,6 +213,16 @@ variable "RUNC_REF" {
 variable "NIGHTLY_BUILD" {
   description = "Set to 1 to enforce nightly build."
   default = null
+}
+
+variable "VERSION" {
+  description = "Release tag of the prebuilt binaries to package, for example v0.7.48. Only used for the offload package, which packages prebuilt binaries instead of building from source."
+  default = null
+}
+
+variable "OFFLOAD_BIN" {
+  description = "Directory with the prebuilt docker-offload-linux-<arch> binaries. Only used for the offload package."
+  default = "./offload-bin"
 }
 
 variable "GO_IMAGE" {
@@ -690,6 +704,20 @@ target "_pkg-agent" {
     GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "trixie"
     PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
     PKG_REMOTE_DOCKERFILE = "Dockerfile"
+  }
+}
+
+# Packages prebuilt, signed docker-offload binaries from a private source repo. Does not
+# compile, so PKG_REPO/PKG_REF are not consumed here; the caller may still set them for
+# provenance.
+target "_pkg-offload" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-offload-plugin"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
+    VERSION = VERSION
+  }
+  contexts = {
+    offload-src = OFFLOAD_BIN
   }
 }
 
