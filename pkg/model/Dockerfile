@@ -51,6 +51,7 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG PKG_REPO
 RUN git init . && git remote add origin "${PKG_REPO}"
 ARG PKG_REF

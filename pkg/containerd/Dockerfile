@@ -63,6 +63,7 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG PKG_REPO
 RUN git init . && git remote add origin "${PKG_REPO}"
 ARG PKG_REF
@@ -78,6 +79,7 @@ RUN --mount=from=src,source=/src,target=/containerd \
 
 FROM src-base AS runc-src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG RUNC_REPO
 ARG RUNC_REF
 RUN git init . && git remote add origin "${RUNC_REPO}"
@@ -95,6 +97,7 @@ RUN --mount=from=runc-src,source=/src,target=/runc \
 
 FROM src-base AS runhcs-src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG RUNHCS_REPO
 ARG RUNHCS_REF
 RUN git init . && git remote add origin "${RUNHCS_REPO}"
