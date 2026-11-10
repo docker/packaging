@@ -57,7 +57,7 @@ mkdir -p "$cli_builddir"
   cd "${CLI_SRCDIR}"
   CGO_ENABLED=0 GO111MODULE=off PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION="${VERSION#v}" GITCOMMIT="${CLI_COMMIT:0:7}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
 )
-xx-verify --static "${cli_builddir}/docker"
+verify-static "${cli_builddir}/docker"
 
 pkgoutput="$OUTDIR/static/darwin/$(xx-info arch)"
 mkdir -p "$pkgoutput"
