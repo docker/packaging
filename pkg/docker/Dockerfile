@@ -62,6 +62,7 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS engine-src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG PKG_REPO
 RUN git init . && git remote add origin "${PKG_REPO}"
 ARG PKG_REF
@@ -69,6 +70,7 @@ RUN git fetch origin "${PKG_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags
 
 FROM src-base AS cli-src
 WORKDIR /src
+ARG GIT_ADVICE=0
 ARG CLI_REPO
 RUN git init . && git remote add origin "${CLI_REPO}"
 ARG CLI_REF
