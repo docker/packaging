@@ -22,12 +22,12 @@ ARG MD2MAN_VERSION="v2.0.2"
 ARG RUNC_REPO="https://github.com/opencontainers/runc.git"
 ARG RUNHCS_REPO="https://github.com/Microsoft/hcsshim.git"
 
-ARG DISTRO_NAME="debian12"
+ARG DISTRO_NAME="debian13"
 ARG DISTRO_TYPE="deb"
 ARG DISTRO_RELEASE="debian"
-ARG DISTRO_ID="12"
-ARG DISTRO_SUITE="bookworm"
-ARG DISTRO_IMAGE="debian:bookworm"
+ARG DISTRO_ID="13"
+ARG DISTRO_SUITE="trixie"
+ARG DISTRO_IMAGE="debian:trixie"
 
 ARG PKG_NAME="containerd"
 ARG PKG_REPO="https://github.com/containerd/containerd.git"
@@ -36,7 +36,7 @@ ARG PKG_REF="main"
 ARG GO_IMAGE="golang"
 # https://github.com/containerd/containerd/blob/release/2.4/.github/workflows/release/Dockerfile
 ARG GO_VERSION="1.27"
-ARG GO_IMAGE_VARIANT="bookworm"
+ARG GO_IMAGE_VARIANT="trixie"
 
 # stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
