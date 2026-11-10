@@ -16,12 +16,12 @@
 
 ARG XX_VERSION="1.9.0"
 
-ARG DISTRO_NAME="debian12"
+ARG DISTRO_NAME="debian13"
 ARG DISTRO_TYPE="deb"
 ARG DISTRO_RELEASE="debian"
-ARG DISTRO_SUITE="bookworm"
-ARG DISTRO_ID="12"
-ARG DISTRO_IMAGE="debian:bookworm"
+ARG DISTRO_SUITE="trixie"
+ARG DISTRO_ID="13"
+ARG DISTRO_IMAGE="debian:trixie"
 
 ARG PKG_NAME="docker-model-plugin"
 ARG PKG_REPO="https://github.com/docker/model-runner.git"
@@ -30,7 +30,7 @@ ARG PKG_REF="main"
 ARG GO_IMAGE="golang"
 # https://github.com/docker/model-runner/blob/main/cmd/cli/Dockerfile
 ARG GO_VERSION="1.26"
-ARG GO_IMAGE_VARIANT="bookworm"
+ARG GO_IMAGE_VARIANT="trixie"
 
 ARG TAGPREFIX=""
 

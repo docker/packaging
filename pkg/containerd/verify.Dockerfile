@@ -17,7 +17,7 @@
 ARG XX_VERSION="1.9.0"
 
 ARG DISTRO_TYPE="deb"
-ARG DISTRO_IMAGE="debian:bookworm"
+ARG DISTRO_IMAGE="debian:trixie"
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
