@@ -110,11 +110,11 @@ RUN --mount=from=bin,target=/build <<EOT
       set -x
       cd "${package%/*}"
       sha256sum -c "${package##*/}.sha256"
-      tar zxvf "${package##*/}" -C /usr/bin --strip-components=1
+      tar zxvf "${package##*/}" -C /usr/local --strip-components=1
     )
   done
   set -x
-  docker-agent version
+  /usr/local/libexec/docker/cli-plugins/docker-agent version
 EOT
 
 FROM verify-${DISTRO_TYPE}
