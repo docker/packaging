@@ -100,6 +100,9 @@ fetch_git_ref() {
   git -C "$dest" remote add origin "$repo"
   git -C "$dest" fetch --depth 1 origin "$ref"
   git -C "$dest" checkout -q FETCH_HEAD
+  # Fetch the tag too, if ref is one, so "git describe" in version strings
+  # reports it instead of a bare commit.
+  git -C "$dest" fetch --depth 1 origin "+refs/tags/${ref}:refs/tags/${ref}" || true
 }
 
 (
