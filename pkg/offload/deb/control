@@ -5,7 +5,8 @@ Maintainer: Docker <support@docker.com>
 Homepage: https://www.docker.com
 Standards-Version: 3.9.6
 Build-Depends: bash,
-               debhelper-compat (= 12)
+               debhelper-compat (= 12),
+               make
 
 Package: docker-offload-plugin
 Priority: optional

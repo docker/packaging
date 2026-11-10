@@ -16,6 +16,9 @@
 
 : "${NIGHTLY_BUILD=}"
 : "${VERSION=}"
+: "${COMMIT=}"
+: "${BUILD=}"
+: "${DATE=}"
 
 : "${DISTRO_NAME=}"
 : "${DISTRO_RELEASE=}"
@@ -30,7 +33,9 @@
 : "${PKG_DEB_EPOCH=}"
 
 : "${SOURCE_DATE_EPOCH=}"
+: "${SRCDIR=./offload}"
 : "${OUTDIR=/out}"
+: "${BUILD_ENV_FILE=}"
 
 set -e
 
@@ -38,12 +43,20 @@ if [ -z "$VERSION" ]; then
   echo >&2 "error: VERSION is required"
   exit 1
 fi
+case "$VERSION" in
+  v*) ;;
+  *) echo >&2 "error: VERSION must start with v, got $VERSION"; exit 1 ;;
+esac
 if [ -z "$DISTRO_NAME" ]; then
   echo >&2 "error: DISTRO_NAME is required"
   exit 1
 fi
 if [ -z "$OUTDIR" ]; then
   echo >&2 "error: OUTDIR is required"
+  exit 1
+fi
+if [ ! -f "${SRCDIR}/Makefile" ]; then
+  echo >&2 "error: no Makefile in ${SRCDIR}; pass the source tree as the src named context"
   exit 1
 fi
 
@@ -76,10 +89,7 @@ mkdir -p "${pkgoutput}"
 
 set -x
 
-# Install the prebuilt plugin. deb/rules packages it from here.
-install -D -p -m 0755 "/opt/offload-bin/docker-offload-linux-$(xx-info arch)" \
-  /usr/libexec/docker/cli-plugins/docker-offload
-
 chmod -x debian/control debian/copyright
-VERSION=${VERSION} dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
+VERSION=${VERSION} COMMIT=${COMMIT} BUILD=${BUILD} DATE=${DATE} BUILD_ENV_FILE=${BUILD_ENV_FILE} \
+  dpkg-buildpackage $PKG_DEB_BUILDFLAGS --host-arch $(xx-info debian-arch) --target-arch $(xx-info debian-arch)
 cp /root/docker-* "${pkgoutput}"/

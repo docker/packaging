@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Packages the signed docker-offload binaries from a GitHub release. Nothing is compiled here.
-
 ARG XX_VERSION="1.9.0"
 
 ARG DISTRO_NAME="debian12"
@@ -26,32 +24,43 @@ ARG DISTRO_ID="12"
 ARG DISTRO_IMAGE="debian:bookworm"
 
 ARG PKG_NAME="docker-offload-plugin"
-ARG VERSION
 
-# scripts from docker/packaging (gen-deb-changelog, rpm-init, rpm-builddep...)
+ARG GO_IMAGE="golang"
+# Must be the exact Go version of the release build, so the package build reproduces it.
+ARG GO_VERSION="1.27.3"
+ARG GO_IMAGE_VARIANT="bookworm"
+
+# stage used as named context that mounts hack/scripts
 # see pkg target in docker-bake.hcl
 FROM scratch AS scripts
+
+# The source tree is private and is passed in by the caller as the src named context, with
+# Go dependencies already vendored. There is no git clone fallback.
+FROM scratch AS src
 
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# Directory with docker-offload-linux-<arch>, overridden by the offload-src named context
-# in docker-bake.hcl.
-FROM scratch AS offload-src
+# go base image to retrieve /usr/local/go
+FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
-# A new BUILDER_EPOCH value refreshes the cached apt layers.
-ARG BUILDER_EPOCH
 COPY --from=xx / /
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ARG DISTRO_NAME
-RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash binutils ca-certificates devscripts equivs
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils bash ca-certificates devscripts equivs
 COPY deb /root/package/debian
 ARG TARGETPLATFORM
 RUN mk-build-deps -t "xx-apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" -i /root/package/debian/control
 WORKDIR /root/package
 ARG NIGHTLY_BUILD
 ARG VERSION
+ARG COMMIT
+ARG BUILD
+ARG DATE
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
@@ -63,16 +72,17 @@ ARG PKG_DEB_EPOCH
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
-    --mount=type=bind,from=offload-src,target=/opt/offload-bin <<EOT
-  set -e
-  OUTDIR=/out pkg-deb-build
-EOT
+    --mount=type=bind,from=src,target=/root/package/offload,rw \
+    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
+    --mount=type=secret,id=build-env,target=/run/secrets/build-env \
+    OUTDIR=/out SRCDIR=./offload BUILD_ENV_FILE=/run/secrets/build-env pkg-deb-build
 
 # rpm
 FROM ${DISTRO_IMAGE} AS builder-rpm
-# A new BUILDER_EPOCH value refreshes the cached dnf layers.
-ARG BUILDER_EPOCH
 COPY --from=xx / /
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
 ARG DISTRO_NAME
 RUN --mount=type=bind,from=scripts,source=rpm-init.sh,target=/usr/local/bin/rpm-init \
   rpm-init $DISTRO_NAME
@@ -83,6 +93,9 @@ RUN --mount=type=bind,from=scripts,source=rpm-builddep.sh,target=/usr/local/bin/
 WORKDIR /root/rpmbuild
 ARG NIGHTLY_BUILD
 ARG VERSION
+ARG COMMIT
+ARG BUILD
+ARG DATE
 ARG DISTRO_RELEASE
 ARG DISTRO_ID
 ARG DISTRO_SUITE
@@ -92,10 +105,10 @@ ARG PKG_RPM_BUILDFLAGS
 ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
-    --mount=type=bind,from=offload-src,target=/opt/offload-bin <<EOT
-  set -e
-  OUTDIR=/out pkg-rpm-build
-EOT
+    --mount=type=bind,from=src,target=/usr/local/src/offload,rw \
+    --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
+    --mount=type=secret,id=build-env,target=/run/secrets/build-env \
+    OUTDIR=/out SRCDIR=/usr/local/src/offload BUILD_ENV_FILE=/run/secrets/build-env pkg-rpm-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true

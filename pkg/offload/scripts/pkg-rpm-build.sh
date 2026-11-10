@@ -16,6 +16,9 @@
 
 : "${NIGHTLY_BUILD=}"
 : "${VERSION=}"
+: "${COMMIT=}"
+: "${BUILD=}"
+: "${DATE=}"
 
 : "${DISTRO_NAME=}"
 : "${DISTRO_RELEASE=}"
@@ -29,7 +32,9 @@
 : "${PKG_RPM_RELEASE=}"
 
 : "${SOURCE_DATE_EPOCH=}"
+: "${SRCDIR=/usr/local/src/offload}"
 : "${OUTDIR=/out}"
+: "${BUILD_ENV_FILE=}"
 
 set -e
 
@@ -37,12 +42,20 @@ if [ -z "$VERSION" ]; then
   echo >&2 "error: VERSION is required"
   exit 1
 fi
+case "$VERSION" in
+  v*) ;;
+  *) echo >&2 "error: VERSION must start with v, got $VERSION"; exit 1 ;;
+esac
 if [ -z "$DISTRO_NAME" ]; then
   echo >&2 "error: DISTRO_NAME is required"
   exit 1
 fi
 if [ -z "$OUTDIR" ]; then
   echo >&2 "error: OUTDIR is required"
+  exit 1
+fi
+if [ ! -f "${SRCDIR}/Makefile" ]; then
+  echo >&2 "error: no Makefile in ${SRCDIR}; pass the source tree as the src named context"
   exit 1
 fi
 
@@ -65,10 +78,17 @@ if [ -n "$NIGHTLY_BUILD" ]; then
 fi
 pkgVersion="${pkgVersion//-/$tilde}"
 
+# rpm rejects macros with an empty body, so optional values default to %{nil}.
+nil='%{nil}'
 rpmDefine=(
   --define "_version ${pkgVersion}"
   --define "_origversion ${VERSION}"
   --define "_release ${PKG_RPM_RELEASE:-1}"
+  --define "_srcdir ${SRCDIR}"
+  --define "_commit ${COMMIT:-$nil}"
+  --define "_build ${BUILD:-$nil}"
+  --define "_date ${DATE:-$nil}"
+  --define "_buildenvfile ${BUILD_ENV_FILE:-$nil}"
 )
 
 pkgoutput="${OUTDIR}/${DISTRO_RELEASE}/${DISTRO_SUITE}/$(xx-info arch)"
@@ -77,10 +97,6 @@ if [ -n "$(xx-info variant)" ]; then
 fi
 
 set -x
-
-# Install the prebuilt plugin. The spec packages it from here.
-install -D -p -m 0755 "/opt/offload-bin/docker-offload-linux-$(xx-info arch)" \
-  /usr/local/libexec/docker/cli-plugins/docker-offload
 
 rpmbuild --target $(xx-info rhel-arch) $PKG_RPM_BUILDFLAGS "${rpmDefine[@]}" /root/rpmbuild/SPECS/*.spec
 mkdir -p "${pkgoutput}"
