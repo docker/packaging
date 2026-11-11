@@ -36,5 +36,7 @@ esac
 (
   set -x
   cd "$dir"
-  sha256sum --binary "$name" > "${name}.sha256"
+  # Write both sha256sum-compatible and bare-digest checksums.
+  sha256sum --binary "$name" > "${name}.sha256sum"
+  cut -d ' ' -f 1 "${name}.sha256sum" > "${name}.sha256"
 )
