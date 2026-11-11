@@ -122,7 +122,7 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       cd "${package%/*}"
-      sha256sum -c "${package##*/}.sha256"
+      sha256sum -c "${package##*/}.sha256sum"
       tar zxvf "${package##*/}" -C /usr/local --strip-components=1
     )
   done
