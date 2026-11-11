@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG XX_VERSION="1.9.0"
+ARG XX_VERSION="1.10.0"
 
 # https://github.com/containerd/containerd/blob/main/.github/workflows/ci.yml#L111
 ARG MD2MAN_VERSION="v2.0.2"
