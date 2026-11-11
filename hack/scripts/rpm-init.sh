@@ -88,7 +88,9 @@ case "$pkgrelease" in
     ;;
   rhel*)
     # skipping rpmlint as it requires dependencies not available in ubi images
-    dnf install -y git rpm-build dnf-plugins-core
+    # UBI images can ship newer RPM packages than their repositories provide.
+    # Allow removing conflicting packages so RPM can match rpm-build's version.
+    dnf install -y --allowerasing git rpm-build dnf-plugins-core
     ;;
 esac
 

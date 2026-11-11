@@ -52,7 +52,13 @@ case "$pkgrelease" in
     dnf config-manager --enable ol10_addons ol10_codeready_builder
     dnf install -y findutils
     ;;
-  fedora*|rhel*)
+  rhel*)
+    # UBI images can ship newer RPM packages than their repositories provide.
+    # Align RPM before package dependencies pull in plugins such as SELinux.
+    dnf distro-sync -y --allowerasing 'rpm*'
+    dnf install -y findutils dnf-plugins-core
+    ;;
+  fedora*)
     dnf install -y findutils dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
