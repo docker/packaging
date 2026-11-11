@@ -36,5 +36,5 @@ esac
 (
   set -x
   cd "$dir"
-  sha256sum --binary "$name" > "${name}.sha256"
+  sha256sum --binary "$name" > "${name}.sha256sum"
 )

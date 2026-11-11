@@ -48,7 +48,7 @@ RUN --mount=from=bin,target=/build <<EOT
       (
         set -x
         cd "${package%/*}"
-        sha256sum -c "${package##*/}.sha256"
+        sha256sum -c "${package##*/}.sha256sum"
         workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
         tar zxvf "${package##*/}" -C "$workdir"
         xx-verify --static "$workdir/docker/docker"
@@ -70,7 +70,7 @@ RUN --mount=from=bin,target=/build <<EOT
       (
         set -x
         cd "${package%/*}"
-        sha256sum -c "${package##*/}.sha256"
+        sha256sum -c "${package##*/}.sha256sum"
         unzip -l "${package##*/}"
         workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
         unzip -q "${package##*/}" -d $workdir
@@ -91,7 +91,7 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       cd "${package%/*}"
-      sha256sum -c "${package##*/}.sha256"
+      sha256sum -c "${package##*/}.sha256sum"
       tar zxvf "${package##*/}" -C /usr/bin --strip-components=1
     )
   done
