@@ -88,7 +88,10 @@ case "$pkgrelease" in
     ;;
   rhel*)
     # skipping rpmlint as it requires dependencies not available in ubi images
-    dnf install -y git rpm-build dnf-plugins-core
+    # --allowerasing: a ubi image can be ahead of the ubi repositories (e.g. rpm
+    # installed in a newer version than the one rpm-build requires), dnf then
+    # has to downgrade it
+    dnf install -y --allowerasing git rpm-build dnf-plugins-core
     ;;
 esac
 
