@@ -68,24 +68,24 @@ mkdir -p "${pkgoutput}"
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}/cli-plugins" "$workdir/${pkgname}/doc"
+  mkdir -p "$workdir/cli-plugins" "$workdir/doc"
   (
     set -x
-    cp "${pkgname}"/* "$workdir/${pkgname}/cli-plugins/"
-    cp "${SRCDIR}/LICENSE" "$workdir/${pkgname}/doc/"
+    cp "${pkgname}"/* "$workdir/cli-plugins/"
+    cp "${SRCDIR}/LICENSE" "$workdir/doc/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
     pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip"
     (
       set -x
       cd "$workdir"
-      zip -r "$pkgfile" "${pkgname}"
+      zip -r "$pkgfile" cli-plugins doc
     )
   else
     pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz"
     (
       set -x
-      tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
+      tar -czf "$pkgfile" -C "$workdir" cli-plugins doc
     )
   fi
   write-sha256sum "$pkgfile"

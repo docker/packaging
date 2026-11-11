@@ -113,8 +113,8 @@ RUN --mount=from=bin,target=/build <<EOT
       pkgname="${package##*/}"
       pkgname="${pkgname%%_*}"
       mkdir -p "/usr/local/share/doc/${pkgname}"
-      tar zxvf "${package##*/}" -C /usr/local/bin --strip-components=2 "${pkgname}/bin"
-      tar zxvf "${package##*/}" -C "/usr/local/share/doc/${pkgname}" --strip-components=2 "${pkgname}/doc"
+      tar zxvf "${package##*/}" -C /usr/local/bin --strip-components=1 bin
+      tar zxvf "${package##*/}" -C "/usr/local/share/doc/${pkgname}" --strip-components=1 doc
     )
   done
   set -x

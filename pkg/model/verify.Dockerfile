@@ -113,8 +113,8 @@ RUN --mount=from=bin,target=/build <<EOT
       pkgname="${package##*/}"
       pkgname="${pkgname%%_*}"
       mkdir -p /usr/local/libexec/docker/cli-plugins "/usr/local/share/doc/${pkgname}"
-      tar zxvf "${package##*/}" -C /usr/local/libexec/docker/cli-plugins --strip-components=2 "${pkgname}/cli-plugins"
-      tar zxvf "${package##*/}" -C "/usr/local/share/doc/${pkgname}" --strip-components=2 "${pkgname}/doc"
+      tar zxvf "${package##*/}" -C /usr/local/libexec/docker/cli-plugins --strip-components=1 cli-plugins
+      tar zxvf "${package##*/}" -C "/usr/local/share/doc/${pkgname}" --strip-components=1 doc
     )
   done
   set -x
