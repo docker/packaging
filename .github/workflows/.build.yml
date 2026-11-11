@@ -374,11 +374,11 @@ jobs:
           rm -rf /tmp/release-squashed
       -
         name: Prepare release
-        env:
-          BUILD_METADATA: ${{ steps.build.outputs.metadata }}
         run: |
-          printf '%s\n' "$BUILD_METADATA" > /tmp/release-metadata.json
-          
+          cat > "/tmp/release-metadata.json" <<-'EOF'
+          ${{ steps.build.outputs.metadata }}
+          EOF
+
           for tag in $(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
             echo "* \`${tag}\`" >> /tmp/tags.txt
           done
