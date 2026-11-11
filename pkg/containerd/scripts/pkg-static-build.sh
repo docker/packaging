@@ -120,17 +120,17 @@ mkdir -p "${pkgoutput}"
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}/bin" "$workdir/${pkgname}/share/doc/${pkgname}"
+  mkdir -p "$workdir/${pkgname}/bin" "$workdir/${pkgname}/doc"
   (
     set -x
     cp "${pkgname}"/* "$workdir/${pkgname}/bin/"
-    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/${pkgname}/share/doc/${pkgname}/"
+    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/${pkgname}/doc/"
     if [ "$(xx-info os)" = "windows" ]; then
-      cp "${RUNHCS_SRCDIR}/LICENSE" "$workdir/${pkgname}/share/doc/${pkgname}/runhcs.LICENSE"
-      cp "${RUNHCS_SRCDIR}/README.md" "$workdir/${pkgname}/share/doc/${pkgname}/runhcs.README.md"
+      cp "${RUNHCS_SRCDIR}/LICENSE" "$workdir/${pkgname}/doc/runhcs.LICENSE"
+      cp "${RUNHCS_SRCDIR}/README.md" "$workdir/${pkgname}/doc/runhcs.README.md"
     else
-      cp "${RUNC_SRCDIR}/LICENSE" "$workdir/${pkgname}/share/doc/${pkgname}/runc.LICENSE"
-      cp "${RUNC_SRCDIR}/README.md" "$workdir/${pkgname}/share/doc/${pkgname}/runc.README.md"
+      cp "${RUNC_SRCDIR}/LICENSE" "$workdir/${pkgname}/doc/runc.LICENSE"
+      cp "${RUNC_SRCDIR}/README.md" "$workdir/${pkgname}/doc/runc.README.md"
     fi
   )
   if [ "$(xx-info os)" = "windows" ]; then
