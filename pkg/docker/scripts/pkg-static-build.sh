@@ -114,9 +114,9 @@ fetch_git_ref() {
       mv "./bundles/binary-daemon/docker-proxy${binext}" "${engine_builddir}/"
     fi
   popd
-  xx-verify --static "${engine_builddir}/dockerd${binext}"
+  verify-static "${engine_builddir}/dockerd${binext}"
   if [ "$(xx-info os)" != "windows" ]; then
-    xx-verify --static "${engine_builddir}/docker-proxy${binext}"
+    verify-static "${engine_builddir}/docker-proxy${binext}"
   fi
 )
 
@@ -128,7 +128,7 @@ if [ "$(xx-info os)" != "windows" ]; then
       # FIXME: can't use clang with tini
       CC=$(xx-info)-gcc PREFIX="${engine_builddir}" TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
     popd
-    xx-verify --static "${engine_builddir}/docker-init"
+    verify-static "${engine_builddir}/docker-init"
   )
 fi
 
@@ -137,7 +137,7 @@ fi
   pushd "${CLI_SRCDIR}"
     CGO_ENABLED=0 GO111MODULE=off PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION="${version}" GITCOMMIT="${CLI_GENVER_COMMIT_SHORT}" GO_LINKMODE=static TARGET="${cli_builddir}" ./scripts/build/binary
   popd
-  xx-verify --static "${cli_builddir}/docker"
+  verify-static "${cli_builddir}/docker"
 )
 
 if [ "$(xx-info os)" = "linux" ] || [ "$(xx-info os)" = "windows" ]; then
@@ -162,10 +162,10 @@ if [ "$(xx-info os)" = "linux" ] || [ "$(xx-info os)" = "windows" ]; then
       mv "${runtime_builddir}/containerd" "${runtime_builddir}/containerd.exe"
       mv "${runtime_builddir}/ctr" "${runtime_builddir}/ctr.exe"
     fi
-    xx-verify --static "${runtime_builddir}/containerd${binext}"
-    xx-verify --static "${runtime_builddir}/ctr${binext}"
+    verify-static "${runtime_builddir}/containerd${binext}"
+    verify-static "${runtime_builddir}/ctr${binext}"
     if [ "$(xx-info os)" = "linux" ]; then
-      xx-verify --static "${runtime_builddir}/containerd-shim-runc-v2"
+      verify-static "${runtime_builddir}/containerd-shim-runc-v2"
     fi
   )
 fi
@@ -181,7 +181,7 @@ if [ "$(xx-info os)" = "linux" ]; then
       CGO_ENABLED=1 GO111MODULE=on make RUNC_BUILDTAGS="-libpathrs" static
       mv runc "$runtime_builddir/"
     popd
-    xx-verify --static "${runtime_builddir}/runc"
+    verify-static "${runtime_builddir}/runc"
   )
 fi
 
@@ -195,7 +195,7 @@ if [ "$(xx-info os)" = "linux" ]; then
     pushd "$rootlesskit_srcdir"
       CGO_ENABLED=0 GO111MODULE=on go build -tags=urfave_cli_no_docs -o "${rootless_builddir}/rootlesskit" ./cmd/rootlesskit
     popd
-    xx-verify --static "${rootless_builddir}/rootlesskit"
+    verify-static "${rootless_builddir}/rootlesskit"
     cp "${ENGINE_SRCDIR}/contrib/dockerd-rootless.sh" "${ENGINE_SRCDIR}/contrib/dockerd-rootless-setuptool.sh" "$rootless_builddir/"
   )
 fi
@@ -209,7 +209,7 @@ if [ "$(xx-info os)" = "windows" ]; then
     pushd "$runhcs_srcdir"
       GO111MODULE=on go build -mod=vendor -o "${runtime_builddir}/containerd-shim-runhcs-v1.exe" ./cmd/containerd-shim-runhcs-v1
     popd
-    xx-verify --static "${runtime_builddir}/containerd-shim-runhcs-v1.exe"
+    verify-static "${runtime_builddir}/containerd-shim-runhcs-v1.exe"
   )
 fi
 

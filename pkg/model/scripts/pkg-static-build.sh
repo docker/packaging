@@ -56,7 +56,7 @@ binext=$([ "$(xx-info os)" = "windows" ] && echo ".exe" || true)
   if [ "$(xx-info os)" = "windows" ]; then
     mv "${BUILDDIR}/${PKG_NAME}/docker-model" "${BUILDDIR}/${PKG_NAME}/docker-model.exe"
   fi
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-model${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/docker-model${binext}"
 )
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"

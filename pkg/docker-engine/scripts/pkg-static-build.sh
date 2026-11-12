@@ -67,9 +67,9 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
       mv "./bundles/binary-daemon/docker-proxy${binext}" "${BUILDDIR}/${PKG_NAME}/"
     fi
   popd
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/dockerd${binext}"
   if [ "$(xx-info os)" != "windows" ]; then
-    xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
+    verify-static "${BUILDDIR}/${PKG_NAME}/docker-proxy${binext}"
   fi
 )
 
@@ -81,7 +81,7 @@ if [ "$(xx-info os)" != "windows" ]; then
       # FIXME: can't use clang with tini
       CC=$(xx-info)-gcc PREFIX="${BUILDDIR}/${PKG_NAME}" TMP_GOPATH="/go" hack/dockerfile/install/install.sh tini
     popd
-    xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-init"
+    verify-static "${BUILDDIR}/${PKG_NAME}/docker-init"
   )
 fi
 

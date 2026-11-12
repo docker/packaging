@@ -67,7 +67,7 @@ clibin="docker${binext}"
   pushd ${SRCDIR}
     PLATFORM="${DOCKER_PLATFORM_NAME}" VERSION=${GENVER_VERSION#v} GITCOMMIT=${GENVER_COMMIT_SHORT} GO_LINKMODE=static TARGET=${BUILDDIR}/${PKG_NAME} ./scripts/build/binary
   popd
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker"
+  verify-static "${BUILDDIR}/${PKG_NAME}/docker"
 )
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"

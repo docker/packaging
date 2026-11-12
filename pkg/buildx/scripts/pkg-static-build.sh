@@ -55,7 +55,7 @@ mkdir -p ${BUILDDIR}/${PKG_NAME}
     go build -trimpath -ldflags="-s -w -X ${MODULE_NAME}/version.Version=${GENVER_VERSION} -X ${MODULE_NAME}/version.Revision=${GENVER_COMMIT} -X ${MODULE_NAME}/version.Package=${MODULE_NAME}" -o /tmp/buildx-build/docker-buildx ./cmd/buildx
     mv "/tmp/buildx-build/docker-buildx" "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
   popd
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/docker-buildx${binext}"
 )
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"

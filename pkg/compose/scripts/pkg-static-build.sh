@@ -60,7 +60,7 @@ fi
   if [ "$(xx-info os)" = "windows" ]; then
     mv "${BUILDDIR}/${PKG_NAME}/docker-compose" "${BUILDDIR}/${PKG_NAME}/docker-compose.exe"
   fi
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/docker-compose${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/docker-compose${binext}"
 )
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"

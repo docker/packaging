@@ -75,11 +75,11 @@ fi
     mv "${BUILDDIR}/${PKG_NAME}/containerd" "${BUILDDIR}/${PKG_NAME}/containerd.exe"
     mv "${BUILDDIR}/${PKG_NAME}/ctr" "${BUILDDIR}/${PKG_NAME}/ctr.exe"
   fi
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/containerd${binext}"
   if [ "$(xx-info os)" != "windows" ]; then
-    xx-verify --static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2${binext}"
+    verify-static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runc-v2${binext}"
   fi
-  xx-verify --static "${BUILDDIR}/${PKG_NAME}/ctr${binext}"
+  verify-static "${BUILDDIR}/${PKG_NAME}/ctr${binext}"
 )
 
 if [ "$(xx-info os)" = "windows" ]; then
@@ -88,7 +88,7 @@ if [ "$(xx-info os)" = "windows" ]; then
     pushd ${RUNHCS_SRCDIR}
       GO111MODULE=on go build -mod=vendor -o "${BUILDDIR}/${PKG_NAME}/containerd-shim-runhcs-v1.exe" ./cmd/containerd-shim-runhcs-v1
     popd
-    xx-verify --static  "${BUILDDIR}/${PKG_NAME}/containerd-shim-runhcs-v1.exe"
+    verify-static "${BUILDDIR}/${PKG_NAME}/containerd-shim-runhcs-v1.exe"
   )
 else
   (
@@ -107,7 +107,7 @@ else
       make RUNC_BUILDTAGS="-libpathrs" static
       mv runc "${BUILDDIR}/${PKG_NAME}"
     popd
-    xx-verify --static  "${BUILDDIR}/${PKG_NAME}/runc"
+    verify-static "${BUILDDIR}/${PKG_NAME}/runc"
   )
 fi
 
