@@ -30,7 +30,7 @@ ARG PKG_REF="main"
 
 ARG GO_IMAGE="golang"
 # https://github.com/docker/docker-credential-helpers/blob/main/Dockerfile
-ARG GO_VERSION="1.26"
+ARG GO_VERSION="1.27"
 ARG GO_IMAGE_VARIANT="trixie"
 
 # stage used as named context that mounts hack/scripts
