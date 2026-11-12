@@ -55,7 +55,8 @@ variable "PKGS_BASE" {
     "docker-cli",
     "docker-engine",
     "model",
-    "agent"
+    "agent",
+    "offload"
   ]
 }
 
@@ -91,6 +92,8 @@ variable "PKG_PLATFORMS_BASE" {
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/docker-agent/blob/5b9feaabe743a5ad577f2247ed55d5dcb2678e8b/Taskfile.yml#L79
     agent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
+    # Linux packages only; darwin and windows ship through the source repo.
+    offload = ["linux/amd64", "linux/arm64"]
   }
 }
 
@@ -102,7 +105,8 @@ variable "PKG_PLATFORMS_EXTRA" {
 variable "PKG_DISTROS" {
   description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
   default = {
-    docker = ["static"]
+    docker  = ["static"]
+    offload = ["ubuntu2404", "ubuntu2604", "rockylinux8"]
   }
 }
 
@@ -208,6 +212,28 @@ variable "RUNC_REF" {
 
 variable "NIGHTLY_BUILD" {
   description = "Set to 1 to enforce nightly build."
+  default = null
+}
+
+variable "VERSION" {
+  description = "Version to build, with v prefix, for example v0.7.52. Only used for the offload package, whose source tree is passed in as the src named context."
+  default = null
+}
+variable "COMMIT" {
+  description = "Short commit of the source tree. Only used for the offload package."
+  default = null
+}
+variable "BUILD" {
+  description = "Build number of the release build. Only used for the offload package."
+  default = null
+}
+variable "DATE" {
+  description = "Commit date of the release tag (YYYY-MM-DD). Only used for the offload package."
+  default = null
+}
+
+variable "PKG_BUILD_ENV_FILE" {
+  description = "File with build secrets, passed to the package build as the build-env secret. Only read by packages that mount it."
   default = null
 }
 
@@ -693,6 +719,20 @@ target "_pkg-agent" {
   }
 }
 
+# The source repo is private, so there is no PKG_REPO/PKG_REF clone. The caller passes the
+# vendored source tree as the src named context, and builds are run from the source repo.
+target "_pkg-offload" {
+  args = {
+    PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-offload-plugin"
+    GO_IMAGE_VARIANT = GO_IMAGE_VARIANT != null && GO_IMAGE_VARIANT != "" ? GO_IMAGE_VARIANT : "trixie"
+    PKG_DEB_EPOCH = PKG_DEB_EPOCH != null && PKG_DEB_EPOCH != "" ? PKG_DEB_EPOCH : ""
+    VERSION = VERSION
+    COMMIT = COMMIT
+    BUILD = BUILD
+    DATE = DATE
+  }
+}
+
 # Returns the list of supported platforms for a given package.
 function "pkgPlatforms" {
   params = [pkg]
@@ -760,7 +800,7 @@ target "pkg" {
   # BAKE_LOCAL_PLATFORM is a built-in var returning the current platform's
   # default platform specification: https://docs.docker.com/build/customize/bake/file-definition/#built-in-variables
   platforms = LOCAL_PLATFORM != null ? [BAKE_LOCAL_PLATFORM] : distroPlatforms(item.distro, item.pkg)
-  secret = distroSecrets(item.distro)
+  secret = concat(distroSecrets(item.distro), PKG_BUILD_ENV_FILE != null && PKG_BUILD_ENV_FILE != "" ? ["type=file,id=build-env,src=${PKG_BUILD_ENV_FILE}"] : [])
   attest = [
     "type=sbom",
     "type=provenance,mode=max"

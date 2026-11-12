@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+# force packages to be built with xz compression, as Ubuntu 21.10 and up use
+# zstd compression, which is non-standard, and breaks 'dpkg-sig --verify'
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
+
+override_dh_auto_build:
+	make -C $(CURDIR)/offload ce-release VERSION=$(VERSION) COMMIT=$(COMMIT) BUILD=$(BUILD) DATE=$(DATE) BUILD_ENV_FILE=$(BUILD_ENV_FILE)
+
+override_dh_auto_test:
+	ver="$$($(CURDIR)/offload/dist/docker-offload docker-cli-plugin-metadata | awk '{ gsub(/[",:]/,"")}; $$1 == "Version" { print $$2 }')"; \
+		test "$$ver" = "$(VERSION)" && echo "PASS: docker-offload version OK" || (echo "FAIL: docker-offload version ($$ver) did not match $(VERSION)" && exit 1)
+
+# The build is reproducible, and the packaged binary is checked against the release
+# checksums, so do not strip or otherwise rewrite it after the build.
+override_dh_strip:
+
+override_dh_dwz:
+
+override_dh_auto_install:
+	install -D -p -m 0755 $(CURDIR)/offload/dist/docker-offload debian/docker-offload-plugin/usr/libexec/docker/cli-plugins/docker-offload
+
+%:
+	dh $@
