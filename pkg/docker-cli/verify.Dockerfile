@@ -110,7 +110,11 @@ RUN --mount=from=bin,target=/build <<EOT
       set -x
       cd "${package%/*}"
       sha256sum -c "${package##*/}.sha256"
-      tar zxvf "${package##*/}" -C /usr/local --strip-components=1
+      pkgname="${package##*/}"
+      pkgname="${pkgname%%_*}"
+      mkdir -p "/usr/local/share/doc/${pkgname}"
+      tar zxvf "${package##*/}" -C /usr/local/bin --strip-components=1 bin
+      tar zxvf "${package##*/}" -C "/usr/local/share/doc/${pkgname}" --strip-components=1 doc
     )
   done
   set -x

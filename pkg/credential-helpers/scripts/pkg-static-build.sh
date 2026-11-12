@@ -94,24 +94,24 @@ mkdir -p "${pkgoutput}"
 cd "$BUILDDIR"
 for pkgname in *; do
   workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-  mkdir -p "$workdir/${pkgname}/bin" "$workdir/${pkgname}/share/doc/${pkgname}"
+  mkdir -p "$workdir/bin" "$workdir/doc"
   (
     set -x
-    cp "${pkgname}"/* "$workdir/${pkgname}/bin/"
-    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/${pkgname}/share/doc/${pkgname}/"
+    cp "${pkgname}"/* "$workdir/bin/"
+    cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/doc/"
   )
   if [ "$(xx-info os)" = "windows" ]; then
     pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.zip"
     (
       set -x
       cd "$workdir"
-      zip -r "$pkgfile" "${pkgname}"
+      zip -r "$pkgfile" bin doc
     )
   else
     pkgfile="${pkgoutput}/${pkgname}_${GENVER_VERSION#v}.tgz"
     (
       set -x
-      tar -czf "$pkgfile" -C "$workdir" "${pkgname}"
+      tar -czf "$pkgfile" -C "$workdir" bin doc
     )
   fi
   write-sha256sum "$pkgfile"
