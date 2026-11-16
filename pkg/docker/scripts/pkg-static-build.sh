@@ -140,7 +140,9 @@ fi
   xx-verify --static "${cli_builddir}/docker"
 )
 
-if [ "$(xx-info os)" = "linux" ] || [ "$(xx-info os)" = "windows" ]; then
+# The Windows archive does not bundle containerd.exe or ctr.exe, only the
+# runhcs shim.
+if [ "$(xx-info os)" = "linux" ]; then
   containerd_version=$(dockerfile_arg CONTAINERD_VERSION)
 
   (
@@ -149,28 +151,15 @@ if [ "$(xx-info os)" = "linux" ] || [ "$(xx-info os)" = "windows" ]; then
     containerd_revision=$(git -C "$containerd_srcdir" rev-parse HEAD)
     pushd "$containerd_srcdir"
       CC="$(xx-info)-gcc" CGO_ENABLED=0 GO111MODULE=on make STATIC=1 VERSION="${containerd_version}" REVISION="${containerd_revision}" bin/containerd
-      if [ "$(xx-info os)" = "linux" ]; then
-        CC="$(xx-info)-gcc" CGO_ENABLED=0 GO111MODULE=on make STATIC=1 VERSION="${containerd_version}" REVISION="${containerd_revision}" bin/containerd-shim-runc-v2
-      fi
+      CC="$(xx-info)-gcc" CGO_ENABLED=0 GO111MODULE=on make STATIC=1 VERSION="${containerd_version}" REVISION="${containerd_revision}" bin/containerd-shim-runc-v2
       CC="$(xx-info)-gcc" CGO_ENABLED=0 GO111MODULE=on make STATIC=1 VERSION="${containerd_version}" REVISION="${containerd_revision}" bin/ctr
-      mv bin/containerd bin/ctr "$runtime_builddir/"
-      if [ "$(xx-info os)" = "linux" ]; then
-        mv bin/containerd-shim-runc-v2 "$runtime_builddir/"
-      fi
+      mv bin/containerd bin/containerd-shim-runc-v2 bin/ctr "$runtime_builddir/"
     popd
-    if [ "$(xx-info os)" = "windows" ]; then
-      mv "${runtime_builddir}/containerd" "${runtime_builddir}/containerd.exe"
-      mv "${runtime_builddir}/ctr" "${runtime_builddir}/ctr.exe"
-    fi
-    xx-verify --static "${runtime_builddir}/containerd${binext}"
-    xx-verify --static "${runtime_builddir}/ctr${binext}"
-    if [ "$(xx-info os)" = "linux" ]; then
-      xx-verify --static "${runtime_builddir}/containerd-shim-runc-v2"
-    fi
+    xx-verify --static "${runtime_builddir}/containerd"
+    xx-verify --static "${runtime_builddir}/ctr"
+    xx-verify --static "${runtime_builddir}/containerd-shim-runc-v2"
   )
-fi
 
-if [ "$(xx-info os)" = "linux" ]; then
   runc_version=$(dockerfile_arg RUNC_VERSION)
 
   (
@@ -201,10 +190,13 @@ if [ "$(xx-info os)" = "linux" ]; then
 fi
 
 if [ "$(xx-info os)" = "windows" ]; then
-  runhcs_ref=$(cat "${containerd_srcdir}/script/setup/runhcs-version")
+  containerd_version=$(dockerfile_arg CONTAINERD_VERSION)
 
   (
     set -x
+    # containerd is fetched only for the runhcs version it pins.
+    fetch_git_ref "https://github.com/containerd/containerd.git" "$containerd_version" "$containerd_srcdir"
+    runhcs_ref=$(cat "${containerd_srcdir}/script/setup/runhcs-version")
     fetch_git_ref "https://github.com/Microsoft/hcsshim.git" "$runhcs_ref" "$runhcs_srcdir"
     pushd "$runhcs_srcdir"
       GO111MODULE=on go build -mod=vendor -o "${runtime_builddir}/containerd-shim-runhcs-v1.exe" ./cmd/containerd-shim-runhcs-v1
@@ -234,7 +226,7 @@ mkdir -p "$workdir/docker"
   cp "${ENGINE_SRCDIR}/README.md" "$workdir/docker/engine.README.md"
   cp "${CLI_SRCDIR}/LICENSE" "$workdir/docker/cli.LICENSE"
   cp "${CLI_SRCDIR}/README.md" "$workdir/docker/cli.README.md"
-  if [ -d "$containerd_srcdir" ]; then
+  if [ "$(xx-info os)" = "linux" ]; then
     cp "${containerd_srcdir}/LICENSE" "$workdir/docker/containerd.LICENSE"
     cp "${containerd_srcdir}/README.md" "$workdir/docker/containerd.README.md"
   fi
