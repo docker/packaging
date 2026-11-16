@@ -23,12 +23,30 @@ fi
 
 set -e
 
-if [[ "$pkgrelease" = rockylinux* ]]; then
+dnfRetry() {
+  local attempt status
+  for attempt in 1 2 3; do
+    if dnf "$@"; then
+      return 0
+    else
+      status=$?
+    fi
+    if [ "$attempt" -eq 3 ]; then
+      return "$status"
+    fi
+    echo "dnf $* failed (attempt $attempt/3), retrying in $((attempt * 5)) seconds..." >&2
+    dnf clean metadata
+    sleep "$((attempt * 5))"
+  done
+}
+
+if [[ "$pkgrelease" = rockylinux* ]] || [[ "$pkgrelease" = almalinux* ]]; then
   # disable mirrors for better stability
   for repo in /etc/yum.repos.d/*.repo; do
     sed -i \
       -e 's/^\(mirrorlist=.*\)$/#\1/' \
-      -e 's/^#\(baseurl=.*\)$/\1/' \
+      -e 's/^#[[:space:]]*\(baseurl=.*\)$/\1/' \
+      -e 's|^baseurl=http://repo.almalinux.org/|baseurl=https://repo.almalinux.org/|' \
       "$repo"
   done
 fi
@@ -36,37 +54,37 @@ fi
 case "$pkgrelease" in
   centos9)
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-    dnf install -y findutils dnf-plugins-core epel-release epel-next-release
+    dnfRetry install -y findutils dnf-plugins-core epel-release epel-next-release
     dnf config-manager --set-enabled crb
     ;;
   oraclelinux8)
-    dnf install -y findutils dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
+    dnfRetry install -y findutils dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
     dnf config-manager --enable ol8_addons ol8_codeready_builder
     ;;
   oraclelinux9)
-    dnf install -y findutils dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
+    dnfRetry install -y findutils dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
     dnf config-manager --enable ol9_addons ol9_codeready_builder
     ;;
   oraclelinux10)
-    dnf install -y dnf-plugins-core oraclelinux-release-el10 oracle-epel-release-el10
+    dnfRetry install -y dnf-plugins-core oraclelinux-release-el10 oracle-epel-release-el10
     dnf config-manager --enable ol10_addons ol10_codeready_builder
-    dnf install -y findutils
+    dnfRetry install -y findutils
     ;;
   rhel*)
     # UBI images can ship newer RPM packages than their repositories provide.
     # Align RPM before package dependencies pull in plugins such as SELinux.
-    dnf distro-sync -y --allowerasing 'rpm*'
-    dnf install -y findutils dnf-plugins-core
+    dnfRetry distro-sync -y --allowerasing 'rpm*'
+    dnfRetry install -y findutils dnf-plugins-core
     ;;
   fedora*)
-    dnf install -y findutils dnf-plugins-core
+    dnfRetry install -y findutils dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
-    dnf install -y findutils dnf-plugins-core epel-release
+    dnfRetry install -y findutils dnf-plugins-core epel-release
     dnf config-manager --set-enabled powertools
     ;;
   rockylinux*|almalinux*)
-    dnf install -y findutils dnf-plugins-core epel-release
+    dnfRetry install -y findutils dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     ;;
 esac
