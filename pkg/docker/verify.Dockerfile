@@ -52,9 +52,7 @@ RUN --mount=from=bin,target=/build <<EOT
         workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
         tar zxvf "${package##*/}" -C "$workdir"
         xx-verify --static "$workdir/docker/docker"
-        test -f "$workdir/docker/cli.LICENSE"
-        test -f "$workdir/docker/cli.README.md"
-        test "$(find "$workdir" -type f | wc -l)" -eq 3
+        test "$(find "$workdir" -type f | wc -l)" -eq 1
       )
     done
     if [ -z "$found" ]; then
@@ -73,15 +71,9 @@ RUN --mount=from=bin,target=/build <<EOT
         sha256sum -c "${package##*/}.sha256"
         unzip -l "${package##*/}"
         expected=$(printf '%s\n' \
-          docker/cli.LICENSE \
-          docker/cli.README.md \
           docker/containerd-shim-runhcs-v1.exe \
           docker/docker.exe \
-          docker/dockerd.exe \
-          docker/engine.LICENSE \
-          docker/engine.README.md \
-          docker/runhcs.LICENSE \
-          docker/runhcs.README.md)
+          docker/dockerd.exe)
         actual=$(unzip -Z1 "${package##*/}" | grep -v '/$' | LC_ALL=C sort)
         if [ "$actual" != "$expected" ]; then
           printf >&2 'error: unexpected files in %s\nexpected:\n%s\nactual:\n%s\n' "${package##*/}" "$expected" "$actual"

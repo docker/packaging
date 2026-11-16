@@ -217,40 +217,18 @@ if [ -n "$(xx-info variant)" ]; then
 fi
 mkdir -p "${pkgoutput}"
 
-workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
-mkdir -p "$workdir/docker"
-(
-  set -x
-  cp "${combined_builddir}"/* "$workdir/docker/"
-  cp "${ENGINE_SRCDIR}/LICENSE" "$workdir/docker/engine.LICENSE"
-  cp "${ENGINE_SRCDIR}/README.md" "$workdir/docker/engine.README.md"
-  cp "${CLI_SRCDIR}/LICENSE" "$workdir/docker/cli.LICENSE"
-  cp "${CLI_SRCDIR}/README.md" "$workdir/docker/cli.README.md"
-  if [ "$(xx-info os)" = "linux" ]; then
-    cp "${containerd_srcdir}/LICENSE" "$workdir/docker/containerd.LICENSE"
-    cp "${containerd_srcdir}/README.md" "$workdir/docker/containerd.README.md"
-  fi
-  if [ -d "$runc_srcdir" ]; then
-    cp "${runc_srcdir}/LICENSE" "$workdir/docker/runc.LICENSE"
-    cp "${runc_srcdir}/README.md" "$workdir/docker/runc.README.md"
-  fi
-  if [ -d "$runhcs_srcdir" ]; then
-    cp "${runhcs_srcdir}/LICENSE" "$workdir/docker/runhcs.LICENSE"
-    cp "${runhcs_srcdir}/README.md" "$workdir/docker/runhcs.README.md"
-  fi
-)
 if [ "$(xx-info os)" = "windows" ]; then
   pkgfile="${pkgoutput}/docker-${version}.zip"
   (
     set -x
-    cd "$workdir"
+    cd "$BUILDDIR"
     zip -r "$pkgfile" docker
   )
 else
   pkgfile="${pkgoutput}/docker-${version}.tgz"
   (
     set -x
-    tar -czf "$pkgfile" -C "$workdir" docker
+    tar -czf "$pkgfile" -C "$BUILDDIR" docker
   )
 fi
 write-sha256sum "$pkgfile"

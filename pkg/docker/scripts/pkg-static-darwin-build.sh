@@ -63,12 +63,7 @@ pkgoutput="$OUTDIR/static/darwin/$(xx-info arch)"
 mkdir -p "$pkgoutput"
 workdir=$(mktemp -d -t docker-packaging.XXXXXXXXXX)
 mkdir -p "$workdir/docker"
-(
-  set -x
-  cp -L "${cli_builddir}/docker" "$workdir/docker/docker"
-  cp "${CLI_SRCDIR}/LICENSE" "$workdir/docker/cli.LICENSE"
-  cp "${CLI_SRCDIR}/README.md" "$workdir/docker/cli.README.md"
-)
+cp -L "${cli_builddir}/docker" "$workdir/docker/docker"
 pkgfile="${pkgoutput}/docker-${VERSION#v}.tgz"
 tar -czf "$pkgfile" -C "$workdir" docker
 write-sha256sum "$pkgfile"
