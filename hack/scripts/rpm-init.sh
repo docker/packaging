@@ -23,6 +23,23 @@ fi
 
 set -e
 
+dnfRetry() {
+  local attempt status
+  for attempt in 1 2 3; do
+    if dnf "$@"; then
+      return 0
+    else
+      status=$?
+    fi
+    if [ "$attempt" -eq 3 ]; then
+      return "$status"
+    fi
+    echo "dnf $* failed (attempt $attempt/3), retrying in $((attempt * 5)) seconds..." >&2
+    dnf clean metadata
+    sleep "$((attempt * 5))"
+  done
+}
+
 swcolInstallGit() {
   local version=$1
   yum install -y "rh-git$version-git"
@@ -34,12 +51,13 @@ EOF
   chmod +x /usr/local/bin/git
 }
 
-if [[ "$pkgrelease" = rockylinux* ]]; then
+if [[ "$pkgrelease" = rockylinux* ]] || [[ "$pkgrelease" = almalinux* ]]; then
   # disable mirrors for better stability
   for repo in /etc/yum.repos.d/*.repo; do
     sed -i \
       -e 's/^\(mirrorlist=.*\)$/#\1/' \
-      -e 's/^#\(baseurl=.*\)$/\1/' \
+      -e 's/^#[[:space:]]*\(baseurl=.*\)$/\1/' \
+      -e 's|^baseurl=http://repo.almalinux.org/|baseurl=https://repo.almalinux.org/|' \
       "$repo"
   done
 fi
@@ -47,50 +65,50 @@ fi
 case "$pkgrelease" in
   centos9)
     rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
+    dnfRetry install -y git rpm-build rpmlint dnf-plugins-core epel-release epel-next-release
     dnf config-manager --set-enabled crb
     ;;
   centos10)
-    dnf install -y git rpm-build dnf-plugins-core
+    dnfRetry install -y git rpm-build dnf-plugins-core
     dnf config-manager --set-enabled crb
     ;;
   oraclelinux8)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
+    dnfRetry install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el8 oracle-epel-release-el8
     dnf config-manager --enable ol8_addons ol8_codeready_builder
     ;;
   oraclelinux9)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
+    dnfRetry install -y git rpm-build rpmlint dnf-plugins-core oraclelinux-release-el9 oracle-epel-release-el9
     dnf config-manager --enable ol9_addons ol9_codeready_builder
     ;;
   oraclelinux10)
-    dnf install -y dnf-plugins-core oraclelinux-release-el10 oracle-epel-release-el10
+    dnfRetry install -y dnf-plugins-core oraclelinux-release-el10 oracle-epel-release-el10
     dnf config-manager --enable ol10_addons ol10_codeready_builder
-    dnf install -y git rpm-build rpmlint
+    dnfRetry install -y git rpm-build rpmlint
     ;;
   fedora*)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core
+    dnfRetry install -y git rpm-build rpmlint dnf-plugins-core
     ;;
   rockylinux8|almalinux8)
-    dnf install -y git rpm-build rpmlint dnf-plugins-core epel-release
+    dnfRetry install -y git rpm-build rpmlint dnf-plugins-core epel-release
     dnf config-manager --set-enabled powertools
     ;;
   rockylinux10|almalinux10)
-    dnf install -y dnf-plugins-core epel-release
+    dnfRetry install -y dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     # skipping rpmlint until EPEL provides its EL10 dependencies
-    dnf install -y git rpm-build
+    dnfRetry install -y git rpm-build
     ;;
   rockylinux*|almalinux*)
-    dnf install -y dnf-plugins-core epel-release
+    dnfRetry install -y dnf-plugins-core epel-release
     dnf config-manager --set-enabled crb
     # crb repo is needed for rpmlint
-    dnf install -y git rpm-build rpmlint
+    dnfRetry install -y git rpm-build rpmlint
     ;;
   rhel*)
     # skipping rpmlint as it requires dependencies not available in ubi images
     # UBI images can ship newer RPM packages than their repositories provide.
     # Allow removing conflicting packages so RPM can match rpm-build's version.
-    dnf install -y --allowerasing git rpm-build dnf-plugins-core
+    dnfRetry install -y --allowerasing git rpm-build dnf-plugins-core
     ;;
 esac
 
