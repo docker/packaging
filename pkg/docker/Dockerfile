@@ -62,19 +62,33 @@ RUN apk add --no-cache bash curl file git zip tar
 
 FROM src-base AS engine-src
 WORKDIR /src
-ARG GIT_ADVICE=0
 ARG PKG_REPO
-RUN git init . && git remote add origin "${PKG_REPO}"
 ARG PKG_REF
-RUN git fetch origin "${PKG_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+ADD --keep-git-dir=true "${PKG_REPO}#${PKG_REF}" /src
+# Restore history and tags for version detection after ADD's shallow clone.
+RUN <<EOT
+  set -eu
+  if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+    git fetch --unshallow --tags origin
+  else
+    git fetch --tags origin
+  fi
+EOT
 
 FROM src-base AS cli-src
 WORKDIR /src
-ARG GIT_ADVICE=0
 ARG CLI_REPO
-RUN git init . && git remote add origin "${CLI_REPO}"
 ARG CLI_REF
-RUN git fetch origin "${CLI_REF}" +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
+ADD --keep-git-dir=true "${CLI_REPO}#${CLI_REF}" /src
+# Restore history and tags for version detection after ADD's shallow clone.
+RUN <<EOT
+  set -eu
+  if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+    git fetch --unshallow --tags origin
+  else
+    git fetch --tags origin
+  fi
+EOT
 
 # metadata
 FROM src-base AS metadata-builder
