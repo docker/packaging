@@ -72,12 +72,25 @@ RUN --mount=from=bin,target=/build <<EOT
         cd "${package%/*}"
         sha256sum -c "${package##*/}.sha256"
         unzip -l "${package##*/}"
+        expected=$(printf '%s\n' \
+          docker/cli.LICENSE \
+          docker/cli.README.md \
+          docker/containerd-shim-runhcs-v1.exe \
+          docker/docker.exe \
+          docker/dockerd.exe \
+          docker/engine.LICENSE \
+          docker/engine.README.md \
+          docker/runhcs.LICENSE \
+          docker/runhcs.README.md)
+        actual=$(unzip -Z1 "${package##*/}" | grep -v '/$' | LC_ALL=C sort)
+        if [ "$actual" != "$expected" ]; then
+          printf >&2 'error: unexpected files in %s\nexpected:\n%s\nactual:\n%s\n' "${package##*/}" "$expected" "$actual"
+          exit 1
+        fi
         workdir=$(mktemp -d -t docker-verify.XXXXXXXXXX)
         unzip -q "${package##*/}" -d $workdir
         xx-verify --static $workdir/docker/docker.exe
         xx-verify --static $workdir/docker/dockerd.exe
-        xx-verify --static $workdir/docker/containerd.exe
-        xx-verify --static $workdir/docker/ctr.exe
         xx-verify --static $workdir/docker/containerd-shim-runhcs-v1.exe
       )
     done
