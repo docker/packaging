@@ -1,0 +1,16 @@
+Source: docker-offload-plugin
+Section: admin
+Priority: optional
+Maintainer: Docker <support@docker.com>
+Homepage: https://www.docker.com
+Standards-Version: 3.9.6
+Build-Depends: bash,
+               debhelper-compat (= 13),
+               make
+
+Package: docker-offload-plugin
+Priority: optional
+Architecture: linux-any
+Enhances: docker-ce-cli
+Description: Docker Offload plugin for the Docker CLI.
+Homepage: https://docs.docker.com/offload/
