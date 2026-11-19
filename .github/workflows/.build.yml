@@ -230,6 +230,11 @@ jobs:
             ${{ inputs.vars }}
           set: |
             *.platform=${{ matrix.platform }}
+      -
+        name: Verify network
+        if: ${{ inputs.name == 'docker-engine' && matrix.distro == 'rhel10' }}
+        run: |
+          ./hack/scripts/verify-docker-engine-network.sh "${{ matrix.distro }}" "${{ matrix.platform }}"
 
   release:
     runs-on: ubuntu-24.04
