@@ -91,8 +91,8 @@ variable "PKG_PLATFORMS_BASE" {
     model = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "linux/arm/v7", "windows/amd64", "windows/arm64"]
     # https://github.com/docker/docker-agent/blob/5b9feaabe743a5ad577f2247ed55d5dcb2678e8b/Taskfile.yml#L79
     agent = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
-    # Linux packages only; darwin and windows ship through the source repo.
-    offload = ["linux/amd64", "linux/arm64"]
+    # darwin and windows are static archives only. The linux platforms also build a static archive.
+    offload = ["darwin/amd64", "darwin/arm64", "linux/amd64", "linux/arm64", "windows/amd64", "windows/arm64"]
   }
 }
 
@@ -105,8 +105,6 @@ variable "PKG_DISTROS" {
   description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
   default = {
     docker  = ["static"]
-    # Every distro except static: the offload Dockerfile has no builder-static stage.
-    offload = [for distro in DISTROS : distro if distro != "static"]
   }
 }
 
