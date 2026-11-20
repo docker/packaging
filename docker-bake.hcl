@@ -105,7 +105,8 @@ variable "PKG_DISTROS" {
   description = "Package-specific distro mapping. Packages omitted here build for all DISTROS."
   default = {
     docker  = ["static"]
-    offload = ["ubuntu2404", "ubuntu2604", "rockylinux8"]
+    # Every distro except static: the offload Dockerfile has no builder-static stage.
+    offload = [for distro in DISTROS : distro if distro != "static"]
   }
 }
 
