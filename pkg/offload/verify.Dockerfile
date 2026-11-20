@@ -104,4 +104,60 @@ RUN --mount=from=bin,target=/build <<EOT
   fi
 EOT
 
+# The darwin and windows binaries cannot run in this Linux container, so check each archive:
+# checksum, layout, and that the binary matches the platform in its path and holds the version.
+# Only an archive whose platform equals the container's platform (linux) also runs the plugin and
+# checks the version from its metadata; the others check the version as a string in the binary.
+# Signatures are not checked.
+FROM base AS verify-static
+RUN apt-get update && apt-get install -y --no-install-recommends file tar unzip
+COPY --from=xx / /
+ARG TARGETPLATFORM
+ARG VERSION
+RUN --mount=from=bin,target=/build <<EOT
+  set -e
+  packages=$(find /build -type f \( -name '*.tgz' -o -name '*.zip' \) | sort)
+  if [ -z "$packages" ]; then
+    echo >&2 "error: no static archives found in /build"
+    exit 1
+  fi
+  for package in $packages; do
+    (
+      set -x
+      dir="${package%/*}"
+      name="${package##*/}"
+      platform="${dir#*/static/}"
+      os="${platform%%/*}"
+      arch="${platform#*/}"
+      arch="${arch%%/*}"
+      ext=""
+      [ "$os" = windows ] && ext=".exe"
+      cd "$dir"
+      sha256sum -c "${name}.sha256"
+      tmp=$(mktemp -d)
+      case "$name" in
+        *.tgz) tar -xzf "$name" -C "$tmp" ;;
+        *.zip) unzip -q "$name" -d "$tmp" ;;
+      esac
+      test "$(ls "$tmp" | tr '\n' ' ')" = "cli-plugins doc "
+      test "$(ls "$tmp/cli-plugins")" = "docker-offload${ext}"
+      test -x "$tmp/cli-plugins/docker-offload${ext}"
+      test -s "$tmp/doc/LICENSE"
+      test -s "$tmp/doc/README.md"
+      TARGETPLATFORM="${os}/${arch}" xx-verify --static "$tmp/cli-plugins/docker-offload${ext}"
+      if [ "$os/$arch" = "$(xx-info os)/$(xx-info arch)" ]; then
+        "$tmp/cli-plugins/docker-offload${ext}" docker-cli-plugin-metadata
+        if [ -n "$VERSION" ]; then
+          "$tmp/cli-plugins/docker-offload${ext}" docker-cli-plugin-metadata \
+            | grep -F "\"Version\": \"$VERSION\""
+        fi
+      elif [ -n "$VERSION" ]; then
+        # shortcut: substring match, so v0.7.1 also matches a v0.7.10 binary.
+        # The binary cannot run here; upgrade if a way to read its version appears.
+        grep -aqF "$VERSION" "$tmp/cli-plugins/docker-offload${ext}"
+      fi
+    )
+  done
+EOT
+
 FROM verify-${DISTRO_TYPE} AS verify

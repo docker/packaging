@@ -44,6 +44,9 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 # go base image to retrieve /usr/local/go
 FROM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go
 
+# go toolchain for the build platform, used by static to cross compile for any target platform
+FROM --platform=$BUILDPLATFORM ${GO_IMAGE}:${GO_VERSION}-${GO_IMAGE_VARIANT} AS go-build
+
 # deb
 FROM ${DISTRO_IMAGE} AS builder-deb
 COPY --from=xx / /
@@ -107,6 +110,29 @@ RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=secret,id=build-env,target=/run/secrets/build-env \
     OUTDIR=/out SRCDIR=/usr/local/src/offload BUILD_ENV_FILE=/run/secrets/build-env pkg-rpm-build
+
+# static
+# Compiles from source, like the deb and rpm builders, and archives the unsigned binary.
+FROM --platform=$BUILDPLATFORM ${DISTRO_IMAGE} AS builder-static
+COPY --from=xx / /
+RUN apt-get update && apt-get install -y --no-install-recommends bash file make tar zip
+ENV GOPATH="/go"
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+ENV GOTOOLCHAIN="local"
+ARG PKG_NAME
+ARG VERSION
+ARG COMMIT
+ARG BUILD
+ARG DATE
+WORKDIR /build
+ARG TARGETPLATFORM
+RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
+    --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
+    --mount=type=bind,from=src,target=/usr/local/src/offload,rw \
+    --mount=type=bind,from=go-build,source=/usr/local/go,target=/usr/local/go,rw \
+    --mount=type=secret,id=build-env,target=/run/secrets/build-env \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/offload \
+    BUILD_ENV_FILE=/run/secrets/build-env pkg-static-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg
 ARG BUILDKIT_SBOM_SCAN_STAGE=true
