@@ -18,8 +18,14 @@ override_dh_strip:
 
 override_dh_dwz:
 
+# dh_compress gzips files over 4k in usr/share/doc. Keep the license files readable as installed.
+override_dh_compress:
+	dh_compress -X LICENSE -X THIRD-PARTY-NOTICES
+
 override_dh_auto_install:
 	install -D -p -m 0755 $(CURDIR)/offload/dist/docker-offload debian/docker-offload-plugin/usr/libexec/docker/cli-plugins/docker-offload
+	install -D -p -m 0644 $(CURDIR)/offload/LICENSE debian/docker-offload-plugin/usr/share/doc/docker-offload-plugin/LICENSE
+	install -D -p -m 0644 $(CURDIR)/notices/THIRD-PARTY-NOTICES debian/docker-offload-plugin/usr/share/doc/docker-offload-plugin/THIRD-PARTY-NOTICES
 
 %:
 	dh $@

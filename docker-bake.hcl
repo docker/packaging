@@ -697,7 +697,7 @@ target "_pkg-agent" {
 
 # The source repo is private, so there is no PKG_REPO/PKG_REF clone. Offload is not in PKGS_BASE.
 # The offload repo adds it through PKGS_EXTRA in a remote override, and sets the VERSION, COMMIT,
-# BUILD and DATE args, the build-env secret and the src named context there.
+# BUILD and DATE args, the build-env secret and the src and notices named contexts there.
 target "_pkg-offload" {
   args = {
     PKG_NAME = PKG_NAME != null && PKG_NAME != "" ? PKG_NAME : "docker-offload-plugin"

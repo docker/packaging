@@ -33,6 +33,7 @@
 
 : "${SOURCE_DATE_EPOCH=}"
 : "${SRCDIR=./offload}"
+: "${NOTICESDIR=./notices}"
 : "${OUTDIR=/out}"
 : "${BUILD_ENV_FILE=}"
 
@@ -58,6 +59,13 @@ if [ ! -f "${SRCDIR}/Makefile" ]; then
   echo >&2 "error: no Makefile in ${SRCDIR}; pass the source tree as the src named context"
   exit 1
 fi
+
+for doc in "${SRCDIR}/LICENSE" "${NOTICESDIR}/THIRD-PARTY-NOTICES"; do
+  if [ ! -s "$doc" ]; then
+    echo >&2 "error: ${doc} is missing or empty; pass the source tree as the src named context and the release notices as the notices named context"
+    exit 1
+  fi
+done
 
 mkdir -p "$OUTDIR"
 

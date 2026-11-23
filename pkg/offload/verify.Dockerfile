@@ -55,6 +55,9 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       dpkg-deb --info $package
+      # Check the package contents, not the installed files, as some base images exclude /usr/share/doc.
+      dpkg-deb --contents $package | grep -E ' \./usr/share/doc/docker-offload-plugin/LICENSE$'
+      dpkg-deb --contents $package | grep -E ' \./usr/share/doc/docker-offload-plugin/THIRD-PARTY-NOTICES$'
       apt-get update
       apt-get install -y --no-install-recommends $package
     )
@@ -93,6 +96,8 @@ RUN --mount=from=bin,target=/build <<EOT
     (
       set -x
       rpm -qilp $package
+      rpm -qLp $package | grep -E '/docker-offload-plugin/LICENSE$'
+      rpm -qLp $package | grep -E '/docker-offload-plugin/THIRD-PARTY-NOTICES$'
       dnf install -y $package
     )
   done
@@ -144,6 +149,7 @@ RUN --mount=from=bin,target=/build <<EOT
       test -x "$tmp/cli-plugins/docker-offload${ext}"
       test -s "$tmp/doc/LICENSE"
       test -s "$tmp/doc/README.md"
+      test -s "$tmp/doc/THIRD-PARTY-NOTICES"
       TARGETPLATFORM="${os}/${arch}" xx-verify --static "$tmp/cli-plugins/docker-offload${ext}"
       if [ "$os/$arch" = "$(xx-info os)/$(xx-info arch)" ]; then
         "$tmp/cli-plugins/docker-offload${ext}" docker-cli-plugin-metadata

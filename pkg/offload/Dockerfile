@@ -38,6 +38,10 @@ FROM scratch AS scripts
 # Go dependencies already vendored. There is no git clone fallback.
 FROM scratch AS src
 
+# THIRD-PARTY-NOTICES of the release, passed in by the caller as the notices named context. The
+# file is at the root of the context. There is no fallback, the build fails without it.
+FROM scratch AS notices
+
 # cross compilation helper
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
@@ -75,9 +79,11 @@ ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-deb-build.sh,target=/usr/local/bin/pkg-deb-build \
     --mount=type=bind,from=scripts,source=gen-deb-changelog.sh,target=/usr/local/bin/gen-deb-changelog \
     --mount=type=bind,from=src,target=/root/package/offload,rw \
+    --mount=type=bind,from=notices,target=/root/package/notices \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=secret,id=build-env,target=/run/secrets/build-env \
-    OUTDIR=/out SRCDIR=./offload BUILD_ENV_FILE=/run/secrets/build-env pkg-deb-build
+    OUTDIR=/out SRCDIR=./offload NOTICESDIR=./notices \
+    BUILD_ENV_FILE=/run/secrets/build-env pkg-deb-build
 
 # rpm
 FROM ${DISTRO_IMAGE} AS builder-rpm
@@ -107,9 +113,11 @@ ARG PKG_RPM_RELEASE
 ARG SOURCE_DATE_EPOCH
 RUN --mount=type=bind,source=scripts/pkg-rpm-build.sh,target=/usr/local/bin/pkg-rpm-build \
     --mount=type=bind,from=src,target=/usr/local/src/offload,rw \
+    --mount=type=bind,from=notices,target=/usr/local/src/notices \
     --mount=type=bind,from=go,source=/usr/local/go,target=/usr/local/go \
     --mount=type=secret,id=build-env,target=/run/secrets/build-env \
-    OUTDIR=/out SRCDIR=/usr/local/src/offload BUILD_ENV_FILE=/run/secrets/build-env pkg-rpm-build
+    OUTDIR=/out SRCDIR=/usr/local/src/offload NOTICESDIR=/usr/local/src/notices \
+    BUILD_ENV_FILE=/run/secrets/build-env pkg-rpm-build
 
 # static
 # Compiles from source, like the deb and rpm builders, and archives the unsigned binary.
@@ -129,9 +137,10 @@ ARG TARGETPLATFORM
 RUN --mount=type=bind,source=scripts/pkg-static-build.sh,target=/usr/local/bin/pkg-static-build \
     --mount=type=bind,from=scripts,source=write-sha256sum.sh,target=/usr/local/bin/write-sha256sum \
     --mount=type=bind,from=src,target=/usr/local/src/offload,rw \
+    --mount=type=bind,from=notices,target=/usr/local/src/notices \
     --mount=type=bind,from=go-build,source=/usr/local/go,target=/usr/local/go,rw \
     --mount=type=secret,id=build-env,target=/run/secrets/build-env \
-    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/offload \
+    OUTDIR=/out BUILDDIR=/build SRCDIR=/usr/local/src/offload NOTICESDIR=/usr/local/src/notices \
     BUILD_ENV_FILE=/run/secrets/build-env pkg-static-build
 
 FROM builder-${DISTRO_TYPE} AS build-pkg

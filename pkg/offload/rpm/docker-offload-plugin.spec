@@ -34,8 +34,12 @@ test "$ver" = "%{_origversion}" && echo "PASS: docker-offload version OK" || { e
 
 %install
 install -D -p -m 0755 %{_srcdir}/dist/docker-offload ${RPM_BUILD_ROOT}%{_libexecdir}/docker/cli-plugins/docker-offload
+install -D -p -m 0644 %{_srcdir}/LICENSE docker-offload-plugin-docs/LICENSE
+install -D -p -m 0644 %{_noticesdir}/THIRD-PARTY-NOTICES docker-offload-plugin-docs/THIRD-PARTY-NOTICES
 
 %files
+%license docker-offload-plugin-docs/LICENSE
+%license docker-offload-plugin-docs/THIRD-PARTY-NOTICES
 %{_libexecdir}/docker/cli-plugins/docker-offload
 
 %changelog

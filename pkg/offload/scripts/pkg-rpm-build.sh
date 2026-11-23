@@ -32,6 +32,7 @@
 
 : "${SOURCE_DATE_EPOCH=}"
 : "${SRCDIR=/usr/local/src/offload}"
+: "${NOTICESDIR=/usr/local/src/notices}"
 : "${OUTDIR=/out}"
 : "${BUILD_ENV_FILE=}"
 
@@ -58,6 +59,13 @@ if [ ! -f "${SRCDIR}/Makefile" ]; then
   exit 1
 fi
 
+for doc in "${SRCDIR}/LICENSE" "${NOTICESDIR}/THIRD-PARTY-NOTICES"; do
+  if [ ! -s "$doc" ]; then
+    echo >&2 "error: ${doc} is missing or empty; pass the source tree as the src named context and the release notices as the notices named context"
+    exit 1
+  fi
+done
+
 mkdir -p "$OUTDIR"
 
 if ! command -v xx-info &> /dev/null; then
@@ -79,6 +87,7 @@ rpmDefine=(
   --define "_origversion ${VERSION}"
   --define "_release ${PKG_RPM_RELEASE:-1}"
   --define "_srcdir ${SRCDIR}"
+  --define "_noticesdir ${NOTICESDIR}"
   --define "_commit ${COMMIT:-$nil}"
   --define "_buildnum ${BUILD:-$nil}"
   --define "_date ${DATE:-$nil}"
