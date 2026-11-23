@@ -24,6 +24,7 @@
 
 : "${BUILDDIR=/work/build}"
 : "${SRCDIR=/usr/local/src/offload}"
+: "${NOTICESDIR=/usr/local/src/notices}"
 : "${OUTDIR=/out}"
 
 set -e
@@ -71,6 +72,10 @@ for doc in LICENSE README.md; do
     exit 1
   fi
 done
+if [ ! -s "${NOTICESDIR}/THIRD-PARTY-NOTICES" ]; then
+  echo >&2 "error: no THIRD-PARTY-NOTICES in ${NOTICESDIR}; pass the release notices as the notices named context"
+  exit 1
+fi
 
 pkgoutput="$OUTDIR/static/$(xx-info os)/$(xx-info arch)"
 if [ -n "$(xx-info variant)" ]; then
@@ -83,7 +88,7 @@ mkdir -p "$workdir/cli-plugins" "$workdir/doc"
 (
   set -x
   cp "$bin" "$workdir/cli-plugins/"
-  cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "$workdir/doc/"
+  cp "${SRCDIR}/LICENSE" "${SRCDIR}/README.md" "${NOTICESDIR}/THIRD-PARTY-NOTICES" "$workdir/doc/"
 )
 if [ "$(xx-info os)" = "windows" ]; then
   pkgfile="${pkgoutput}/${PKG_NAME}_${VERSION#v}.zip"

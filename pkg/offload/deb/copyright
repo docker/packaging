@@ -5,4 +5,5 @@ Source: https://docs.docker.com/offload/
 Files: *
 Copyright: Docker, Inc.
 License: Proprietary
- All rights reserved.
+ All rights reserved. See LICENSE in this directory for the license text, and
+ THIRD-PARTY-NOTICES for the licenses of the bundled third-party code.
