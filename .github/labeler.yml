@@ -48,3 +48,7 @@ area/pkg/docker-engine:
 area/pkg/model:
   - changed-files:
     - any-glob-to-any-file: 'pkg/model/**'
+
+area/pkg/offload:
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/offload/**'
