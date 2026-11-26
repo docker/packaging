@@ -19,6 +19,11 @@ Recommends: docker-ce-rootless-extras
 Requires: container-selinux
 Requires: systemd
 %if 0%{?rhel} >= 10
+# EL10 moved iptables-related kernel modules to kernel-modules-extra.
+# EL10.1 introduced the matched metapackage to cover kernel upgrades.
+# CentOS Stream does not use minor release versions.
+Recommends: (kernel-modules-extra-matched if (system-release >= 10.1 or centos-stream-release) else (kernel-modules-extra if kernel-modules-core))
+
 # EL10 UBI repositories do not provide iptables or iptables-nft.
 Recommends: (iptables-nft or iptables)
 %else
